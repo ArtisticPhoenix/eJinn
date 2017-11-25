@@ -29,21 +29,21 @@ Auto Create Child Exceptions
 
  Then with a simple command you can generate Exception classes bassed on the `"codes"` object.
 
- - **author** ######(string)###### : Your name, included in the Doc Block `@author` for the Excpetion class
+ - **author**  : Your name, included in the Doc Block `@author` for the Excpetion class
  
  - **package** : Your package, included in the Doc Block `@package` for the Excpetion class
 
  - **subpackage** : Your sub package, included in the Doc Block `@subpackage` for the Excpetion class
 
- - **support** : a link or email for support or documention, included in the Doc Block `@see` for the Excpetion class
+ - **support** : Link or email for support or documention, included in the Doc Block `@see` for the Excpetion class
  
- - **license** : license included in the Doc Block `@license`
+ - **license** : License included in the Doc Block `@license`
 
  - **version** : Your exception version.  Changing it will force rebuilding already created classes the next time the generator is ran. Included in the Doc Block `@version`
  
- - **buildPath** : location to place the Generated Exception files
+ - **buildPath** : Location to place the Generated Exception files
  
- - **interface** : Array of interfaces to impliment. These should be an "empty" interface, useful for catching excptions with diffrent namespaces
+ - **interface** : List of interfaces to impliment. These should be an "empty" interface, useful for catching excptions with diffrent namespaces
  
  - **namespace** : Namespace for the exception classes
  
