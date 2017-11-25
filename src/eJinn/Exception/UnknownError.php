@@ -2,6 +2,8 @@
 namespace eJinn\Exception;
 
 /**
+ * 
+ * eJinn The Exception Genie
  *
  * @author ArtisticPhoenix
  * @license GPL-3.0

@@ -15,6 +15,7 @@ _(pronunced eeGin)_
  ```json
 {
     "author" : "ArtisticPhoenix",
+    "description" : "eJinn The Error Genie",
     "package" : "eJinn",
     "subpackage" : "Exception",
     "support" : "https://github.com/ArtisticPhoenix/eJinn/issues",
@@ -36,6 +37,8 @@ _(pronunced eeGin)_
  Then with a simple command you can generate Exception classes bassed on the `"exception"` object.
 
  - **author**  : Your name, included in the Doc Block `@author` for the Excpetion class.
+ 
+ - **description** : Short discription placed in the Doc Block
  
  - **package** : Your package, included in the Doc Block `@package` for the Excpetion class.
 

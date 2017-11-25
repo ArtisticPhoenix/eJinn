@@ -1,5 +1,6 @@
 {
     "author" : "ArtisticPhoenix",
+    "description" : "eJinn The Exception Genie",
     "package" : "eJinn",
     "subpackage" : "Exception",
     "support" : "https://github.com/ArtisticPhoenix/eJinn/issues",
