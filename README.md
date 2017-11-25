@@ -53,4 +53,4 @@ Auto Create Child Exceptions
  
  - **exception** : A list of Excptions, this is an Object because then we force yo to use a numeric 'key'  ( which is the error code ) and this also forces it to be unique for each config file. 
  
-  - **class** :  Error code -> Class pair
+    - **class** :  Error code -> Class pair
