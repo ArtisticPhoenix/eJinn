@@ -60,7 +60,7 @@ _(pronunced eeGin)_
  
     - **class** :  Error code -> Class pair
 
-    - _(Overwrite)_ : You can use any of the top level tags in and `exception` object to override the default value
+    - _(Overwrite)_ : You can use any of the top level tags in a nested `exception` object to override the default value
     
 General principals and benifits of using "these" types of Exceptions:
     
