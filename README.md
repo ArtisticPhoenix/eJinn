@@ -28,7 +28,7 @@ _(pronunced eeGin)_
     ],
     "exception" : {
         "0" : {
-        	"class":"UnknownError"
+        	    "class":"UnknownError"
         }
     }
 }
