@@ -21,7 +21,7 @@ Auto Create Child Exceptions
     "buildPath" : "Exception",
     "namespace" : "",
     "interface" : [],
-    "codes" : {
+    "code" : {
         "0" : "UnknownError"
     }
 }
@@ -29,13 +29,13 @@ Auto Create Child Exceptions
 
  Then with a simple command you can generate Exception classes bassed on the `"codes"` object.
 
- - packageAuthor : (optional) Your name, included in the Doc Block for the Excpetion class
+ - packageAuthor : Your name, included in the Doc Block for the Excpetion class
  
- - package : (optional) Your package, included in the Doc Block for the Excpetion class
+ - package : Your package, included in the Doc Block for the Excpetion class
 
- - subPackage : (optional) Your sub package, included in the Doc Block for the Excpetion class
+ - subPackage : Your sub package, included in the Doc Block for the Excpetion class
 
- - support : (optional) a link or email for support or documention, included in the Doc Block for the Excpetion class
+ - support : a link or email for support or documention, included in the Doc Block for the Excpetion class
  
  - license : license 
 
@@ -43,8 +43,8 @@ Auto Create Child Exceptions
  
  - buildPath : location to place the Generated Exception files
  
- - interface : this should be an "empty" interface, useful for catching excptions with diffrent namespaces
+ - interface : Array of interfaces to impliment. These should be an "empty" interface, useful for catching excptions with diffrent namespaces
  
  - namespace : Namespace for the exception classes
  
- - codes :  Error code -> Class pair
+ - code :  Error code -> Class pair
