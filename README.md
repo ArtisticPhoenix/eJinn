@@ -1,5 +1,7 @@
-# Exception
-Auto Create Child Exceptions 
+# eJinn 
+_(pronunced eeGin)_
+
+**The Exception Genie**
 
  - Do you like having 1 exception per exception class? 
  - Are you tired of creating those boring boliler plate classes?
