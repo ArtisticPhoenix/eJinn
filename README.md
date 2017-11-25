@@ -44,7 +44,7 @@ _(pronunced eeGin)_
 
  - **subpackage** : Your sub package, included in the Doc Block `@subpackage` for the Excpetion class
 
- - **support** : Link or email for support or documention, included in the Doc Block `@see` for the Excpetion class.
+ - **support** : Link or email for support or documention, included in the Doc Block `@link` for the Excpetion class.
  
  - **license** : License included in the Doc Block `@license`.
 
