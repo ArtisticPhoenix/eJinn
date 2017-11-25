@@ -7,7 +7,9 @@
 	],
 	"autoload" : {
 		"psr-4" : {
-			"\\" : "src/EvoException"
+			"\\" : "src/EvoException",
+			"eJinn\\" : "src/eJinn",
+			"eJinn\\Exception\\" : "src/eJinn/Exception"
 		}
 	},
 	"support" : {

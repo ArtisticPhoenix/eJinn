@@ -1,8 +1,0 @@
-{
-	"version" : "1.0.0",
-	"buildPath" : "Exception",
-	"namespace" : "",
-	"codes" : {
-		"0" : "UnknownError"
-	}
-}

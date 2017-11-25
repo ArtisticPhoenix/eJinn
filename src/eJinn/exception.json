@@ -1,0 +1,18 @@
+{
+    "author" : "ArtisticPhoenix",
+    "package" : "eJinn",
+    "subpackage" : "Exception",
+    "support" : "https://github.com/ArtisticPhoenix/eJinn/issues",
+    "license" : "GPL-3.0",
+    "version" : "1.0.0",
+    "buildPath" : "Exception",
+    "namespace" : "eJinn\\Exception",
+    "interface" : [
+        "eJinn\\ExceptionInterface"
+    ],
+    "exception" : {
+        "0" : {
+        	"class":"UnknownError"
+        }
+    }
+}
