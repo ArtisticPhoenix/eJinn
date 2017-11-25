@@ -54,3 +54,5 @@ Auto Create Child Exceptions
  - **exception** : A list of Excptions, this is an Object because then we force yo to use a numeric 'key'  ( which is the error code ) and this also forces it to be unique for each config file. 
  
     - **class** :  Error code -> Class pair
+
+    - _(Overwrite)_ : You can use any of the top level tags in and `exception` object to override the default value
