@@ -10,7 +10,8 @@ Auto Create Child Exceptions
  
  It uses a simple `.json` file to configure your exceptions. 
  
- `{
+ ```json
+ {
     "packageAuthor" : "Yourname"
  	"package" : "eJinn",
  	"subPackage" : "",
@@ -23,8 +24,9 @@ Auto Create Child Exceptions
 	"codes" : {
 		"0" : "UnknownError"
 	}
-}`
- 
+}
+```
+
  Then with a simple command you can generate Exception classes bassed on the `"codes"` object.
 
  - packageAuthor : (optional) Your name, included in the Doc Block for the Excpetion class
