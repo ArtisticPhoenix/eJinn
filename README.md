@@ -5,7 +5,7 @@ _(pronunced eeGin)_
 
  - Do you like having 1 exception per exception class? 
  - Are you tired of creating those boring boliler plate classes?
- - Do you like having error codes that are uniuqe in you're library, or project?
+ - Do you like having error codes that are unique in you're whole library, or project?
  - Are you tired of keeping track of all those pesky exception codes?
  
  Then this little framework may be just for you!
