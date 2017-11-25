@@ -27,7 +27,7 @@ Auto Create Child Exceptions
 }
 ```
 
- Then with a simple command you can generate Exception classes bassed on the `"codes"` object.
+ Then with a simple command you can generate Exception classes bassed on the `"code"` object.
 
  - **author**  : Your name, included in the Doc Block `@author` for the Excpetion class
  
