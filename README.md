@@ -11,19 +11,19 @@ Auto Create Child Exceptions
  It uses a simple `.json` file to configure your exceptions. 
  
  ```json
- {
+{
     "packageAuthor" : "Yourname"
- 	"package" : "eJinn",
- 	"subPackage" : "",
- 	"support" : "",
- 	"license" : "GPL-3.0",
-	"version" : "1.0.0",
-	"buildPath" : "Exception",
-	"namespace" : "",
-	"interface" : [],
-	"codes" : {
-		"0" : "UnknownError"
-	}
+    "package" : "eJinn",
+    "subPackage" : "",
+    "support" : "",
+    "license" : "GPL-3.0",
+    "version" : "1.0.0",
+    "buildPath" : "Exception",
+    "namespace" : "",
+    "interface" : [],
+    "codes" : {
+        "0" : "UnknownError"
+    }
 }
 ```
 
