@@ -1,7 +1,6 @@
 <?php
 
 
-class eJinnGenerator{
-    
-    
+class eJinnGenerator
+{
 }
