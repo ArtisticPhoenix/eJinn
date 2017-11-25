@@ -120,3 +120,4 @@ All eJinn excptions will impliment `\eJinn\ExceptionInterface`.  Rememeber we ca
 
 I'm sure this isn't the end of the story.
 
+
