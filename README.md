@@ -119,3 +119,4 @@ Then after you add it in the **interface** entry in your `exception.json` file, 
 All eJinn excptions will impliment `\eJinn\ExceptionInterface`.  Rememeber we can impliment as many as we want so might as well right, it could come in handy.
 
 I'm sure this isn't the end of the story.
+
