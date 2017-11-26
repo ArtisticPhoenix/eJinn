@@ -6,14 +6,17 @@
     "support" : "https://github.com/ArtisticPhoenix/eJinn/issues",
     "license" : "GPL-3.0",
     "version" : "1.0.0",
-    "buildPath" : "Exception",
+    "buildpath" : "Exception",
     "namespace" : "eJinn\\Exception",
-    "interface" : [
-        "eJinn\\ExceptionInterface"
-    ],
+    "extends" : "Exception",
     "exception" : {
-        "0" : {
-        	"class":"UnknownError"
+        "code0" : {
+        		"class":"UnknownError"
+        },"code1" : {
+        		"class":"JsonError"
         }
-    }
+    },
+    "interface" : [{
+        "class" : "eJinn\\eJinnException"
+    }]
 }

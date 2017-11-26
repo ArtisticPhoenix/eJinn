@@ -4,6 +4,7 @@ namespace eJinn\Exception;
 /**
  * 
  * eJinn The Exception Genie
+ * (eJinn genenerated class, do not edit)
  *
  * @author ArtisticPhoenix
  * @license GPL-3.0
@@ -11,8 +12,9 @@ namespace eJinn\Exception;
  * @package eJinn
  * @subpackage Exception
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
+ * @cacheKey afewadsff2324rsfsfdfDFE323Q
  */
-class UnknownError extends \Exception implements \eJinn\ExceptionInterface
+class UnknownError extends \Exception implements \eJinn\Exception\eJinnException
 {
    
     /**
