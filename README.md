@@ -10,32 +10,34 @@ _(pronunced eeGin)_
  
 Then this little framework may be just for you!
  
-eJinn builds exception classes for you! eJinn keeps track of changes made to the configuration of each exception. This lets you bootstrap it in your project and it will only build the exceptions it needs to at run time.  Of course you can precompile your exceptions too. eJinn employees a _Multiple Reader_ concept so with a bit of work you can use various types of config files, such as Json, XML, and even a stored PHP array.  The default type is a stored PHP array.
+**eJin** builds exception classes for you! **eJin** keeps track of changes made to the configuration of each exception. This lets you bootstrap it in your project and it will only build the exceptions it needs to at run time.  Of course you can precompile your exceptions too. **eJin** employees a _Multiple Reader_ concept so with a bit of work you can use various types of config files, such as Json, XML, and even a stored PHP array.  The default type is a stored PHP array.
  
  
  ```php
 [
-    "author" => "ArtisticPhoenix",
-    "description" => "eJinn The Exception Genie",
-    "package" => "eJinn",
-    "subpackage" => "Exception",
-    "support" => "https://github.com/ArtisticPhoenix/eJinn/issues",
-    "version" => "1.0.0",
-    "buildpath" => "Exception",
-    "namespace" => "eJinn\\Exception",
-    "extends" => "Exception",    
-    "interface" => [
+   "author" => "ArtisticPhoenix",
+   "description" => "eJinn The Exception Genie",
+   "package" => "eJinn",
+   "subpackage" => "Exception",
+   "support" => "https://github.com/ArtisticPhoenix/eJinn/issues",
+   "version" => "1.0.0",
+   "buildpath" => "Exception",
+   "namespace" => "eJinn\\Exception",
+   "extends" => "Exception",    
+   "interface" => [
 		[
 			"class" => "eJinnException"
 		]
-	],
-	"exception" => [
-        "code0" => [
-        		"class":"UnknownError"
-        ],"code1" => [
-        		"class":"JsonError"
-        ]
-    ],
+   ],
+   "exception" => [
+		[
+			"class" => "eJinnException",
+			"code" => 0,
+		],[
+       		"class" => "JsonError",
+			"code" => 1,
+       ]
+   ],
 ]
 ```
 
@@ -46,20 +48,20 @@ eJinn builds exception classes for you! eJinn keeps track of changes made to the
 
  - **author:** Your name, included in the Doc Block `@author` for the Excpetion class.
  
- - **description:** Short discription placed in the Doc Block
+ - **description:** Short discription placed in the Doc Block.
  
  - **package:** Your package, included in the Doc Block `@package` for the Excpetion class.
 
- - **subpackage:** Your sub package, included in the Doc Block `@subpackage` for the Excpetion class
+ - **subpackage:** Your sub package, included in the Doc Block `@subpackage` for the Excpetion class.
 
  - **support:** Link or email for support or documention, included in the Doc Block `@link` for the Excpetion class.
 
- - +**version:** Your exception version.  Changing it will force rebuilding already created classes the next time the generator is ran. Included in the Doc Block `@version`.
+ - _[required]_**version:** Your exception version.  Changing it will force rebuilding already created classes the next time the generator is ran. Included in the Doc Block `@version`.
  
- - +**buildpath:** _[Required]_ Location to place the generated files _(Exceptions and Interfaces)_.
+ - _[required]_**buildpath:** Location to place the generated files _(Exceptions and Interfaces)_.
  
  - **interface:** List of Interfaces to impliment. These should be an "empty" interface, useful for catching excptions with diffrent namespaces.
-     - +**class:** _[Required]_ Relative Class name of the interface _(without the namespace).
+     - _[required]_**class:** Relative Class name of the interface _(without the namespace).
 
      -  _(Overwrite):_ You can use any of the top level tags in a nested `interface` array, this includes the _"exception"_ properties. If an exception is nested in the _"interface"_ property, then it will inherit first from the interface item it's nested in and then from the top level ( global ) properties.
  
@@ -67,9 +69,11 @@ eJinn builds exception classes for you! eJinn keeps track of changes made to the
  
  - **extends:** Base exception class to extend. _Default: \Exception_
  
- - +**exception:** _[Required]_ A list of Excptions. The _key_ or property of the _exception_ object has to be in this format `code[0-9]+`, basically the error code, prefixed by the word _code_. This insures that all exceptions created by this `ejinn.json` file have unique error codes. If you nest _exceptions_ within the _interface_ objects, then the _code_ still must be uinque in the context of the `ejinn.json` file.
+ - _[required]_**exception:** A list of Excptions.  All exceptions created by a given config _must_ have unique error codes within that config. **_eJinn_** will throw an Execption.
  
-    - +**class:** _[Required]_ Relative Class name of the exception
+    - _[required]_**class:** Relative Class name of the exception.
+	
+	- _[required]_**code:** 
 
     - _(Overwrite):_ You can use any of the top level properties in a nested `exception` object to override the default value. This includes the _"interface"_ propertie.  If an interface is nested in the _"exception"_ property, then it will inherit first from the exception item its in, then from the top level ( global ) properties.
     
