@@ -56,10 +56,10 @@ eJinn builds exception classes for you! eJinn keeps track of changes made to the
 
  - **version*:** Your exception version.  Changing it will force rebuilding already created classes the next time the generator is ran. Included in the Doc Block `@version`.
  
- - **buildpath*:** _[Required]_ Location to place the generated files _(Exceptions and Interfaces)_.
+ - +**buildpath:** _[Required]_ Location to place the generated files _(Exceptions and Interfaces)_.
  
  - **interface:** List of Interfaces to impliment. These should be an "empty" interface, useful for catching excptions with diffrent namespaces.
-     - **class*:** _[Required]_ Relative Class name of the interface _(without the namespace).
+     - +**class:** _[Required]_ Relative Class name of the interface _(without the namespace).
 
      -  _(Overwrite):_ You can use any of the top level tags in a nested `interface` array, this includes the _"exception"_ properties. If an exception is nested in the _"interface"_ property, then it will inherit first from the interface item it's nested in and then from the top level ( global ) properties.
  
@@ -67,13 +67,13 @@ eJinn builds exception classes for you! eJinn keeps track of changes made to the
  
  - **extends:** Base exception class to extend. _Default: \Exception_
  
- - **exception*:** _[Required]_ A list of Excptions. The _key_ or property of the _exception_ object has to be in this format `code[0-9]+`, basically the error code, prefixed by the word _code_. This insures that all exceptions created by this `ejinn.json` file have unique error codes. If you nest _exceptions_ within the _interface_ objects, then the _code_ still must be uinque in the context of the `ejinn.json` file.
+ - +**exception:** _[Required]_ A list of Excptions. The _key_ or property of the _exception_ object has to be in this format `code[0-9]+`, basically the error code, prefixed by the word _code_. This insures that all exceptions created by this `ejinn.json` file have unique error codes. If you nest _exceptions_ within the _interface_ objects, then the _code_ still must be uinque in the context of the `ejinn.json` file.
  
-    - **class*:** _[Required]_ Relative Class name of the exception
+    - +**class:** _[Required]_ Relative Class name of the exception
 
     - _(Overwrite):_ You can use any of the top level properties in a nested `exception` object to override the default value. This includes the _"interface"_ propertie.  If an interface is nested in the _"exception"_ property, then it will inherit first from the exception item its in, then from the top level ( global ) properties.
     
-_* required_	
+_+ required_	
 	
 	
 General principals and benifits of using "these" types of exceptions:
