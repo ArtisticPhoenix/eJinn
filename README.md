@@ -23,19 +23,19 @@ eJinn builds exception classes for you! eJinn keeps track of changes made to the
     "version" => "1.0.0",
     "buildpath" => "Exception",
     "namespace" => "eJinn\\Exception",
-    "extends" => "Exception",
-    "exception" => [
+    "extends" => "Exception",    
+    "interface" => [
+		[
+			"class" => "eJinnException"
+		]
+	],
+	"exception" => [
         "code0" => [
         		"class":"UnknownError"
         ],"code1" => [
         		"class":"JsonError"
         ]
     ],
-    "interface" => [
-		[
-			"class" => "eJinnException"
-		]
-	]
 ]
 ```
 
@@ -54,7 +54,7 @@ eJinn builds exception classes for you! eJinn keeps track of changes made to the
 
  - **support:** Link or email for support or documention, included in the Doc Block `@link` for the Excpetion class.
 
- - **version*:** Your exception version.  Changing it will force rebuilding already created classes the next time the generator is ran. Included in the Doc Block `@version`.
+ - +**version:** Your exception version.  Changing it will force rebuilding already created classes the next time the generator is ran. Included in the Doc Block `@version`.
  
  - +**buildpath:** _[Required]_ Location to place the generated files _(Exceptions and Interfaces)_.
  
@@ -74,7 +74,6 @@ eJinn builds exception classes for you! eJinn keeps track of changes made to the
     - _(Overwrite):_ You can use any of the top level properties in a nested `exception` object to override the default value. This includes the _"interface"_ propertie.  If an interface is nested in the _"exception"_ property, then it will inherit first from the exception item its in, then from the top level ( global ) properties.
     
 _+ required_	
-	
 	
 General principals and benifits of using "these" types of exceptions:
     
@@ -109,18 +108,17 @@ Ok so we covered catching a specific exception, so you might be wondering how wo
 Interfaces actually have a big advantage over inheritance. In _PHP_ your classes can only have one ancestor _(each)_. They can an only `extend` one parent class and for exceptions to work correctly, they already have to extend `\Excption`.  However, a class can impliment as many interfaces as you want.  So with interfaces its possible to overlap subsets.  For example:
 
 ```php
+	class ExcepptionA extends \Exception impliments InterfaceA{
 
-class ExcepptionA extends \Exception impliments InterfaceA{
+	}
 
-}
+	class ExcepptionB extends \Exception impliments InterfaceA, InterfaceB{
 
-class ExcepptionB extends \Exception impliments InterfaceA, InterfaceB{
+	}
 
-}
+	class ExcepptionC extends \Exception impliments InterfaceA, InterfaceB, InterfaceC{
 
-class ExcepptionC extends \Exception impliments InterfaceA, InterfaceB, InterfaceC{
-
-}
+	}
 ```
 
 As you can see above, we can catch all three exceptions by using `InterfaceA` in our catch block.  We can catch _ExcepptionB_ and _ExcepptionC_ by using `InterfaceB`, and by using `InterfaceC` you can catch only _ExcepptionC_.
@@ -128,11 +126,11 @@ As you can see above, we can catch all three exceptions by using `InterfaceA` in
 The interfaces _eJinn_ needs is very simpe:
 
 ```php 
-namespace MyProject;
+	namespace MyProject;
 
-interface MyInterface
-{
-}
+	interface MyInterface
+	{
+	}
 ```
 
 If you want to include an existing interface, set it's buildpath to boolean `false`.
@@ -152,12 +150,11 @@ All eJinn excptions will impliment `\eJinn\eJinnException`.  Rememeber we can im
 
 **Other Config Examples**
 Minimal Config 
-_interface is not technically required_
+_(interface is not required, but shown for completeness)_
 ```php
 [
     "version" => "1.0.0",
     "buildpath" => "Exception",
-    "namespace" => "eJinn\\Exception",
     "exception" => [
         "code0" => [
         		"class":"UnknownError"
@@ -173,34 +170,26 @@ _interface is not technically required_
 ]
 ```
 
-This is roughly equivalnt to the 
+This is roughly equivalnt to above 
+_(you can orginze your exceptions by interface)_
 ```php
 [
-    "author" => "ArtisticPhoenix",
-    "description" => "eJinn The Exception Genie",
-    "package" => "eJinn",
-    "subpackage" => "Exception",
-    "support" => "https://github.com/ArtisticPhoenix/eJinn/issues",
-    "version" => "1.0.0",
-    "interface" => [[
-		"class" => "eJinnException"
-		"buildpath" => "Exception",
-		"namespace" => "eJinn\\Exception",
-		"extends" => "Exception",
-		"exception" => [
+    "interface" => [
+		[
+			"class" => "eJinnException",
+			"version" => "1.0.0",
+			"buildpath" => "Exception",
+			"exception" => [
 				"code0" => [
-					"class":"UnknownError"
+						"class":"UnknownError"
 				],"code1" => [
-					"class":"JsonError"
+						"class":"JsonError"
 				]
 			]
 		]
 	]
 ]
 ```
-
-
-
 
 **Other config types:** 
 
@@ -216,16 +205,16 @@ JSON
    "buildpath" : "Exception",
    "namespace" : "eJinn\\Exception",
    "extends" : "Exception",
+   "interface" : [{
+       "class" : "eJinnException"
+   }],
    "exception" : {
        	"code0" : {
        		"class":"UnknownError"
        	},"code1" : {
        		"class":"JsonError"
        	}
-   },
-   "interface" : [{
-       "class" : "eJinnException"
-   }]
+   }
 }
 ```
 
@@ -242,6 +231,11 @@ XML
 	<buildpath>Exception</buildpath>
 	<namespace>eJinn\\Exception</namespace>
 	<extends>Exception</extends>
+	<interfaces>
+		<interface>
+			<class>eJinnException</class>
+		<interface>
+	</interfaces>
 	<exceptions>
 		<exception code="0" >
 			<class>UnknownError</class>
@@ -250,11 +244,6 @@ XML
 			<class>JsonError</class>
 		</exception>
 	</exceptions>	
-	<interfaces>
-		<interface>
-			<class>eJinnException</class>
-		<interface>
-	</interfaces>
 </eJinn>
 ```
 
