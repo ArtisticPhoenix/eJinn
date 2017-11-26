@@ -56,7 +56,7 @@ _(pronunced eeGin)_
  
  - **namespace** : Namespace for the exception classes.
  
- - **exception** : A list of Excptions, this is an Object because then we force yo to use a numeric 'key'  ( which is the error code ) and this also forces it to be unique for each config file. 
+ - **exception** : A list of Excptions, this is an Object because then we force you to use a numeric 'property'  ( which is the error code ) and this also forces it to be unique for each config file its imporatant that this is a `string` that's probably the only thing you need to be careful about with _eJinn_. 
  
     - **class** :  Error code -> Class pair
 
@@ -74,10 +74,10 @@ General principals and benifits of using "these" types of Exceptions:
    }
 ```
 
-The above code we are catching one single Exception based on the class. Sure you could do something like this:
+In the above code we are catching one single Exception based on the class. Sure you could do something like this:
 
 ```php
-   //Catch a single excption ( based on class )
+
    try{  
    
    }catch(\Exception $e ){
@@ -88,11 +88,25 @@ The above code we are catching one single Exception based on the class. Sure you
    }
 ```
 
-But the problem with this, is if its an error we can't handle here ( in the catch block ) what do we do with it.  Typically you would issue another Exception with the third argument _($previous)_ being `$e`, which is really not ideal.
+But the problem with this, is if its an error we can't handle here, in the catch block. Then what do we do with it?  Typically you would issue another Exception with the third argument _($previous)_ being `$e`. Which is less then ideal, beacause it's going to muck up your statcktrace. And generally, make things misserable to read.   
 
-Imagine now, you just want to catch a subset of Exceptions.  We could do this inheritance, and maybe that's something we'll impliment latter, but for now you can use an Interface.
+Ok so we covered catching a specific Exception, so you might be wondering how would a catch a couple Excptions.  I you want to catch a subset of Exceptions, we could do this with inheritance. And maybe that's something we'll impliment latter, but for now just use an Interface.  It will work fine, really.
 
-Interfaces are not limited to one per Exception class, you can only have one ancestor in _PHP_. However you can impliment as many interfaces as you want, and for our purposes they will work just fine.
+Interfaces actually have an advantage over inheritance, that's why we use them instead.
+
+In _PHP_ your classes can only have one ancestor _(each)_. They can an only `extend` one parent, and they already have to extend `\Excption`, so were not going to make it any harder then we need to.
+
+However your classes impliment as many interfaces as you want them to. This allows us to overlap Excption subsets if we want.
+
+```php
+
+class ExceptionA extends Exception
+
+
+
+
+```
+
 
 At this time you have to create the interface yourself, this is mainly beause of namespacing and auto loading them.  So it's something we may impliment in the future, but not to worry it's supper simple to create one (I know this goes against our second bullet point).
 
