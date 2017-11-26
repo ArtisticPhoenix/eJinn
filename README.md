@@ -92,7 +92,6 @@ General principals and benifits of using "these" types of exceptions:
 In the above code we are catching one single exception based on the class. Sure you could do something like this:
 
 ```php
-
    try{  
    
    }catch(\Exception $e ){
