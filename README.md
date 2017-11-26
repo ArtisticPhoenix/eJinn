@@ -56,12 +56,12 @@ Then this little framework may be just for you!
 
  - **support:** Link or email for support or documention, included in the Doc Block `@link` for the Excpetion class.
 
- - _[required]_**version:** Your exception version.  Changing it will force rebuilding already created classes the next time the generator is ran. Included in the Doc Block `@version`.
+ - **version**_(required)_**:** Your exception version.  Changing it will force rebuilding already created classes the next time the generator is ran. Included in the Doc Block `@version`.
  
- - _[required]_**buildpath:** Location to place the generated files _(Exceptions and Interfaces)_.
+ - **buildpath**_(required)_**:** Location to place the generated files _(Exceptions and Interfaces)_.
  
  - **interface:** List of Interfaces to impliment. These should be an "empty" interface, useful for catching excptions with diffrent namespaces.
-     - _[required]_**class:** Relative Class name of the interface _(without the namespace).
+     - **class**_(required)_**:** Relative Class name of the interface _(without the namespace).
 
      -  _(Overwrite):_ You can use any of the top level tags in a nested `interface` array, this includes the _"exception"_ properties. If an exception is nested in the _"interface"_ property, then it will inherit first from the interface item it's nested in and then from the top level ( global ) properties.
  
@@ -69,15 +69,13 @@ Then this little framework may be just for you!
  
  - **extends:** Base exception class to extend. _Default: \Exception_
  
- - _[required]_**exception:** A list of Excptions.  All exceptions created by a given config _must_ have unique error codes within that config. **_eJinn_** will throw an Execption.
+ - **exception**_(required)_**:** A list of Excptions.  All exceptions created by a given config _must_ have unique error codes within that config. **eJinn** will throw an Execption.
  
-    - _[required]_**class:** Relative Class name of the exception.
+    - **class**_(required)_**:** Relative Class name of the exception.
 	
-	- _[required]_**code:** 
+	- **code**_(required)_**:** 
 
-    - _(Overwrite):_ You can use any of the top level properties in a nested `exception` object to override the default value. This includes the _"interface"_ propertie.  If an interface is nested in the _"exception"_ property, then it will inherit first from the exception item its in, then from the top level ( global ) properties.
-    
-_+ required_	
+    - _(Overwrite):_ You can use any of the top level properties in a nested `exception` object to override the default value. This includes the _"interface"_ propertie.  If an interface is nested in the _"exception"_ property, then it will inherit first from the exception item its in, then from the top level ( global ) properties.	
 	
 General principals and benifits of using "these" types of exceptions:
     
