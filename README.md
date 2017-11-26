@@ -140,9 +140,9 @@ If you want to include an existing interface, set it's buildpath to boolean `fal
     //...
     "interface:" [
         [
-                "class" : "eJinn\\eJinnException",
-                "buildpath" : false
-            ]
+            "class" : "eJinn\\eJinnException",
+            "buildpath" : false
+        ]
     ],
     //...
 ```
@@ -150,31 +150,24 @@ If you want to include an existing interface, set it's buildpath to boolean `fal
 All eJinn excptions will impliment `\eJinn\eJinnException`.  Rememeber we can impliment as many as we want and this way you can always find the exceptions created by _eJinn_.
 
 **Other Config Examples**
-Minimal Config 
-_(interface is not required, but shown for completeness)_
+Minimal Config.
 ```php
 [
     "version" => "1.0.0",
     "buildpath" => "Exception",
     "exceptions" => [
         [
-            "class" => "eJinnException",
+            "class" => "UnknownError",
             "code" => 0
         ],[
-               "class" => "JsonError",
+            "class" => "JsonError",
             "code" => 1
        ]
     ],
-    "interface" => [
-        [
-            "class" => "eJinnException"
-        ]
-    ]
 ]
 ```
 
-This is roughly equivalnt to above 
-_(you can orginze your exceptions by interface)_
+You can orginze your exceptions by nesting them in the interfaces.  You can duplicate error codes, only if they are in the same exception. **eJinn** will let you know if there is anything wrong.
 ```php
 [
     "interfaces" => [
@@ -184,30 +177,42 @@ _(you can orginze your exceptions by interface)_
             "buildpath" => "Exception",
             "exceptions" => [
                 [
-                    "class" => "eJinnException",
+                    "class" => "UnknownError",
                     "code" => 0
                 ],[
                     "class" => "JsonError",
                     "code" => 1
                ]
             ]
+        ],[
+            "class" => "testInterface",
+            "version" => "1.0.1",
+            "buildpath" => "Exception",
+            "exceptions" => [
+                [
+                    "class" => "UnknownError",
+                    "code" => 0
+                ]
+            ]
+        
         ]
     ]
 ]
 ```
-This is roughly equivalnt to above 
-_(you can have multiple interfaces)_
+You can duplicate interfaces and you can have multiple interfaces per exception.
 ```php
 [    
     "version" => "1.0.0",
     "buildpath" => "Exception",
     "exceptions" => [
         [
-            "class" => "eJinnException",
+            "class" => "UnknownError",
             "code" => 0,
             "interfaces" => [
                 [
                     "class" => "eJinnException",
+                ],[
+                    "class" => "secondInterface",
                 ]
             ]
         ],[
