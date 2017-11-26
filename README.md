@@ -29,7 +29,7 @@ Then this little framework may be just for you!
             "class" => "eJinnException"
         ]
    ],
-   "exception" => [
+   "exceptions" => [
         [
             "class" => "eJinnException",
             "code" => 0
@@ -156,7 +156,7 @@ _(interface is not required, but shown for completeness)_
 [
     "version" => "1.0.0",
     "buildpath" => "Exception",
-    "exception" => [
+    "exceptions" => [
         [
             "class" => "eJinnException",
             "code" => 0
@@ -244,7 +244,7 @@ JSON
         "class" : "UnknownError",
         "code" : 0
     },{
-           "class":"JsonError",
+        "class":"JsonError",
         "code" : 1
     }]
 }
