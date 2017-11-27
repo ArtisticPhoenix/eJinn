@@ -2,7 +2,7 @@
 namespace eJinn\Exception;
 
 /**
- * 
+ *
  * eJinn The Exception Genie
  * (eJinn genenerated class, do not edit)
  *
@@ -14,14 +14,14 @@ namespace eJinn\Exception;
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
  * @cacheKey afewadsff2324rsfsfdfDFE323Q
  */
-class UnknownError extends \Exception implements \eJinn\Exception\eJinnException
+class UnknownException extends \Exception implements \eJinn\Exception\eJinnExceptionInterface
 {
    
     /**
      *
-     * @param string $message
-     * @param number $code
-     * @param \Exception $previous
+     * @param string $message [optional]
+     * @param number $code [optional]
+     * @param \Exception $previous [optional]
      * @throws \eJinn\Exception\UnknownError
      */
     public function __construct($message = null, $code = 0, $previous = null)

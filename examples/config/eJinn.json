@@ -11,12 +11,12 @@
     "extends" : "Exception",
     "exception" : {
         "code0" : {
-        		"class":"UnknownError"
+        		"Class":"UnknownError"
         },"code1" : {
         		"class":"JsonError"
         }
     },
     "interface" : [{
-        "class" : "eJinn\\eJinnException"
+        "class" : "eJinnException"
     }]
 }
