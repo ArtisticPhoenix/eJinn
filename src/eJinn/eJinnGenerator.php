@@ -264,49 +264,7 @@ final class eJinnGenerator
             return $ns.$item['name'];
         }
     }
-    
-    
-    
-    /**
-     * create a fully qualified classname
-     * \namespace\class
-     *
-     * @param string $namespace
-     * @param string $class
-     *
-    protected function createQualifedName(&$item)
-    {
-        $ns = "\\";
-        
-        if()
-        
-        
-        
-        /*if (false !== strpos($item['name'], $ns)) {
-            //if the name contanis any "\\" it's treated as the fully qualified name
-            $qName = trim($item['name'], $ns);
-            if (false !== strpos($qName, $ns)) {
-                $name = ltrim(strrchr($qName, $ns), $ns);
-                $namespace = $ns.trim(substr_replace($qName, "", -strlen($name)), $ns).$ns;
-            } else {
-                $name = $qName;
-                $namespace = "";
-            }
-        } else {
-            $namespace = trim($item['namespace'], $ns);
-            $name = $item['name'];
-            if (!empty($namespace)) {
-                $qName = $ns.$name.$ns;
-            } else {
-                $qName = $ns.$namespace.$ns.name;
-            }
-        }
-        $item['name'] = $name;
-        $item['namespace'] = $namespace;
-        return $qName;*/
-    }
-    
-    
+      
     /**
      * set the reserved codes ( if present )
      * remove from origin by refrence
