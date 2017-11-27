@@ -185,45 +185,47 @@ final class eJinnGenerator
             die("Error: IN ".__FILE__." ON ".__LINE__); //@todo: throw new MissingRequired("Namespace[$namespace] must include either interfaces or exceptions");
         }
         
-        if ($interfaces) {
-            $impliments = $this->parseInterfaces($interfaces, $conf);
+        if ($interfaces) {           
+            foreach ($interfaces as $interface) {
+                $impliments[] = $this->parseInterface($interfaces, $conf, $impliments);
+            }
         }
+        
+        //@todo: exception
+        
     }
     
-    protected function parseInterfaces(array $interfaces, array $global)
+    protected function parseInterface(array $interfaces, array $global, &$impliments = [])
     {
         print_r(str_pad(' '.__METHOD__.' ', 60, '=', STR_PAD_BOTH)."\n");
         //print_r($interfaces);
-        $impliments = [];
-        foreach ($interfaces as $interface) {
-            if (!is_array($interface)) {
-                $interface = ['name' => $interface];
-            } else {
-                $interface = array_change_key_case($interface);
-                if (!isset($interface['name'])) {
-                    die("Error: IN ".__FILE__." ON ".__LINE__); //@todo: throw new MissingRequired("Interfaces must include a name");
-                }
-                $this->ckUnknownKeys($conf, "in Namespace[$namespace]");
-            }
-            
-            $interface = array_merge(self::$global, $global, $interface);
-            
-            $this->preserveReserve($interface);
-            
-            $interface['qName'] = $this->parseName($interface);
-            
-            $interface['hash'] = $this->hashConfig($interface);
-            
-            if (isset($this->interfaces[$interface['qName']])){
-                
-                die("Error: IN ".__FILE__." ON ".__LINE__);
-            }
-            
-            $this->interfaces[$interface['qName']] = $interface;
-            $impliments[] = $interface['qName'];
 
+        if (!is_array($interface)) {
+            $interface = ['name' => $interface];
+        } else {
+            $interface = array_change_key_case($interface);
+            if (!isset($interface['name'])) {
+                die("Error: IN ".__FILE__." ON ".__LINE__); //@todo: throw new MissingRequired("Interfaces must include a name");
+            }
+            $this->ckUnknownKeys($conf, "in Namespace[$namespace]");
         }
-        return $impliments;
+        
+        $interface = array_merge(self::$global, $global, $interface);
+        
+        $this->preserveReserve($interface);
+        
+        $interface['qName'] = $this->parseName($interface);
+        
+        $interface['hash'] = $this->hashConfig($interface);
+        
+        if (isset($this->interfaces[$interface['qName']])){
+            
+            die("Error: IN ".__FILE__." ON ".__LINE__);
+        }
+        
+        $this->interfaces[$interface['qName']] = $interface;
+        
+        return $interface['qName'];
     }
       
     /**
