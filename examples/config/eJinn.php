@@ -17,7 +17,10 @@ return [
         "eJinn"             => [
             "buildpath"     => "eJinn",
             "interfaces"    => [
-                "eJinnInterface"
+                [
+                    "name" => "Evo\\Errors\\ExceptionInterface",
+                    "parse" => false
+                ]
             ]
         ],
         "eJinn\\Exception"  => [
@@ -25,7 +28,7 @@ return [
             "buildpath"     => "Exception",
             "interfaces"    => [
                 "eJinnException",
-                "+eJinnInterface"
+                "eJinnInterface"
             ],
             "exceptions" => [
                 0     => "UnknownError",
