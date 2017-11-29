@@ -7,7 +7,7 @@ return [
     "subpackage"    => "",
     "support"       => "https://github.com/ArtisticPhoenix/eJinn/issues",
     "version"       => "1.0.0",
-    "reserve"       => [],
+    "reserved"       => [1,2,[8,20]],
     "namespaces"     => [
         ""                  => [
             "exceptions" => [
@@ -18,8 +18,8 @@ return [
             "buildpath"     => "eJinn",
             "interfaces"    => [
                 [
-                    "name" => "Evo\\Errors\\ExceptionInterface",
-                    "parse" => false
+                    "name" => "ExceptionInterface",
+                    "Parse" => false
                 ]
             ]
         ],
@@ -39,9 +39,9 @@ return [
                 1005  => "KeyNotAllowed",
                 1006  => "KeyNotAllowed",
                 1007  => "ConfCollision",
-                1100  => [
+                "1100"  => [
                     "name" => "JsonParseError",
-                    "reserveRange" => [1101,1108]
+                    "reserved" => [[1101,1108], ""],
                 ]
             ]
         ]
