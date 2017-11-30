@@ -83,9 +83,9 @@ Internal properties are denoted with __private__ in the __Required__ column belo
  impliments        |  array   |     no      | Array of fully quallifed interfance names for excptions to impliment. Ignored by interface entities(excptions can impliment multiple interfaces). Interfaces created by __eJinn__ are automatically populated where aplicable.            
  reserved          |  array   |     no      | Array of integer codes, or nested arrays `[[min,max]]` for a range of integers. This is a sanity check for _error codes_ that should not be created by this configuration. 
  namespaces        |  array   |  protected  | Array of namespaces, the `key` should be the namespace which is used by the entities nested in this array.
- eJinnBuildVersion |  string  |   private   | Used as the `@eJinn:Build` tag. This allows the __eJinn__ project to force a recompile when updates are done to the compiler, seperate from the __eJinn__ version number.
  eJinnHash         |  string  |   private   | Used as the `@eJinn:Hash` tag. Configuration hash used to check when changes are made
- eJinnBuildDate    |  string  |   private   | Used as the `@eJinn:Hash` tag. Configuration hash used to check when changes are made
+ eJinnBuildVersion |  string  |   private   | Used as the `@eJinn:BuildVersion` tag. This allows the __eJinn__ project to force a recompile when updates are done to the compiler, seperate from the __eJinn__ version number.
+ eJinnBuildDate    |  string  |   private   | Used as the `@eJinn:BuildDate` tag. Configuration hash used to check when changes are made
 
 ### Namespace Teir ### 
  Property          |   Type   |  Required   | Description
