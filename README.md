@@ -1,10 +1,9 @@
- eJinn 
+ eJinn (PHP v5.6+)
  =====
-***The Exception Genie (*PHP* 5.6+)***
+The Exception Genie
+-------------------
 
-Overview
---------
-
+### Overview ###
  * Do you like having one exception code per exception class? 
  * Do you like using interfaces to group exception classes togather?
  * Do you like having error codes that are unique in your whole library, or project?
@@ -13,22 +12,18 @@ Overview
  * Are you tired of creating those boring boilerplate exception and interface classes?
  * Are you tired of searching for the approrate exception, because you can't remember if you made one for this or that error?
  
-**eJinn** compiles and builds exception and interface classes for you! **eJinn** keeps track of changes made to the configuration of each exception, and rebuilds them only when changes have been made. **eJinn** can be bootstraped in your project and will build the exceptions it needs to at run time or you can precompile them during development. **eJinn** uses a seperate configuration _Reader_ class, so you can extedn the formats it can read beyond those that it comes with.
-**eJinn** exceptions can extend any other _Base_ excption, even if it was created externally.  **eJinn** exceptions can impliment interfaces created externally. **eJinn** exceptions can extend either the _\\Exception_ and _\\ErrorExcption_ default _PHP_ base classes, those extending _\\ErrorExcepton_ also support _Severty_, external _File_ names and _Line_ numbers. **eJinn** exceptions can still be thrown with multiple error codes and/or messages, the predefined code becomes the _Default_. 
+If you answered _Yes_ to any of the above then __eJinn__ may be just what you have been missing.  __eJinn__ builds excpetion classes and interfaces based on a simple and flexable configuration file.  You can use a single configuration file or as many as you like.
 
-
-An example of an **eJinn** *PHP* array config.
-
- 
+An example of an **eJinn** configuration ( as a _PHP_ array).
 ```php
     return [
         "author"        => "ArtisticPhoenix",
+        "buildpath"     => "Exception",
         "description"   => "eJinn The Exception Genie",
         "package"       => "eJinn",
         "subpackage"    => "",
         "support"       => "https://github.com/ArtisticPhoenix/eJinn/issues",
         "version"       => "1.0.0",
-        "buildpath"     => "Exception",
         "namespaces"     => [
             //{Namespace} => [{Namespace Level}]
             "eJinn\\Exception"  => [
@@ -56,14 +51,22 @@ An example of an **eJinn** *PHP* array config.
         ] //end namespaces
     ];//end config
 ```
+__eJinn__ configuration is based on a _3 Tier_ tree with _Top Down Inheritance_.  This lets us have the maximum flexabillity while still maintaining the minimum configuration size. Properties are passed down the tree from the higher level _(Parent)_ to lower levels _(Children)_. If a property exists in both the _Child_ and the _Parent_, then the value for the _Child's_ property is used.
 
-With this simple command `@todo: command` **eJinn** will parse the above configuration file and build all the exceptions we need of our project.  **eJinn** configuration  files are based on a pass down inherited structure. With some exceptions, the configured values will be passed down through the config hierarchy. If the child level contains the same key it will override the value from the level above. This way **eJinn** gives you the most configuration options with the least amount of work and the smallest space.  No one likes huge configuration files with obsure properties that you have to keep looking up all the time.  **eJinn** does what it says and says what it does, without sacrificing functionality or flexabillity.
+The configuration can be as simple as the _PHP_ array shown above, or you can use an _\\eJinn\\Reader_ class to convert many diffrent types of files into the _PHP_ array which is then feed into the _eJinnParser_ class.  The _Reader_ is desined to be extendable, so if one is not avalible for the file type of your choice then you can create your own or contact us and we may be able add it to the project.
 
-If you're lazy like me, but still like bullet proof code, then **eJinn** may be just what the doctor ordered. 
+
+* **Global:** the _Top_ level of the configuration tree. 
 
 Config Properties
 -----------------
-Configs are seprated into 3 distinct levels.  Properties can only be passed down from a higher levle to a lower level.  If a prooperty exits in both levels the property from the lower level takes precidence over the property from the upper level, and it will be used instead.  Container properties can only exist on the level they are presented on in the above example.  These are _namespaces_, _interfaces_ and _exceptions_.  Property matching in **eJinn** is case insensative, so the property named "version" will match ( but is not limited to ) any of the following: "VERSION", "Verison and "vErSiOn".
+Configs are seprated into 3 distinct levels _Global_, _Namespace_ and _Entity_.  
+
+Inheritance: properties are passed down from a higher level to a lower level.  
+
+Property matching in **eJinn** is case insensative, so the property named "version" will match ( but is not limited to ) any of the following: "VERSION", "Verison and "vErSiOn".
+
+ - ### Global Level ###
 
  - ### Global Level ###
      -  **Author:**
