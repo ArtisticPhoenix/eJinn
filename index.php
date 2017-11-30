@@ -1,5 +1,5 @@
 <?php
-use eJinn\eJinnGenerator;
+use eJinn\eJinnParser;
 
 require_once __DIR__.'/vendor/autoload.php';
 
@@ -9,7 +9,7 @@ $conf = require __DIR__.'/examples/config/eJinn.php';
 
 //print_r($conf);
 
-$Generator = new eJinnGenerator($conf);
+$Generator = new eJinnParser($conf);
 
 
 echo "\nComplete in ".__FILE__." on ".__LINE__;

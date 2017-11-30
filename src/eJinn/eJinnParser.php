@@ -11,7 +11,7 @@ namespace eJinn;
  * @package eJinn
  *
  */
-final class eJinnGenerator
+final class eJinnParser
 {
     /**
      * Keys that contain loclized data
