@@ -19,7 +19,6 @@ final class eJinnGenerator
      */
     protected $local = [
         "name"          => false,
-        //"parse"         => true,
         "code"          => false,
     ];
     
@@ -30,8 +29,7 @@ final class eJinnGenerator
     protected $containers = [
         "namespaces"    => [],
         "interfaces"    => [],
-        "exceptions"    => [],
-        "reserved"      => []
+        "exceptions"    => []
     ];
 
     /**
@@ -50,8 +48,9 @@ final class eJinnGenerator
         "severity"      => E_ERROR,
         "namespace"     => false,
         'impliments'    => [],
+        "reserved"      => []
     ];
-    
+      
     /**
      * Doc comment format
      * @var array
@@ -126,7 +125,58 @@ final class eJinnGenerator
     }
     
     /**
-     * reset the builder
+     * Global keys can be placed at almost any level
+     * These are generic values that are passed down
+     * through the configuration structure
+     * @example
+     * 'buildpath' - all entities need a build path and often they all use the same one
+     * 
+     * @return array
+     */
+    public function getGlobal(){
+        return $this->global;
+    }
+    
+    /**
+     * Container keys are place at only the top level, and the namespace level
+     * These contain other parseable elements.
+     * @example
+     * 'namespace' - these contain the namespace blocks
+     * 
+     * @return array
+     */
+    public function getContainers(){
+        return $this->containers;
+    }
+    
+    /**
+     * Local keys can only be used at the Entity level
+     * these are the most specific configuration options
+     * @example
+     * 'name' - each entity has it's own name
+     * 
+     * @return array
+     */
+    public function getLocal(){
+        return $this->local;
+    }
+    
+    /**
+     * Return all possible keys exposed to the configuration 
+     *
+     * @return array
+     */
+    public function getAllKeys(){
+        return array_merge($this->global, $this->containers, $this->local);
+    }
+    
+    /**
+     * reset the class
+     * 
+     * The generator is a 2 step process
+     * 1. Parsing - validates and compiles the config
+     * 2. Building - outputs the interface and exception classes
+     * 
      */
     protected function reset()
     {
