@@ -20,6 +20,7 @@ final class eJinnGenerator
     protected $local = [
         "name"          => false,
         "code"          => false,
+        'message'       => false
     ];
     
     /**
