@@ -47,7 +47,6 @@ final class eJinnParser
         "buildpath"     => false,
         "extends"       => "\Exception",
         "severity"      => E_ERROR,
-        "namespace"     => false,
         'impliments'    => [],
         "reserved"      => []
     ];
