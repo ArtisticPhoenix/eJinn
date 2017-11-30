@@ -66,7 +66,7 @@ With the exception of the container properties listed above, each tier can conta
 
 Container properties are denoted with __protected__ in the __Required__ column below.  As stated above, these properties _Must_ exist at the tier shown and cannot be placed anywhere else in the configuration hierarchy. __eJinn__ will throw an exception and let you know if there are any problems in your configuration.
 
-Internal properties are denoted with __private__ in the __Required__ column below.  In general these properties are not accessable outside the _\\eJinn\\eJinnParser_ class and are shown here only for completeness and documentation purposes. They should **not** be included anywere within the configuration. 
+Internal properties are denoted with __private__ in the __Required__ column below.  In general these properties are not accessable outside the `\\eJinn\\eJinnParser` class and are shown here only for completeness and documentation purposes. They should **not** be included anywere within the configuration. 
 
 ### Global Tier ###
  Property          |   Type   |   Required  | Description
