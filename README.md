@@ -54,13 +54,13 @@ An example of an **eJinn** configuration ( as a _PHP_ array).
 ```
 __eJinn's__ configuration is based on a _Multiple Tier_ based tree with _Top Down Inheritance_.  This lets us have the maximum flexabillity while still maintaining the minimum configuration size. Properties are passed down the tree from the higher level _(Parent)_ to lower levels _(Children)_. If a property exists in both the _Child_ and the _Parent_, then the value for the _Child's_ property is used.
 
-The configuration can be as simple as the _PHP_ array shown above, or you can use an _\\eJinn\\Reader\\{Type}_ class to convert many diffrent types of files into the _PHP_ array which is then passed into the _\\eJinn\\eJinnParser_ class.  The _Reader_ is desined to be extendable, so if one doesn't exist for the type of configuration file you prefer, let us know!
+The configuration can be as simple as the _PHP_ array shown above, or you can use an `\\eJinn\\Reader\\{Type}` class to convert many diffrent types of files into the _PHP_ array which is then passed into the `\\eJinn\\eJinnParser` class.  The _Reader_ is desined to be extendable, so if one doesn't exist for the type of configuration file you prefer, let us know!
 
 Configuration Schema
 --------------------
 Property matching in **eJinn** is case insensative, so the property named "version" will match ( but is not limited to ) any of the following: "VERSION", "Verison and "vErSiOn".
 
-The main tiers of the configuration are _Global_, _Namespace_ and _Entity (Interface or Excption)_ . The _Global_ tier is the top level of the configuration array.  The _Namespace_ is the array contained within the __namespaces__ property. The _Interfaces_ and _Exceptions_ tiers contain the final definition for the Interface and Exception classes __eJinn__ will create.  For the most part we will refer to them collectivly as the _Entity_ tier. They share many simularities, however there are some signifigant diffrences. Interfaces are simpler then Excptions and therefore contain fewer configuration properties then Excptions. In genaral any _extra_ configuration properties that are in Interfaces will simply be ignored.  These will be displayed in the _Interface_ tier with ~~__strikethrough__~~ text.
+The main tiers of the configuration are _Global_, _Namespace_ and _Entity (Interface or Excption)_ . The _Global_ tier is the top level of the configuration array.  The _Namespace_ is the array contained within the __namespaces__ property. The _Interfaces_ and _Exceptions_ tiers contain the final definition for the Interface and Exception classes __eJinn__ will create.  For the most part we will refer to them collectivly as the _Entity_ tier. They share many simularities, however there are some signifigant diffrences. Interfaces are simpler then Excptions and therefore contain fewer configuration properties then Excptions. In genaral any _extra_ configuration properties that are in Interfaces will simply be ignored.  These will be displayed in the _Interface_ tier with __ignored__ in the __Required__ column.
 
 With the exception of the container properties listed above, each tier can contain any of the properties from any of the tiers above it. However, it cannot contain any properites from any tiers below it. The _Entity_ tier can contain any of the configuration properties, but the _Global_ tier can only contain the properties defined within it.
 
@@ -106,8 +106,8 @@ Internal properties are denoted with __private__ in the __Required__ column belo
  Property          |   Type   |  Required   | Description
  ----------------- | -------- | ----------- | ------------------------------------------------------
  name              |  string  |     yes     | Interface's Class name. Should not include a namespace, it should be the base class name.                 
- ~~code            |  integer |     no      |~~
- ~~severity        |  integer |     no      |~~
- ~~message         |  string  |     no      |~~
- ~~extends         |  string  |     no      |~~
- ~~impliments      |  array   |     no      |~~
+ code              |  integer |   ignored   |  
+ severity          |  integer |   ignored   |  
+ message           |  string  |   ignored   |  
+ extends           |  string  |   ignored   |  
+ impliments        |  array   |   ignored   |  
