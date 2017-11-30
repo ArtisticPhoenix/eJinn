@@ -161,23 +161,11 @@ Minimal Config.
 ```php
 return [
     "version"       => "1.0.0",
-    "reserved" => [[1101,1108]],
     "namespaces"     => [
         "eJinn\\Exception"  => [
             "buildpath"     => "Exception",
-            "interfaces"    => [
-                "eJinnExceptionInterface"
-            ],
             "exceptions" => [
                 0     => "UnknownError",
-                1001  => "ResservedCode",
-                1002  => "UnknownConfKey",
-                1003  => "DuplateCode",
-                1004  => "MissingRequired",
-                1005  => "KeyNotAllowed",
-                1006  => "KeyNotAllowed",
-                1007  => "ConfCollision",
-                1100  => "JsonParseError"
             ]
         ]
     ]
