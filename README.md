@@ -1,9 +1,10 @@
  eJinn 
  =====
-_(pronunced eeGin)_
+***The Exception Genie (*PHP* 5.6+)***
 
-The Exception Genie (*PHP* 5.6+)
---------------------------------
+Overview
+--------
+
  * Do you like having one exception code per exception class? 
  * Do you like using interfaces to group exception classes togather?
  * Do you like having error codes that are unique in your whole library, or project?
@@ -12,8 +13,6 @@ The Exception Genie (*PHP* 5.6+)
  * Are you tired of creating those boring boilerplate exception and interface classes?
  * Are you tired of searching for the approrate exception, because you can't remember if you made one for this or that error?
  
-Overview
---------
 **eJinn** compiles and builds exception and interface classes for you! **eJinn** keeps track of changes made to the configuration of each exception, and rebuilds them only when changes have been made. **eJinn** can be bootstraped in your project and will build the exceptions it needs to at run time or you can precompile them during development. **eJinn** uses a seperate configuration _Reader_ class, so you can extedn the formats it can read beyond those that it comes with.
 **eJinn** exceptions can extend any other _Base_ excption, even if it was created externally.  **eJinn** exceptions can impliment interfaces created externally. **eJinn** exceptions can extend either the _\\Exception_ and _\\ErrorExcption_ default _PHP_ base classes, those extending _\\ErrorExcepton_ also support _Severty_, external _File_ names and _Line_ numbers. **eJinn** exceptions can still be thrown with multiple error codes and/or messages, the predefined code becomes the _Default_. 
 
@@ -66,7 +65,14 @@ Config Properties
 -----------------
 Configs are seprated into 3 distinct levels.  Properties can only be passed down from a higher levle to a lower level.  If a prooperty exits in both levels the property from the lower level takes precidence over the property from the upper level, and it will be used instead.  Container properties can only exist on the level they are presented on in the above example.  These are _namespaces_, _interfaces_ and _exceptions_.  Property matching in **eJinn** is case insensative, so the property named "version" will match ( but is not limited to ) any of the following: "VERSION", "Verison and "vErSiOn".
 
- - **Global Level** 
- - **Namespace Level**
- - **Entity Level** 
+ - ### Global Level ###
+     -  **Author:**
+  
+
+  
+  
+  
+ * **Namespace Level**
+ 
+ * **Entity Level** 
 
