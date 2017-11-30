@@ -1,4 +1,4 @@
- eJinn 
+ eJinn (alpha)
  =====
 The Exception Genie (PHP v5.6+)
 -------------------
