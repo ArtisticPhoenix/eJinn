@@ -113,3 +113,40 @@ Internal properties are denoted with __private__ in the __Required__ column belo
  message           |  string  |   ignored   |  
  extends           |  string  |   ignored   |  
  impliments        |  array   |   ignored   |  
+
+### Exception Considerations ###
+Without going into to much detail, I will briefly explain why it's benifical to use unique excptions.  The obvious example is this:
+    
+```php
+   //Catch a single exception ( based on class )
+   try{     
+      throw \Excption("some really verbose message");   
+   }catch(\Exception $e ){
+       echo $e->getMessage(); //prints "?"
+   }
+```
+This is probably the worse exception example I could think of.  There is very little you can tell by this what exception it's surpressing or what you should do if it's an acceptable error, or a fatal one.  This is a slightly improved version:
+```php
+   //Catch a single exception ( based on class )
+   try{     
+      throw \Excption("some really verbose message", 100);   
+   }catch(\Exception $e ){
+       if($e->getCode() == 200 )
+         echo $e->getMessage(); //prints "?"
+       else
+         throw \Excption("rethrow", $e->getCode(), $e);   
+   }
+```
+This still dosn't give us a whole lot of options on catching and ignoring the error.
+A much better way is something like this
+```php
+   //Catch a single exception ( based on class )
+   try{     
+      throw \Excption("some really verbose message", 100);   
+   }catch(\eJinn\Exception\ResservedCode $e ){
+       //catch only class \eJinn\Exception\ResservedCode
+   }catch(\eJinn\Exception\eJinnExceptionInterface $e ){
+       //catch any class that impliments \eJinn\Exception\eJinnExceptionInterface
+   }
+```
+Now we have very fine grained control over our error handling.  The only proble with this type of error handling is the added hassle in setting the exception classes and keeping track of them.  This is exactly the issue __eJinn__ was designed to handle.
