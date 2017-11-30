@@ -25,15 +25,16 @@ An example of an **eJinn** configuration ( as a _PHP_ array).
         "support"       => "https://github.com/ArtisticPhoenix/eJinn/issues",
         "version"       => "1.0.0",
         "namespaces"     => [
-            //{Namespace} => [{Namespace Level}]
+            //{key:Namespace} => [{value:Namespace tier}]
             "eJinn\\Exception"  => [
                 "subpackage"    => "Exception",
                 "buildpath"     => "Exception",
                 "interfaces"    => [
+                     //{key:numeric} => {value:Base class name OR Interface Tier}
                     "eJinnExceptionInterface"
                 ],
                 "exceptions" => [
-                    //{Error Code} => {Base Class Name}
+                    //{key:Error_Code} => {value:Base class name OR Excption Tier}
                     0     => "UnknownError",
                     1001  => "ResservedCode",
                     1002  => "UnknownConfKey",
