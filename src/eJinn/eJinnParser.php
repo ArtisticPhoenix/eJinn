@@ -281,7 +281,7 @@ final class eJinnParser
             $this->ckBannedKeys("Namespace[$ns]", $namespace, $this->containers, $this->local);
             
             //check for unkown keys at this level.
-            $this->ckUnkownKeys("Namespace[$ns]", $namespace, $this->global);
+            $this->ckUnkownKeys("Namespace[$ns]", $namespace, $this->global, ['namespace' => false]);
 
             if ($interfaces) {
                 $impliments = $this->parseInterfaces($interfaces, $namespace);
