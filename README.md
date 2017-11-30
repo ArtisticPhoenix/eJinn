@@ -43,7 +43,7 @@ An example of an **eJinn** configuration ( as a _PHP_ array).
                     1005  => "KeyNotAllowed",
                     1006  => "KeyNotAllowed",
                     1007  => "ConfCollision",
-                    "1100"  => [
+                    1100  => [
                         "name" => "JsonParseError",
                         "reserved" => [[1101,1108]], //reserve range [1101-1108] @see: (json_last_error() + 1100)
                     ]
