@@ -115,8 +115,8 @@ Internal properties are denoted with __private__ in the __Required__ column belo
  impliments        |  array   |   ignored   |  
 
 ### Exception Considerations ###
-Without going into to much detail, I will briefly explain why it's benifical to use unique excptions.  The obvious example is this:
-    
+
+Without going into to much detail, I will briefly explain why it's benifical to use unique exceptions.  The obvious example is this:    
 ```php
    //Catch a single exception ( based on class )
    try{     
@@ -125,6 +125,7 @@ Without going into to much detail, I will briefly explain why it's benifical to 
        echo $e->getMessage(); //prints "?"
    }
 ```
+
 This is probably the worse exception example I could think of.  There is very little you can tell by this what exception it's surpressing or what you should do if it's an acceptable error, or a fatal one.  This is a slightly improved version:
 ```php
    //Catch a single exception ( based on class )
@@ -137,8 +138,9 @@ This is probably the worse exception example I could think of.  There is very li
          throw \Excption("rethrow", $e->getCode(), $e);   
    }
 ```
+
 This still dosn't give us a whole lot of options on catching and ignoring the error.
-A much better way is something like this
+A much better way is something like this:
 ```php
    //Catch a single exception ( based on class )
    try{     
@@ -149,4 +151,37 @@ A much better way is something like this
        //catch any class that impliments \eJinn\Exception\eJinnExceptionInterface
    }
 ```
-Now we have very fine grained control over our error handling.  The only proble with this type of error handling is the added hassle in setting the exception classes and keeping track of them.  This is exactly the issue __eJinn__ was designed to handle.
+Now we have very fine grained control over our error handling. We can catch only the errors we want, and we can handle a range of error in diffrent `catch` blocks.  The only problem with this type of error handling is the added hassle in setting the exception classes and keeping track of them.  
+
+This is exactly the issue __eJinn__ was designed to handle.  By simplifing the creation and tracking of these exceptions we can create as many exceptions as we need and have a sinular place to keep track of them.
+
+
+### Other Configuration Examples ###
+Minimal Config.
+```php
+return [
+    "version"       => "1.0.0",
+    "reserved" => [[1101,1108]],
+    "namespaces"     => [
+        "eJinn\\Exception"  => [
+            "buildpath"     => "Exception",
+            "interfaces"    => [
+                "eJinnExceptionInterface"
+            ],
+            "exceptions" => [
+                0     => "UnknownError",
+                1001  => "ResservedCode",
+                1002  => "UnknownConfKey",
+                1003  => "DuplateCode",
+                1004  => "MissingRequired",
+                1005  => "KeyNotAllowed",
+                1006  => "KeyNotAllowed",
+                1007  => "ConfCollision",
+                1100  => "JsonParseError"
+            ]
+        ]
+    ]
+];
+,,,
+
+
