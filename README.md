@@ -64,7 +64,7 @@ The main tiers of the configuration are _Global_, _Namespace_ and _Entity (Inter
 
 With the exception of the container properties listed above, each tier can contain any of the properties from any of the tiers above it. However, it cannot contain any properites from any tiers below it. The _Entity_ tier can contain any of the configuration properties, but the _Global_ tier can only contain the properties defined within it.
 
-Container properties are denoted with _protected_ in the __Required__ column below.  As stated above, these properties _Must_ exist a the tier shown and cannot be placed anywhere else in the configuration hierarchy.
+Container properties are denoted with _protected_ in the __Required__ column below.  As stated above, these properties _Must_ exist at the tier shown and cannot be placed anywhere else in the configuration hierarchy. __eJinn__ will throw an exception and let you know if there are any problems in your configuration.
 
 Internal properties are denoted with _private_ in the __Required__ column below.  In genral these properties are not accessable outside the _\\eJinn\\eJinnParser_ class and are shown here only for completeness and documentation purposes. They should **not** be included anywere within the configuration. 
 
