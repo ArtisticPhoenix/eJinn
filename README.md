@@ -170,6 +170,16 @@ return [
         ]
     ]
 ];
-,,,
+```
 
+Still a work in progress.
+
+ * currently the config parser is done.
+ * working on creating classes from the parsed data
+ * then
+     * work on some basic Readers
+     * unit testing
+     * documentation & examples
+     * packaging
+     
 
