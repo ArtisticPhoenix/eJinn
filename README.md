@@ -1,6 +1,6 @@
- eJinn (PHP v5.6+)
+ eJinn 
  =====
-The Exception Genie
+The Exception Genie (PHP v5.6+)
 -------------------
 
 ### Overview ###
