@@ -12,7 +12,9 @@ namespace eJinn\Exception;
  * @package eJinn
  * @subpackage Exception
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
- * @cacheKey afewadsff2324rsfsfdfDFE323Q
+ * @eJinn:hash afewadsff2324rsfsfdfDFE323Q
+ * @eJinn:buildVersion 0.0.1
+ * @eJinn:buildTime 1512128233.7546949
  */
 class UnknownException extends \Exception implements \eJinn\Exception\eJinnExceptionInterface
 {
