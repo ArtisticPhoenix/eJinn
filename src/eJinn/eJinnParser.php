@@ -122,8 +122,9 @@ final class eJinnParser
     
     
     /**
+     * Ouput debug messages
      *
-     * @var string
+     * @var bool
      */
     protected $debug = true;
     
