@@ -24,7 +24,7 @@ class UnknownException extends \Exception implements \eJinn\Exception\eJinnExcep
      * @param string $message [optional]
      * @param number $code [optional]
      * @param \Exception $previous [optional]
-     * @throws \eJinn\Exception\UnknownError
+     * @throws self
      */
     public function __construct($message = null, $code = 0, $previous = null)
     {
