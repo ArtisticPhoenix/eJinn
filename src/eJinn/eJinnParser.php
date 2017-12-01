@@ -80,19 +80,19 @@ final class eJinnParser
     ];
       
     /**
-     * Doc comment format
+     * Doc comment format (template)
      * @var array
      */
     protected $doc = [
-        "author"        => "@author %s",
-        "description"   => "%s",
-        "package"       => "@package %s",
-        "subpackage"    => "@subpackage %s",
-        "support"       => "@link %s",
-        "version"       => "@varsion %s",
-        "buildVersion"  => "@eJinn:buildVersion",
-        "buildTime"     => "@eJinn:buildTime",
-        "hash"          => "@eJinn:hash"
+        "author"        => " * @author %s",
+        "description"   => " * %s",
+        "package"       => " * @package %s",
+        "subpackage"    => " * @subpackage %s",
+        "support"       => " * @link %s",
+        "version"       => " * @varsion %s",
+        "buildVersion"  => " * @eJinn:buildVersion %s",
+        "buildTime"     => " * @eJinn:buildTime %s",
+        "hash"          => " * @eJinn:hash %s"
     ];
     
     /**
