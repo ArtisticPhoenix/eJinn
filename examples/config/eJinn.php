@@ -11,7 +11,7 @@ return [
     "namespaces"     => [
         ""                  => [
             "exceptions" => [
-                0 => "Test"
+                21 => "Test"
              ]
         ],
         "eJinn"             => [
@@ -44,6 +44,12 @@ return [
                     "reserved" => [[1101,1108], ""],
                 ]
             ]
+        ],
+        "foo" => [
+            "exceptions" => [
+                1200 => "Foo"
+             ]
         ]
+        
     ]
 ];
