@@ -13,6 +13,34 @@ namespace eJinn;
  */
 final class eJinnParser
 {
+    
+    /**
+     * Build versison of this parser
+     * 
+     * Placed in the compiled classes @ejinn:buildVersion doc tag
+     * when the build version is changed this should force rebuild
+     * of all compiled classes
+     * 
+     * @var string
+     */
+    protected $buildVersion = '0.0.1';
+    
+    /**
+     * Build time, the time the class was compiled on
+     * This is placed in the @eJinn:buildTime doc tag
+     * Obvioulsy we don't want to rebuild when the build
+     * time changes
+     * 
+     * @var double
+     */
+    protected $buildTime;
+    
+    /**
+     * 
+     * @var string
+     */
+    protected $buildPath;
+    
     /**
      * Keys that contain loclized data
      * @var array
@@ -62,7 +90,36 @@ final class eJinnParser
         "subpackage"    => "@subpackage %s",
         "support"       => "@link %s",
         "version"       => "@varsion %s",
+        "buildVersion"  => "@eJinn:buildVersion",
+        "buildTime"     => "@eJinn:buildTime",
+        "hash"          => "@eJinn:hash"
     ];
+    
+    /**
+     * Array of config properties used for the config hash
+     * placed in the @eJinn:hash doc tag. This insures that 
+     * the order and properties used in the hash will not change
+     * witout our knowing it.
+     * 
+     * @var array
+     */
+    protected $hashMap =[
+        'author'          => '',
+        'description'     => '',
+        'package'         => '',
+        'subpackage'      => '',
+        'support'         => '',
+        'version'         => '',
+        'buildpath'       => '',
+        'extends'         => '',
+        'severity'        => '',
+        'impliments'      => [],
+        'namespace'       => '',
+        'name'            => '',
+        'code'            => '',
+        'buildVersion'    => '',
+    ];
+    
     
     /**
      *
@@ -72,15 +129,15 @@ final class eJinnParser
     
     /**
      *
-     * @var number
-     */
-    protected $microtime;
-    
-    /**
-     *
      * @var array
      */
     protected $reserved = [];
+    
+    /**
+     * keep only 0 and '0', not these
+     * @var array
+     */
+    protected $nonReserve = [null,'',false];
     
     /**
      *
@@ -98,30 +155,11 @@ final class eJinnParser
      *
      * @param array $config - either an array config or a json config
      */
-    public function __construct(array $config = null)
+    public function __construct(array $config = null, $buildpath = null)
     {
-        $this->microtime = microtime(true);
-
         if ($config) {
-            $this->setConf($config);
+            $this->parse($config, $buildpath);
         }
-    }
-    
-    /**
-     *
-     * @param array $config
-     */
-    public function setConf(array $config)
-    {
-        $this->reset();
-        $this->parse($config);
-    }
-    
-    /**
-     * create the files
-     */
-    public function build()
-    {
     }
     
     /**
@@ -183,6 +221,15 @@ final class eJinnParser
         $this->reserved = [];
         $this->exceptions = [];
         $this->interfaces = [];
+        $this->buildTime = microtime(true); 
+        $this->validateHashMap();   
+    }
+    
+    /**
+     * create the files
+     */
+    public function build()
+    {
     }
     
     /**
@@ -190,16 +237,21 @@ final class eJinnParser
      *
      * @param array $eJinn
      */
-    protected function parse(array $eJinn)
+    public function parse(array $eJinn, $buildpath)
     {
+        
+        $this->reset();
+        
         //pre-process the array recursively
         $this->parseRecursive($eJinn);
-        unset($this->reserved['']);
-        //check reserved keys
+        
+        //clean and type check the reserved keys
+        $this->reserved = array_unique($this->reserved);
         if (!ctype_digit(implode('', $this->reserved))) {
             die("Reserved Error codes must be integers");
         }
-        
+
+        //Seperate the namespace container
         $namespaces = $this->extractArrayElement('namespaces', $eJinn);
         if (!$namespaces) {
             die("Namespaces element is required");
@@ -217,11 +269,16 @@ final class eJinnParser
         //continue parsing
         $this->parseNamespaces($namespaces, $global);
         
+        //ck duplicate error codes & reserve error codes
+        $usedCodes = array_column($this->exceptions,'code');
+        $this->chDuplicateCodes($usedCodes);
+        $this->chReserveCodes($usedCodes);
         
+        //Finished Parsing
+        
+        //Debugging
         $this->debug($this->reserved, __LINE__, "Reserved");
-        
-        $this->debug($this->interfaces, __LINE__, "Interfaces");
-        
+        $this->debug($this->interfaces, __LINE__, "Interfaces");        
         $this->debug($this->exceptions, __LINE__, "Exceptions");
     }
     
@@ -239,7 +296,7 @@ final class eJinnParser
         }
         
         $this->preserveReservedCodes($array);
-        
+
         foreach ($array as $key=>&$value) {
             if (is_array($value)) {
                 $this->parseRecursive($value, $key);
@@ -369,6 +426,13 @@ final class eJinnParser
                 
         $this->parseName($entity);
         
+        $entity['eJinn:buildVersion'] = $this->buildVersion;
+        $entity['eJinn:buildTime'] = $this->buildTime;
+          
+        //hash the entity for compile checking
+        $entity['eJinn:hash'] = $this->hashEntityConfig($entity);
+        
+        
         return $entity;
     }
     
@@ -417,12 +481,11 @@ final class eJinnParser
     {
         $reserved = $this->extractArrayElement('reserved', $array);
         
-        if (!$reserved) {
-            return;
-        }
-        
+        //ignore if reserved is empty
+        if ($reserved === false) return;
+
         if (!is_array($reserved)) {
-            die("Reserved must be an array of Error Codes");
+            die("Expeted array for property reserved, given ".gettype($reserved));
         }
    
         foreach ($reserved as $reserve) {
@@ -432,9 +495,28 @@ final class eJinnParser
                 }
                 $range = range(array_shift($reserve), array_shift($reserve));
                 $this->reserved += array_combine($range, $range);
-            } else {
+            } else if( !in_array($reserve, $this->nonReserve, true) ){
+                //do not add [false,null,''], strict check
                 $this->reserved[$reserve] = $reserve;
             }
+        }
+    }
+    
+    /**
+     * Check for used Error codes present in the Reserved list
+     * 
+     * @param array $usedCodes
+     */
+    protected function chReserveCodes(array $usedCodes){
+        $diff = array_intersect($usedCodes, $this->reserved);
+
+        if(0 != ( $len = count($diff))){
+            $s = ($len > 1) ? 's' : '';
+            $excptionIdx = array_keys($this->exceptions);
+            foreach ($diff as $k=>&$v){
+                $v = "{$excptionIdx[$k]}::$v";
+            }
+            die("Reserved Error Code{$s} used '".implode("','", $diff)."'");
         }
     }
     
@@ -460,6 +542,26 @@ final class eJinnParser
         return $item;
     }
     
+    
+    /**
+     * Checked for Error Codes used more then once
+     * 
+     * @param array $usedCodes
+     */
+    protected function chDuplicateCodes(array $usedCodes){       
+        //check for duplicate error codes
+        $unique = array_unique($usedCodes);       
+        $diff = array_diff_assoc($usedCodes, $unique);
+
+        if(0 != ( $len = count($diff))){
+            $s = ($len > 1) ? 's' : '';
+            $excptionIdx = array_keys($this->exceptions);
+            foreach ($diff as $k=>&$v){
+                $v = "{$excptionIdx[$k]}::$v";
+            }
+            die("Duplicate Error Code{$s} for '".implode("','", $diff)."'");
+        }
+    }
     
     /**
      * Parse an name and a namespace
@@ -489,6 +591,22 @@ final class eJinnParser
         $entity['qualifiedname'] = $qName;
     }
     
+
+    
+    protected function hashEntityConfig(array $entity){
+        //merge with the map, sets order fills in defaults
+        $mapped = array_merge($this->hashMap, $entity);
+        //intersect with the map, removes any extra properties from $mapped
+        $mapped = array_intersect_key($mapped, $this->hashMap);
+        $mapped['impliments'] = implode('|', $mapped['impliments']);
+        
+        return sha1('['.implode(']|[', $mapped).']');
+    }
+    
+    protected function validateHashMap(){
+        
+    }
+    
     /**
      * simple debug function  ( mainly for development )
      *
@@ -497,7 +615,7 @@ final class eJinnParser
      */
     protected function debug($message, $line, $title = '')
     {
-        $elapsed = number_format((microtime(true) - $this->microtime), 5);
+        $elapsed = number_format((microtime(true) - $this->buildTime), 5);
         $o = [];
         $o[] = str_pad(" ".__CLASS__." ", 100, "*", STR_PAD_BOTH);
         $o[] = str_pad("[{$elapsed}/s] in ".__FILE__." on {$line}", 100, " ", STR_PAD_BOTH);
