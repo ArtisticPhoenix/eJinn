@@ -108,11 +108,11 @@ Internal properties are denoted with __private__ in the __Required__ column belo
  ----------------- | -------- | ----------- | ------------------------------------------------------
  name              |  string  |     yes     | Interface's Class name. Should not include a namespace, it should be the base class name.
  qName             |  string  |   private   | The fully qualied class name `namespace\\class`
- code              |  integer |   ignored   |  
- severity          |  integer |   ignored   |  
- message           |  string  |   ignored   |  
- extends           |  string  |   ignored   |  
- impliments        |  array   |   ignored   |  
+ code              |  integer |   ignored   | Not Aplicable to this entity type
+ severity          |  integer |   ignored   | Not Aplicable to this entity type 
+ message           |  string  |   ignored   | Not Aplicable to this entity type 
+ extends           |  string  |   ignored   | Not Aplicable to this entity type 
+ impliments        |  array   |   ignored   | Not Aplicable to this entity type 
 
 ### Exception Considerations ###
 
