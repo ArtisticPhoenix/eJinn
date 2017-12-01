@@ -119,8 +119,7 @@ final class eJinnParser
         'code'            => '',
         'buildVersion'    => '',
     ];
-    
-    
+        
     /**
      * Ouput debug messages
      *
