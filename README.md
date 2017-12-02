@@ -68,7 +68,7 @@ Container properties are denoted with __protected__ in the __Required__ column b
 
 Internal properties are denoted with __private__ in the __Required__ column below.  In general these properties are not accessable outside the `\\eJinn\\eJinnParser` class and are shown here only for completeness and documentation purposes. They should **not** be included anywere within the configuration. 
 
-Comment properties are properties that begin with a `_`.  These properties are removed(ignored) from the configuration while it is being proccessed by the parser.  This is useful because it allows you to exclude chunks of the configuration without actually deleting them. You can also leave yourself development notes with in the configuration by simply doing something like this `_coment = "eJinn is the most awesomeist thing I ever saw"`.
+Comment properties are properties that begin with a `_`.  These properties _(and their decendants)_ are removed(ignored) from the configuration while it is being proccessed by the parser.  This is useful because it allows you to exclude chunks of the configuration without actually deleting them. You can also leave yourself development notes with in the configuration by simply doing something like this `_coment = "eJinn is the most awesomeist thing I ever saw"`.
 
 ### Global Tier ###
  Property          |   Type   |   Required  | Description
