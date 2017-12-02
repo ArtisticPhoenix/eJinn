@@ -68,6 +68,8 @@ Container properties are denoted with __protected__ in the __Required__ column b
 
 Internal properties are denoted with __private__ in the __Required__ column below.  In general these properties are not accessable outside the `\\eJinn\\eJinnParser` class and are shown here only for completeness and documentation purposes. They should **not** be included anywere within the configuration. 
 
+Comment properties are properties that begin with a `_`.  These properties are removed(ignored) from the configuration while it is being proccessed by the parser.  This is useful because it allows you to exclude chunks of the configuration without actually deleting them. You can also leave yourself development notes with in the configuration by simply doing something like this `_coment = "eJinn is the most awesomes thing I ever did see"`.
+
 ### Global Tier ###
  Property          |   Type   |   Required  | Description
  ----------------- | -------- | ----------- | ------------------------------------------------------
@@ -85,7 +87,8 @@ Internal properties are denoted with __private__ in the __Required__ column belo
  namespaces        |  array   |  protected  | Array of namespaces, the `key` should be the namespace which is used by the entities nested in this array.
  eJinnHash         |  string  |   private   | Used as the `@eJinn:hash` tag. Configuration hash used to check when changes are made
  eJinnBuildVersion |  string  |   private   | Used as the `@eJinn:buildVersion` tag. This allows the __eJinn__ project to force a recompile when updates are done to the compiler, seperate from the __eJinn__ version number.
- eJinnBuildDate    |  string  |   private   | Used as the `@eJinn:buildDate` tag. Configuration hash used to check when changes are made
+ eJinnBuildtime    |  float   |   private   | Used as the `@eJinn:buildTate` tag. Configuration hash used to check when changes are made
+eJinnPathname      |  string  |   private   | class Path and filename
 
 ### Namespace Teir ### 
  Property          |   Type   |  Required   | Description
@@ -113,6 +116,22 @@ Internal properties are denoted with __private__ in the __Required__ column belo
  message           |  string  |   ignored   | Not Aplicable to this entity type 
  extends           |  string  |   ignored   | Not Aplicable to this entity type 
  impliments        |  array   |   ignored   | Not Aplicable to this entity type 
+ 
+### Pre-Reading ###
+Pre-Reading is defined as the act of opening a configuration file and translating it into the array structure given above. The __eJinn__ parser class only understands _PHP_ array structure above.  By seperating this out into it's own unique step, __eJinn__ can use virtual any configuration file type possible.  
+
+### Parsing ###
+Parsing is defined as the act of taking the _PHP_ configuration array and proccessing it.  The main job of this step is to flatten out the ineritance tree, and assign all relevent values to either an exception or interface entity.  During this step we also check the configuration for various errors.
+
+### Compiling ###
+Compiling is defined as the act of creating the actual _PHP_ class files for the entities found in the configuration file. 
+
+
+### Locking ###
+Locking is defined as the act of creating a _eJinn.lock_ file, which prevents mulitple processes from running the parser/compiler at the same time.  This file will be deleted when the compiling process completes. 
+
+### Caching ###
+Caching is defined as the act of creating a _eJinn.cache_ file, this file stores a reference to previously compiled entities.  This is done so the next time the compiler is ran it can skip creating some of the _PHP_ class files for entities that have not changed.  You can delete the _.cache_ file to force _eJinn_ to recompile all entites.
 
 ### Exception Considerations ###
 
