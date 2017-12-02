@@ -87,7 +87,7 @@ Comment properties are properties that begin with a `_`.  These properties are r
  namespaces        |  array   |  protected  | Array of namespaces, the `key` should be the namespace which is used by the entities nested in this array.
  eJinnHash         |  string  |   private   | Used as the `@eJinn:hash` tag. Configuration hash used to check when changes are made
  eJinnBuildVersion |  string  |   private   | Used as the `@eJinn:buildVersion` tag. This allows the __eJinn__ project to force a recompile when updates are done to the compiler, seperate from the __eJinn__ version number.
- eJinnBuildtime    |  float   |   private   | Used as the `@eJinn:buildTate` tag. Configuration hash used to check when changes are made
+ eJinnBuildtime    |  float   |   private   | Used as the `@eJinn:buildTate` tag. Configuration hash used to check when changes are made _(microtime)_
 eJinnPathname      |  string  |   private   | class Path and filename
 
 ### Namespace Teir ### 
