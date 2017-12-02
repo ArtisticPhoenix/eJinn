@@ -39,16 +39,36 @@ final class eJinnParser
      *
      * @var string
      */
-    protected $buildPath;
+    protected $basePath;
+    
+    /**
+     * list of permitted options
+     *
+     * @var array
+     */
+    protected $defaultOptions = [
+        'forceunlock'       => false,
+        'forcerecompile'    => false,
+        'debug'             => [],
+        'createpaths'       => false,
+        'parseonly'         => false
+    ];
+    
+    /**
+     * runtime options
+     *
+     * @var array
+     */
+    protected $options = [];
     
     /**
      * Keys that contain loclized data
      * @var array
      */
     protected $local = [
-        "name"          => false,
+        "name"          => "",
         "code"          => false,
-        'message'       => false
+        'message'       => ""
     ];
     
     /**
@@ -66,13 +86,13 @@ final class eJinnParser
      * @var array
      */
     protected $global = [
-        "author"        => false,
-        "description"   => false,
-        "package"       => false,
-        "subpackage"    => false,
-        "support"       => false,
-        "version"       => false,
-        "buildpath"     => false,
+        "author"        => "",
+        "description"   => "",
+        "package"       => "",
+        "subpackage"    => "",
+        "support"       => "",
+        "version"       => "",
+        "buildpath"     => "",
         "extends"       => "\Exception",
         "severity"      => E_ERROR,
         'impliments'    => [],
@@ -90,8 +110,8 @@ final class eJinnParser
         "subpackage"    => " * @subpackage %s",
         "support"       => " * @link %s",
         "version"       => " * @varsion %s",
-        "buildVersion"  => " * @eJinn:buildVersion %s",
-        "buildTime"     => " * @eJinn:buildTime %s",
+        "buildversion"  => " * @eJinn:buildVersion %s",
+        "buildtime"     => " * @eJinn:buildTime %s",
         "hash"          => " * @eJinn:hash %s"
     ];
     
@@ -117,15 +137,21 @@ final class eJinnParser
         'namespace'       => '',
         'name'            => '',
         'code'            => '',
-        'buildVersion'    => '',
+        'buildversion'    => '',
     ];
+    
+    /**
+     * an array containing ($global, $contianers, $local)
+     * @var array
+     */
+    protected $allKeys = [];
         
     /**
      * Ouput debug messages
      *
      * @var bool
      */
-    protected $debug = true;
+    protected $debug = [];
     
     /**
      *
@@ -135,6 +161,10 @@ final class eJinnParser
     
     /**
      * keep only 0 and '0', not these
+     * becuase this is in a recursive function
+     * it may be better to have a property then
+     * hardcoded array
+     *
      * @var array
      */
     protected $nonReserve = [null,'',false];
@@ -155,10 +185,10 @@ final class eJinnParser
      *
      * @param array $config - either an array config or a json config
      */
-    public function __construct(array $config = null, $buildpath = null)
+    public function __construct(array $config = null, $buildpath = null, array $options = [])
     {
         if ($config) {
-            $this->parse($config, $buildpath);
+            $this->parse($config, $buildpath, $options);
         }
     }
     
@@ -209,7 +239,11 @@ final class eJinnParser
      */
     public function getAllKeys()
     {
-        return array_merge($this->global, $this->containers, $this->local);
+        if (!$this->allKeys) {
+            $this->allKeys = array_merge($this->global, $this->containers, $this->local);
+        }
+        
+        return $this->allKeys;
     }
     
     /**
@@ -226,7 +260,9 @@ final class eJinnParser
         $this->exceptions = [];
         $this->interfaces = [];
         $this->buildTime = microtime(true);
+        $this->basePath = '';
         $this->validateHashMap();
+        $this->options = [];
     }
     
     /**
@@ -239,18 +275,34 @@ final class eJinnParser
     /**
      * Parse the eJinn config array
      *
-     * @param array $eJinn
+     * @param array $config
+     * @param string $buildpath - basepath to build off of ( typically the base path of the config )
+     *
      */
-    public function parse(array $eJinn, $buildpath)
+    public function parse(array $config, $buildpath, array $options = [])
     {
+        //reset on a new parse call
         $this->reset();
         
-        //pre-process the array recursively
-        $this->parseRecursive($eJinn);
+        //validate options
+        $options = $this->recursiveArrayChangeKeyCase($options);
+        $this->ckUnkownKeys("Options", $options, $this->options);
+        $this->options = array_replace($this->defaultOptions, $options);
         
+        //validate the base buildpath, ingore createpaths on the basepath
+        $this->ckPath("Config Path", $buildpath, true);
+        $this->basePath = rtrim(str_replace("\\", "/", $buildpath), "/");
+        
+        //lowercase config keys -> except children of namespace.
+        $eJinn = $this->recursiveArrayChangeKeyCase($config, CASE_LOWER, ['namespaces']);
+
+        //pre-process the array recursively
+        $eJinn = $this->parseRecursive($eJinn);
+
         //clean and type check the reserved keys
         $this->reserved = array_unique($this->reserved);
-        if (!ctype_digit(implode('', $this->reserved))) {
+        if (!empty($this->reserved) && !ctype_digit(implode($this->reserved))) {
+            $this->debug($this->reserved);
             die("Reserved Error codes must be integers");
         }
 
@@ -264,10 +316,10 @@ final class eJinnParser
         $global = array_replace($this->global, $eJinn);
         
         //check for keys not allowed at this level
-        $this->ckBannedKeys("TopLevel", $global, $this->containers, $this->local);
+        $this->ckBannedKeys("Global Teir", $global, $this->containers, $this->local);
         
         //check for unkown keys at this level.
-        $this->ckUnkownKeys("TopLevel", $global, $this->global);
+        $this->ckUnkownKeys("Global Tier", $global, $this->global);
                
         //continue parsing
         $this->parseNamespaces($namespaces, $global);
@@ -280,9 +332,9 @@ final class eJinnParser
         //Finished Parsing
         
         //Debugging
-        $this->debug($this->reserved, __LINE__, "Reserved");
-        $this->debug($this->interfaces, __LINE__, "Interfaces");
-        $this->debug($this->exceptions, __LINE__, "Exceptions");
+        $this->debug($this->reserved);
+        $this->debug($this->interfaces);
+        $this->debug($this->exceptions);
     }
     
     /**
@@ -291,20 +343,28 @@ final class eJinnParser
      * @param array $array pass by refrence
      * @param string $current
      */
-    protected function parseRecursive(array &$array, $current = null)
+    protected function parseRecursive(array $array, $current = null)
     {
-        //$this->debug( __FUNCTION__, __LINE__);
-        if ($current != 'namespaces') {
-            $array = array_change_key_case($array, CASE_LOWER);
-        }
+        $internal = [];
         
         $this->preserveReservedCodes($array);
 
-        foreach ($array as $key=>&$value) {
-            if (is_array($value)) {
-                $this->parseRecursive($value, $key);
+        foreach ($array as $key=>$value) {
+            $key = (string)$key;
+            
+            if (substr($key, 0, 1) == '_') {
+                //remove elements and their decendants with an _
+                continue;
             }
+            
+            if (is_array($value)) {
+                $value = $this->parseRecursive($value, $key); //recursive
+            }
+            
+            $internal[$key] = $value;
         }
+        
+        return $internal;
     }
     
     /**
@@ -335,7 +395,11 @@ final class eJinnParser
             //normalize merge global
             $namespace = array_replace($global, $config, ['namespace' => $ns]);
             
-            //$this->debug($namespace, __LINE__);
+            //$this->debug($namespace);
+            
+            if (empty($ns)) {
+                $ns = '\\';
+            }
             
             //check for keys not allowed at this level
             $this->ckBannedKeys("Namespace[$ns]", $namespace, $this->containers, $this->local);
@@ -365,7 +429,7 @@ final class eJinnParser
     {
         $impliments = [];
         
-        //$this->debug($namespace, __LINE__);
+        //$this->debug($namespace);
         
         foreach ($interfaces as $interface) {
             $interface = $this->parseEntity($interface, $namespace);
@@ -388,7 +452,7 @@ final class eJinnParser
     protected function parseExceptions(array $exceptions, array $namespace)
     {
         
-        //$this->debug($namespace, __LINE__);
+        //$this->debug($namespace);
         
         foreach ($exceptions as $code => $exception) {
             $exception = $this->parseEntity($exception, $namespace);
@@ -429,15 +493,204 @@ final class eJinnParser
                 
         $this->parseName($entity);
         
-        $entity['eJinn:buildVersion'] = $this->buildVersion;
-        $entity['eJinn:buildTime'] = $this->buildTime;
+        $entity['buildpath'] = $this->parsePath($entity['buildpath']);
+        
+        $entity['ejinn:buildversion'] = $this->buildVersion;
+        $entity['ejinn:buildtime'] = $this->buildTime;
           
         //hash the entity for compile checking
-        $entity['eJinn:hash'] = $this->hashEntityConfig($entity);
+        $entity['ejinn:hash'] = $this->hashEntityConfig($entity);
         
         
         return $entity;
     }
+    
+    //========================================================//
+    //                  HELPERS
+    //========================================================//
+    
+    /**
+     * Seperate out and save any Reserved Error codes.
+     *
+     * @param array $array
+     */
+    protected function preserveReservedCodes(array &$array = null)
+    {
+        $reserved = $this->extractArrayElement('reserved', $array);
+        
+        //ignore if reserved is empty
+        if ($reserved === false) {
+            return;
+        }
+        
+        if (!is_array($reserved)) {
+            die("Expeted array for property reserved, given ".gettype($reserved));
+        }
+        
+        foreach ($reserved as $reserve) {
+            if (is_array($reserve)) {
+                if (count($reserve) != 2) {
+                    die("Nested reserved must contain exactly 2 elements");
+                }
+                $range = range(array_shift($reserve), array_shift($reserve));
+                $this->reserved += array_combine($range, $range);
+            } elseif (!in_array($reserve, $this->nonReserve, true)) {
+                //do not add [false,null,''], strict check
+                $this->reserved[$reserve] = $reserve;
+            }
+        }
+    }
+    
+    /**
+     * Cut an item for array, by key.
+     *
+     * returns the item on success, false on failure
+     * the oringal array is also modifed by removing the item
+     *
+     * @param string $key
+     * @param array $array
+     * @return boolean|mixed
+     */
+    protected function extractArrayElement($key, array &$array)
+    {
+        if (!isset($array[$key])) {
+            return false;
+        }
+        
+        $item = $array[$key];
+        unset($array[$key]);
+        return $item;
+    }
+    
+    /**
+     * Parse an name and a namespace
+     *
+     * This normalizes namespaces and creates a fully qualifed class name
+     *
+     * @param array $entity
+     * @param array $config
+     */
+    protected function parseName(array &$entity)
+    {
+        $ns = "\\";
+        
+        //Parsed names cannot contain \\, ie. they must be relative paths
+        if (false !== strpos($entity['name'], $ns)) {
+            die("Entity name[{$entity['name']}] cannot contain a NS '$ns' IN ".__FILE__." ON ".__LINE__);
+        }
+        
+        $entity['namespace'] = trim($entity['namespace'], $ns);
+        
+        if (!empty($entity['namespace'])) {
+            $qName = $ns.$entity['namespace'].$ns.$entity['name'];
+        } else {
+            $qName = $ns.$entity['name'];
+        }
+        
+        $entity['qualifiedname'] = $qName;
+    }
+    
+    /**
+     *
+     * @param string $path
+     * @return string
+     */
+    public function parsePath($path)
+    {
+        $type = gettype($path);
+       
+        switch ($type) {
+            case "integer":
+            case "double":
+            case "string":
+                //do nothing
+            break;
+            case "boolean":
+            case "NULL":
+                $path = "";
+            break;
+            case "array":
+            case "object":
+            case "resource":
+            case "resource (closed)":
+            case "unknown type":
+            default:
+                $this->debug($path, ["error"]);
+                die("Unexpected type: expected string given $type");
+        }
+        
+        if ($type == "" || $type == 'array') {
+            $this->debug("BasePath: ".$this->basePath);
+        }
+        
+        //normalize windows like paths
+        $path = str_replace("\\", "/", $path);
+        
+        // $local = strchr(rtrim(str_replace("\\", "/", __FILE__).'/'),'/');
+        //  $this->debug("Local Path: ".$local);
+      
+        if ($path) {
+            $this->debug("Entity Path: ".$path);
+        }
+    }
+    
+    /**
+     * normalize windows like paths
+     *
+     * @param string $path
+     * @return string
+     */
+    protected function normalizePath($path)
+    {
+        return str_replace("\\", "/", path);
+    }
+    
+    /**
+     * hash the entities config ( for cacheing purposes )
+     *
+     * @param array $entity
+     * @return string
+     */
+    protected function hashEntityConfig(array $entity)
+    {
+        //merge with the map, sets order fills in defaults
+        $mapped = array_merge($this->hashMap, $entity);
+        //intersect with the map, removes any extra properties from $mapped
+        $mapped = array_intersect_key($mapped, $this->hashMap);
+        $mapped['impliments'] = implode('|', $mapped['impliments']);
+        
+        return sha1('['.implode(']|[', $mapped).']');
+    }
+    
+    /**
+     * Change the cassing of array keys recursivly ( normalization )
+     *
+     * @param array $array the input array
+     * @param string $case the case to change it to CASE_LOWER[default], or CASE_UPER
+     * @param array $exclude an array of keys who's nested array should not have the case changed
+     * @param string $current the current key, used for excluding the child keys
+     */
+    protected function recursiveArrayChangeKeyCase(array $array, $case = CASE_LOWER, array $exclude = [], $current = null)
+    {
+        if (!in_array($current, $exclude, true)) {
+            //           $this->debug($current);
+            $array = array_change_key_case($array, $case);
+        }
+
+        foreach ($array as $key => &$value) {
+            if (is_array($value)) {
+                $value = $this->recursiveArrayChangeKeyCase($value, $case, $exclude, $key); //recursive
+            }
+        }
+        return $array;
+    }
+    
+    
+    
+    
+    //========================================================//
+    //                  VALIDATORS
+    //========================================================//
     
     /**
      * check for keys not allowed at this level
@@ -474,39 +727,7 @@ final class eJinnParser
             die("Unknown key{$s} '".implode("', '", array_keys($diff))."' in $set");
         }
     }
-    
-    /**
-     * Seperate out and save any Reserved Error codes.
-     *
-     * @param array $array
-     */
-    protected function preserveReservedCodes(array &$array = null)
-    {
-        $reserved = $this->extractArrayElement('reserved', $array);
         
-        //ignore if reserved is empty
-        if ($reserved === false) {
-            return;
-        }
-
-        if (!is_array($reserved)) {
-            die("Expeted array for property reserved, given ".gettype($reserved));
-        }
-   
-        foreach ($reserved as $reserve) {
-            if (is_array($reserve)) {
-                if (count($reserve) != 2) {
-                    die("Nested reserved must contain exactly 2 elements");
-                }
-                $range = range(array_shift($reserve), array_shift($reserve));
-                $this->reserved += array_combine($range, $range);
-            } elseif (!in_array($reserve, $this->nonReserve, true)) {
-                //do not add [false,null,''], strict check
-                $this->reserved[$reserve] = $reserve;
-            }
-        }
-    }
-    
     /**
      * Check for used Error codes present in the Reserved list
      *
@@ -525,29 +746,6 @@ final class eJinnParser
             die("Reserved Error Code{$s} used '".implode("','", $diff)."'");
         }
     }
-    
-  
-    /**
-     * Cut an item for array, by key.
-     *
-     * returns the item on success, false on failure
-     * the oringal array is also modifed by removing the item
-     *
-     * @param string $key
-     * @param array $array
-     * @return boolean|mixed
-     */
-    protected function extractArrayElement($key, array &$array)
-    {
-        if (!isset($array[$key])) {
-            return false;
-        }
-        
-        $item = $array[$key];
-        unset($array[$key]);
-        return $item;
-    }
-    
     
     /**
      * Checked for Error Codes used more then once
@@ -571,68 +769,113 @@ final class eJinnParser
     }
     
     /**
-     * Parse an name and a namespace
-     *
-     * This normalizes namespaces and creates a fully qualifed class name
-     *
-     * @param array $entity
-     * @param array $config
+     * validate the hash map
      */
-    protected function parseName(array &$entity)
-    {
-        $ns = "\\";
-        
-        //Parsed names cannot contain \\, ie. they must be relative paths
-        if (false !== strpos($entity['name'], $ns)) {
-            die("Entity name[{$entity['name']}] cannot contain a NS '$ns' IN ".__FILE__." ON ".__LINE__);
-        }
-        
-        $entity['namespace'] = trim($entity['namespace'], $ns);
-        
-        if (!empty($entity['namespace'])) {
-            $qName = $ns.$entity['namespace'].$ns.$entity['name'];
-        } else {
-            $qName = $ns.$entity['name'];
-        }
-        
-        $entity['qualifiedname'] = $qName;
-    }
-    
-
-    
-    protected function hashEntityConfig(array $entity)
-    {
-        //merge with the map, sets order fills in defaults
-        $mapped = array_merge($this->hashMap, $entity);
-        //intersect with the map, removes any extra properties from $mapped
-        $mapped = array_intersect_key($mapped, $this->hashMap);
-        $mapped['impliments'] = implode('|', $mapped['impliments']);
-        
-        return sha1('['.implode(']|[', $mapped).']');
-    }
-    
     protected function validateHashMap()
     {
+        $this->ckUnkownKeys(
+            'HashMap',
+            $this->hashMap,
+            $this->getAllKeys(),
+            [
+                "namespace"     => false,
+                "qname"         => false,
+                "impliments"    => false,
+                "buildversion"  => false
+            ]
+        );
+    }
+    
+    /**
+     *
+     * @param string $title path title for debugging and error reporting
+     * @param striing $path
+     * @param string $ignoreOptions when createpaths is set we ignore missing dirs
+     */
+    protected function ckPath($title, $path, $ignoreOptions = false)
+    {
+        $this->debug($this->options);
+        
+        if (!$ignoreOptions && $this->options['createpaths']) {
+            return;
+        }
+        
+        if (!is_dir($path)) {
+            die("Path[{$title}] not found ".$path);
+        }
+        if (!is_writable($path)) {
+            die("Path[{$title}] is not writable ".$path);
+        }
     }
     
     /**
      * simple debug function  ( mainly for development )
      *
      * @param string $message
-     * @param int $line __LINE__
+     * @param mixed $key
      */
-    protected function debug($message, $line, $title = '')
+    protected function debug($message, $key = false)
     {
+        if (!is_array($this->debug)) {
+            return;
+        }
+
+        $trace = $this->debugTrace(1);
+        
+        if (!$key) {
+            $key = [$trace['function']];
+        } else {
+            if (!is_array($key)) {
+                $key = [$key];
+            }
+            //make sure the function is always a debug key
+            if (!in_array($trace['function'], $key)) {
+                $key[] = $trace['function'];
+            }
+        }
+        
+        if (!empty($this->debug) && !count(array_intersect($key, $this->debug))) {
+            return;
+        }
+
+        //if(!empty($this->debug) && !in_array(strtolower($key),$this->debug)) return;
+
         $elapsed = number_format((microtime(true) - $this->buildTime), 5);
         $o = [];
-        $o[] = str_pad(" ".__CLASS__." ", 100, "*", STR_PAD_BOTH);
-        $o[] = str_pad("[{$elapsed}/s] in ".__FILE__." on {$line}", 100, " ", STR_PAD_BOTH);
-        $o[] = str_pad(" {$title} ", 100, "-", STR_PAD_BOTH);
+        $o[] = str_pad(" ".__CLASS__." ", 100, "=", STR_PAD_BOTH);
+        $o[] = str_pad("[{$elapsed}/s] in {$trace['file']} on {$trace['line']}", 100, " ", STR_PAD_BOTH);
+        $o[] = str_pad(" {$trace['function']} ", 100, "=", STR_PAD_BOTH);
         $o[] = var_export($message, true);
-        $o[] = str_pad("", 100, "=", STR_PAD_BOTH);
+        $o[] = str_pad("", 100, "-", STR_PAD_BOTH);
         
-        if ($this->debug) {
-            echo implode("\n", $o)."\n\n";
+        echo implode("\n", $o)."\n\n";
+    }
+    
+    
+    /**
+     * get the line this function was called from ( $offset )
+     *
+     * @param number $offset
+     * @return array
+     */
+    public static function debugTrace($offset = 0)
+    {
+        ++$offset; //add one for this methods call
+        
+        //get the backtrace, pull only the top level and only as deep as we need to
+        $trace = debug_backtrace(false|DEBUG_BACKTRACE_IGNORE_ARGS, $offset + 1);
+
+        if (!$trace) {
+            return [
+               'file'       => __FILE__,
+               'line'       => 'Unknown',
+               'function'   => '{Unknown}'
+           ];
         }
+        
+        //get the line from the previous function call, ie where $this->debug() was called
+        $tbt = $trace[$offset];
+        $tbt['line'] = $trace[$offset-1]['line'];
+        return $tbt;
     }
 }
