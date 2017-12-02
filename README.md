@@ -18,7 +18,7 @@ An example of an **eJinn** configuration ( as a _PHP_ array).
 ```php
     return [
         "author"        => "ArtisticPhoenix",
-        "buildpath"     => "Exception",
+        "buildpath"     => "{autoload:psr4}",
         "description"   => "eJinn The Exception Genie",
         "package"       => "eJinn",
         "subpackage"    => "",
@@ -48,13 +48,13 @@ An example of an **eJinn** configuration ( as a _PHP_ array).
                         "reserved" => [[1101,1108]], //reserve range [1101-1108] @see: (json_last_error() + 1100)
                     ]
                 ]//end exceptions
-            ]//end namespace "eJinn\\Exception"
+            ]//end namespace "eJinn\Exception"
         ] //end namespaces
     ];//end config
 ```
 __eJinn's__ configuration is based on a _Multiple Tier_ based tree with _Top Down Inheritance_.  This lets us have the maximum flexabillity while still maintaining the minimum configuration size. Properties are passed down the tree from the higher level _(Parent)_ to lower levels _(Children)_. If a property exists in both the _Child_ and the _Parent_, then the value for the _Child's_ property is used.
 
-The configuration can be as simple as the _PHP_ array shown above, or you can use an `\\eJinn\\Reader\\{Type}` class to convert many diffrent types of files into the _PHP_ array which is then passed into the `\\eJinn\\eJinnParser` class.  The _Reader_ is desined to be extendable, so if one doesn't exist for the type of configuration file you prefer, let us know!
+The configuration can be as simple as the _PHP_ array shown above, or you can use an `\eJinn\Reader\{Type}` class to convert many diffrent types of files into the _PHP_ array which is then passed into the `\eJinn\eJinnParser` class.  The _Reader_ is desined to be extendable, so if one doesn't exist for the type of configuration file you prefer, let us know!
 
 Configuration Schema
 --------------------
@@ -66,7 +66,7 @@ With the exception of the container properties listed above, each tier can conta
 
 Container properties are denoted with __protected__ in the __Required__ column below.  As stated above, these properties _Must_ exist at the tier shown and cannot be placed anywhere else in the configuration hierarchy. __eJinn__ will throw an exception and let you know if there are any problems in your configuration.
 
-Internal properties are denoted with __private__ in the __Required__ column below.  In general these properties are not accessable outside the `\\eJinn\\eJinnParser` class and are shown here only for completeness and documentation purposes. They should **not** be included anywere within the configuration. 
+Internal properties are denoted with __private__ in the __Required__ column below.  In general these properties are not accessable outside the `\eJinn\eJinnParser` class and are shown here only for completeness and documentation purposes. They should **not** be included anywere within the configuration. 
 
 Comment properties are properties that begin with a `_`.  These properties _(and their decendants)_ are removed(ignored) from the configuration while it is being proccessed by the parser.  This is useful because it allows you to exclude chunks of the configuration without actually deleting them. You can also leave yourself development notes with in the configuration by simply doing something like this `_coment = "eJinn is the most awesomeist thing I ever saw"`.
 
@@ -74,14 +74,14 @@ Comment properties are properties that begin with a `_`.  These properties _(and
  Property          |   Type   |   Required  | Description
  ----------------- | -------- | ----------- | ------------------------------------------------------
  author            |  string  |     no      | Used as the `@author` tag in the Entity's Doc Comment.
- buildpath         |  string  |     yes     | Path where the Class files will be saved. Absolute path or relative to the configuration file.
+ buildpath         |  string  |     no      | * See below 
  description       |  string  |     no      | Placed in the opening line of the Entitie's Doc Comment.
  package           |  string  |     no      | Used as the `@package` tag.
  subPackage        |  string  |     no      | Used as the `@subpackage` tag.
  support           |  string  |     no      | Used as the `@link` tag. This can be a URL or an Email. Support help for your project.               
  version           |  string  |     yes     | Used as the `@version` tag. Format `major.minor[.revision]`. __eJinn__ will recompile the classes if the version is changed.
- extends           |  string  |     no      | A base Exception class to extend, default is _PHP's_ `\\Excption` class. This should be a fully qualified class name.
- severity          |  string  |     no      | A default severity value, usefull only used when decendant of _PHP's_ `\\ErrorExcption` class. Also creates class constant `Class::SEVERITY`. The default is `E_USER_ERROR`               
+ extends           |  string  |     no      | A base Exception class to extend, default is _PHP's_ `\Excption` class. This should be a fully qualified class name.
+ severity          |  string  |     no      | A default severity value, usefull only used when decendant of _PHP's_ `\ErrorExcption` class. Also creates class constant `Class::SEVERITY`. The default is `E_USER_ERROR`               
  impliments        |  array   |     no      | Array of fully quallifed interfance names for excptions to impliment. Ignored by interface entities(excptions can impliment multiple interfaces). Interfaces created by __eJinn__ are automatically populated where aplicable.            
  reserved          |  array   |     no      | Array of integer codes, or nested arrays `[[min,max]]` for a range of integers. This is a sanity check for _error codes_ that should not be created by this configuration. 
  namespaces        |  array   |  protected  | Array of namespaces, the `key` should be the namespace which is used by the entities nested in this array.
@@ -104,18 +104,40 @@ eJinnPathname      |  string  |   private   | class Path and filename
  code              |  integer |     yes     | Exceptions Error code taken from `$namespace['exceptions'][$code]`. The default error code `__construct($message={default},$code=...)`. And a class constant `Class::ERROR_CODE`
  severity          |  integer |     no      | see Global[severity], shown here to offset ~~Interface[severity]~~ 
  message           |  string  |     no      | A default error message `__construct($message={default},$code=...)`
- qName             |  string  |   private   | The fully qualied class name `namespace\\class`
+ qName             |  string  |   private   | The fully qualied class name `namespace\class`
  
  ### Interface Tier ### 
  Property          |   Type   |  Required   | Description
  ----------------- | -------- | ----------- | ------------------------------------------------------
  name              |  string  |     yes     | Interface's Class name. Should not include a namespace, it should be the base class name.
- qName             |  string  |   private   | The fully qualied class name `namespace\\class`
+ qName             |  string  |   private   | The fully qualied class name `namespace\class`
  code              |  integer |   ignored   | Not Aplicable to this entity type
  severity          |  integer |   ignored   | Not Aplicable to this entity type 
  message           |  string  |   ignored   | Not Aplicable to this entity type 
  extends           |  string  |   ignored   | Not Aplicable to this entity type 
  impliments        |  array   |   ignored   | Not Aplicable to this entity type 
+ 
+ - **buildpath** some special consideration for the _buildpath_ property:
+     - The default value is the location of the configuration file currently being proccessed.
+     - If programmatically running __eJinn__, then this is the second argument of `eJinn\eJinnParser::parse()`.
+     - When overriding this can be either a path relative to the above, or a absolute path. Relative paths should not begin with a `/`.  Absolute paths should begin with a `/` on Unix systems and the drive letter an windows `c:\` _(either `/` or `\` is acceptable on window)_.
+     - Two _special_ values are avalible for the buildpath, _{autoload:psr0}_ and _{autoload:psr4}_. When using them value of the current buildpath _(at that tier)_ will have the namespace appended to it.
+        - For _{autoload:psr0}_: Any `_` underscores in the classname will be replace with a directory seperator.
+        - For _{autoload:psr4}_: No special considerations are made for the `_` underscore.
+    - Filepaths should exist, and should be writable by _PHP_ running under the current user. The exception to this is when setting __[createPaths]=>true__ in the options, the third argument for `eJinn\eJinnParser::parse()`. When using __createPaths__
+       - The folder structure will be created recursively based on the current buildpath at that tier, if it doesn't exist.
+       - It is strongly suggested to first run __eJinn__ with the following options set __[parseOnly]=>true__,  __[debug]=>[ckBuildPath]__
+       - For more infomations see the option section (below)
+       
+### Build Options ###        
+ Options           |   Type   |  Description
+ ----------------- | -------- | -----------------------------------------------------------------
+ forceUnlock       | boolean  | In the event some error occurs that prevents deleteing the `.lock` file you can delete it manually or set this option to `true` to force the parser to run.
+ forceRecompile    | boolean  | There are serveral ways that a class will be recompiled. You can set this option to `true` to force recompiling on all entities.
+ debug             |  array   | Mainly for development.  When you add a tag to the debugger array __eJinn__ will output debugging infomation assocated to that tag. Typically this is the name of a particular method in the parser class. For a complete list see the __Debugging__ section.
+ parseOnlys        | boolean  | When this is set to `true` only the _parsing_ stage is ran. No actual files are created by __eJinn__. This can be useful for doing a dry run.
+ createPaths       | boolean  | When this is 'true' __eJinn__ will attempt to build the path for each entity if it doesnt exist.  Before doing this you should first check that all paths are currently formatted correctly.  The best way to do 
+     
  
 ### Pre-Reading ###
 Pre-Reading is defined as the act of opening a configuration file and translating it into the array structure given above. The __eJinn__ parser class only understands _PHP_ array structure above.  By seperating this out into it's own unique step, __eJinn__ can use virtual any configuration file type possible.  
@@ -200,5 +222,6 @@ Still a work in progress.
      * unit testing
      * documentation & examples
      * packaging
+     * seperate README into a wikki
      
 
