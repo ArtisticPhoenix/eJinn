@@ -136,7 +136,7 @@ eJinnPathname      |  string  |   private   | class Path and filename
  forceRecompile    | boolean  | There are serveral ways that a class will be recompiled. You can set this option to `true` to force recompiling on all entities.
  debug             |  array   | Mainly for development.  When you add a tag to the debugger array __eJinn__ will output debugging infomation assocated to that tag. Typically this is the name of a particular method in the parser class. For a complete list see the __Debugging__ section.
  parseOnly         | boolean  | When this is set to `true` only the _parsing_ stage is ran. No actual files are created by __eJinn__. This can be useful for doing a dry run.
- createPaths       | boolean  | When this is 'true' __eJinn__ will attempt to build the path for each entity if it doesnt exist.  Before doing this you should first check that all paths are currently formatted correctly.  The best way to do that is with these two options `parseOnly = true` and `debug = ['parsePath']` value is case sensative.
+ createPaths       | boolean  | When this is 'true' __eJinn__ will attempt to build the path for each entity if it doesnt exist.  Before doing this you should first check that all paths are currently formatted correctly.  The best way to do that is with these two options `parseOnly = true` and `debug = ['parsePath']` value is case insensative.
      
  
 ### Pre-Reading ###
