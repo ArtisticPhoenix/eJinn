@@ -74,7 +74,7 @@ Comment properties are properties that begin with a `_`.  These properties _(and
  Property          |   Type   |   Required  | Description
  ----------------- | -------- | ----------- | ------------------------------------------------------
  author            |  string  |     no      | Used as the `@author` tag in the Entity's Doc Comment.
- buildpath         |  mixed   |     no      | * See below 
+ buildpath         |  string  |     no      | * See below 
  description       |  string  |     no      | Placed in the opening line of the Entitie's Doc Comment.
  package           |  string  |     no      | Used as the `@package` tag.
  subPackage        |  string  |     no      | Used as the `@subpackage` tag.
