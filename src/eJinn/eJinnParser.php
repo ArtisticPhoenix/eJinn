@@ -98,6 +98,22 @@ final class eJinnParser
         'impliments'    => [],
         "reserved"      => []
     ];
+    
+    /**
+     * 
+     * @var array
+     */
+    protected $private = [
+        'psr'                   => false,
+        'namespace'             => '',
+        'pathname'              => '',
+        'ejinn:hash'            => '',
+        'ejinn:buildversion'    => '',
+        'ejinn:buildtime'       => '',
+        'ejinn:pathname'        => '',
+        'qname'                 => ''
+    ];
+    
       
     /**
      * Doc comment format (template)
@@ -247,25 +263,6 @@ final class eJinnParser
     }
     
     /**
-     * reset the class
-     *
-     * The generator is a 2 step process
-     * 1. Parsing - validates and compiles the config
-     * 2. Building - outputs the interface and exception classes
-     *
-     */
-    protected function reset()
-    {
-        $this->reserved = [];
-        $this->exceptions = [];
-        $this->interfaces = [];
-        $this->buildTime = microtime(true);
-        $this->basePath = '';
-        $this->validateHashMap();
-        $this->options = [];
-    }
-    
-    /**
      * create the files
      */
     public function build()
@@ -289,9 +286,10 @@ final class eJinnParser
         $this->ckUnkownKeys("Options", $options, $this->options);
         $this->options = array_replace($this->defaultOptions, $options);
         
-        //validate the base buildpath, ingore createpaths on the basepath
+        //validate the base buildpath, ingore createpaths on the basepath       
         $this->ckPath("Config Path", $buildpath, true);
-        $this->basePath = rtrim(str_replace("\\", "/", $buildpath), "/");
+        //normalize paths should end with "/" and use Unix style DS
+        $this->basePath = rtrim(str_replace("\\", "/", $buildpath), "/")."/";
         
         //lowercase config keys -> except children of namespace.
         $eJinn = $this->recursiveArrayChangeKeyCase($config, CASE_LOWER, ['namespaces']);
@@ -303,20 +301,26 @@ final class eJinnParser
         $this->reserved = array_unique($this->reserved);
         if (!empty($this->reserved) && !ctype_digit(implode($this->reserved))) {
             $this->debug($this->reserved);
-            die("Reserved Error codes must be integers");
+            throw new \Exception("Reserved Error codes must be integers");
         }
 
         //Seperate the namespace container
         $namespaces = $this->extractArrayElement('namespaces', $eJinn);
         if (!$namespaces) {
-            die("Namespaces element is required");
+            throw new \Exception("Namespaces element is required");
         }
         
         //normalize merge global
         $global = array_replace($this->global, $eJinn);
         
         //check for keys not allowed at this level
-        $this->ckBannedKeys("Global Teir", $global, $this->containers, $this->local);
+        $this->ckBannedKeys(
+            "Global Teir",
+            $global,
+            $this->containers,
+            $this->local,
+            $this->private
+        );
         
         //check for unkown keys at this level.
         $this->ckUnkownKeys("Global Tier", $global, $this->global);
@@ -336,6 +340,10 @@ final class eJinnParser
         $this->debug($this->interfaces);
         $this->debug($this->exceptions);
     }
+    
+    //========================================================//
+    //                  PROTECTED PARSERS
+    //========================================================//
     
     /**
      * preform transforms on the eJinn array recursivly
@@ -374,7 +382,7 @@ final class eJinnParser
      * @param array $global
      */
     protected function parseNamespaces(array $namespaces, array $global)
-    {
+    { 
         foreach ($namespaces as $ns => $config) {
             if (empty($config)) {
                 return;
@@ -386,26 +394,31 @@ final class eJinnParser
             
             $interfaces = $this->extractArrayElement('interfaces', $config);
             
-            $exceptions =  $this->extractArrayElement('exceptions', $config);
-            
+            $exceptions = $this->extractArrayElement('exceptions', $config);
+
             if (empty($interfaces) && empty($exceptions)) {
-                die("Namespace[$ns] must contain either interfaces or exceptions");
+                throw new \Exception("Namespace[$ns] must contain either interfaces or exceptions");
             }
-            
-            //normalize merge global
-            $namespace = array_replace($global, $config, ['namespace' => $ns]);
-            
-            //$this->debug($namespace);
-            
+                       
             if (empty($ns)) {
                 $ns = '\\';
             }
-            
+ 
             //check for keys not allowed at this level
-            $this->ckBannedKeys("Namespace[$ns]", $namespace, $this->containers, $this->local);
+            $this->ckBannedKeys(
+                "Namespace[$ns]",
+                $config,
+                $this->containers,
+                $this->local,
+                $this->private
+            );
             
             //check for unkown keys at this level.
-            $this->ckUnkownKeys("Namespace[$ns]", $namespace, $this->global, ['namespace' => false]);
+            $this->ckUnkownKeys("Namespace[$ns]", $config, $this->global, ['namespace' => false]);
+                      
+            $namespace = $this->compact($global, $config, ['namespace' => $ns]);
+            
+            //$this->debug($namespace);
 
             if ($interfaces) {
                 $impliments = $this->parseInterfaces($interfaces, $namespace);
@@ -428,9 +441,6 @@ final class eJinnParser
     protected function parseInterfaces(array $interfaces, array $namespace)
     {
         $impliments = [];
-        
-        //$this->debug($namespace);
-        
         foreach ($interfaces as $interface) {
             $interface = $this->parseEntity($interface, $namespace);
             unset($interface['impliments']);
@@ -438,8 +448,6 @@ final class eJinnParser
             
             $this->interfaces[$interface['qualifiedname']] = $interface;
         }
-        
-        
         return $impliments;
     }
     
@@ -451,14 +459,11 @@ final class eJinnParser
      */
     protected function parseExceptions(array $exceptions, array $namespace)
     {
-        
-        //$this->debug($namespace);
-        
         foreach ($exceptions as $code => $exception) {
             $exception = $this->parseEntity($exception, $namespace);
             
             if (!is_int($code)) {
-                die("Excetion[{$exception['namespace']}::{$exception['name']}] expected integer error code, given[{$code}]");
+                throw new \Exception("Excetion[{$exception['namespace']}::{$exception['name']}] expected integer error code, given[{$code}]");
             }
 
             if (!isset($exception['code'])) {
@@ -486,28 +491,217 @@ final class eJinnParser
             "Entity[{$namespace['namespace']}::{$entity['name']}]",
             $entity,
             $this->containers,
-            ["namespace" => 1]
+            $this->private
         );
         
-        $entity = array_replace($namespace, $entity);
+        //combine the namespace and entity
+        $entity = $this->compact($namespace, $entity);
                 
-        $this->parseName($entity);
+        //parse the fully qualified name from the namespace and the name
+        $entity = $this->parseName($entity);
         
-        $entity['buildpath'] = $this->parsePath($entity['buildpath']);
+        //parse the pathname 
+        $entity = $this->parsePath($entity);
         
+        //add our build version
         $entity['ejinn:buildversion'] = $this->buildVersion;
+        
+        //add our build time
         $entity['ejinn:buildtime'] = $this->buildTime;
           
-        //hash the entity for compile checking
+        //hash the entity for compile cache checking
         $entity['ejinn:hash'] = $this->hashEntityConfig($entity);
-        
-        
+
         return $entity;
     }
+    
+    /**
+     * Parse an name and a namespace
+     *
+     * This normalizes namespaces and creates a fully qualifed class name
+     *
+     * @param array $entity
+     * @param array $config
+     */
+    protected function parseName(array $entity)
+    {
+        $ns = "\\";
+        
+        //Parsed names cannot contain \\, ie. they must be relative paths
+        if (false !== strpos($entity['name'], $ns)) {
+            throw new \Exception("Entity name[{$entity['name']}] cannot contain a NS '$ns' IN ".__FILE__." ON ".__LINE__);
+        }
+        
+        $entity['namespace'] = trim($entity['namespace'], $ns);
+        
+        if (!empty($entity['namespace'])) {
+            $qName = $ns.$entity['namespace'].$ns.$entity['name'];
+        } else {
+            $qName = $ns.$entity['name'];
+        }
+        
+        $entity['qualifiedname'] = $qName;
+        return $entity;
+    }
+    
+    /**
+     * 
+     * @param array $parent
+     * @param array $child
+     */
+    protected function parsePath($entity){
+        $this->debug($entity);
+        
+        if( isset($entity['psr']) && $entity['psr'] == '0'){
+            $filename = str_replace('_', '/', $entity['name']);
+            //cant use the quilified name as the _ change is only in the name
+            $filename = $entity['namespace'].'/'.$filename;
+        }else if(isset($entity['psr']) && $entity['psr'] == '4'){
+            $filename = $entity['qualifiedname'];
+        }else{
+            $filename = $entity['name'];
+        }
+        
+        $pathname = $entity['buildpath'] . $filename . '.php';
+        
+        //normalize to Unix style
+        $pathname = str_replace("\\", "/",$pathname);
+        
+        //replace any run on '/' just in case
+        $pathname = preg_replace('/\/{2,}/', '/', $pathname);
+        
+        //noralize to the file
+        //$pathname = str_replace("/", DIRECTORY_SEPARATOR, $pathname);
+        
+        $entity['pathname'] = $pathname;
+        return $entity;
+    }
+    
+    /**
+     *
+     * @param string $path
+     * @return string
+     */
+   /* protected function parsePath($path)
+    {
+        $type = gettype($path);
+        
+        $pathType = 'relative';
+       
+        switch ($type) {
+            case "integer":
+            case "double":
+            case "string":
+                //do nothing
+                $path = str_replace("\\", "/", $path);
+                if(preg_match('/^([a-zA-Z]:\/|\/)/', $path)){
+                    $pathType = 'absolute';
+                }
+            break;
+            case "boolean":
+            case "NULL":
+                $path = ""; //just make it an empty string
+            break;
+            case "array":
+            case "object":
+            case "resource":
+            case "resource (closed)":
+            case "unknown type":
+            default:
+                $this->debug($path, ["error"]);
+                throw new \Exception("Unexpected type: expected string given $type");
+        }
+        
+        if ($type == "" || $type == 'array') {
+            $this->debug("BasePath: ".$this->basePath);
+        }
+        
+        //normalize windows like paths
+        
+        
+        // $local = strchr(rtrim(str_replace("\\", "/", __FILE__).'/'),'/');
+        //  $this->debug("Local Path: ".$local);
+      
+        if ($path) {
+            $this->debug("Entity Path: ".$path);
+        }
+    }*/
+    
     
     //========================================================//
     //                  HELPERS
     //========================================================//
+    
+    /**
+     * Compact 2 or more tiers
+     * 
+     * inputs should be in the highest to lowest tiers.
+     * Higher tiers will generally overwrite lower tiers
+     * 
+     * @param array ...$arrays
+     * @return array
+     */
+    protected function compact(array ...$arrays){
+        if(1 == ($len = count($arrays))) return reset($arrays); //requires 2 or more arrays
+
+        $compact = [];
+        
+        $buildpath = $this->basePath;
+        $psr = false;
+        
+        for($i=0; $i<$len; $i++){
+            if(isset($arrays[$i]['buildpath'])){
+                $bp = $arrays[$i]['buildpath']; //localize
+                //if it's an array then check for PSR
+                if(is_array($bp)){
+                    if(!isset($bp['psr']) || count($bp['psr']) != 1 || !preg_match('/^(0|4)$/', $bp['psr'])){
+                        throw new \Exception("Invalid Buildpath: Array build path must be as follows ['psr'=>0] or ['psr'=>4]");
+                    }
+                    $psr = $bp['psr'];
+                }else{
+                    $bp = str_replace("\\", "/", $bp); //normalize the DS ( makes matching easier )
+                    
+                    //if not check if it's relative or absolute
+                    if(preg_match('/^([a-zA-Z]:\/|\/)/', $bp)){
+                        //if the patch starts with / Unix Absolute, if it starts with [a-z]:/ such as c:/ windows absolute
+                        $buildpath = $bp; //make sure it ends with /
+                    }else{
+                        //append relative paths
+                        $buildpath .= $bp;
+                    }
+                }
+            }
+            
+            $arrays[$i]['buildpath'] = rtrim($buildpath, "/"). "/"; //make sure it ends with a /
+            
+            if(!isset($arrays[$i]['psr']) && $psr !== false){
+                //don't overwrite psr - if it's present
+                $arrays[$i]['psr'] = $psr;
+            }
+            $compact = array_replace($compact,$arrays[$i]);
+        }
+        
+        return $compact;
+    }
+    
+    /**
+     * reset the class
+     *
+     * The generator is a 2 step process
+     * 1. Parsing - validates and compiles the config
+     * 2. Building - outputs the interface and exception classes
+     *
+     */
+    protected function reset()
+    {
+        $this->reserved = [];
+        $this->exceptions = [];
+        $this->interfaces = [];
+        $this->buildTime = microtime(true);
+        $this->basePath = '';
+        $this->validateHashMap();
+        $this->options = [];
+    }
     
     /**
      * Seperate out and save any Reserved Error codes.
@@ -524,13 +718,13 @@ final class eJinnParser
         }
         
         if (!is_array($reserved)) {
-            die("Expeted array for property reserved, given ".gettype($reserved));
+            throw new \Exception("Expeted array for property reserved, given ".gettype($reserved));
         }
         
         foreach ($reserved as $reserve) {
             if (is_array($reserve)) {
                 if (count($reserve) != 2) {
-                    die("Nested reserved must contain exactly 2 elements");
+                    throw new \Exception("Nested reserved must contain exactly 2 elements");
                 }
                 $range = range(array_shift($reserve), array_shift($reserve));
                 $this->reserved += array_combine($range, $range);
@@ -560,78 +754,6 @@ final class eJinnParser
         $item = $array[$key];
         unset($array[$key]);
         return $item;
-    }
-    
-    /**
-     * Parse an name and a namespace
-     *
-     * This normalizes namespaces and creates a fully qualifed class name
-     *
-     * @param array $entity
-     * @param array $config
-     */
-    protected function parseName(array &$entity)
-    {
-        $ns = "\\";
-        
-        //Parsed names cannot contain \\, ie. they must be relative paths
-        if (false !== strpos($entity['name'], $ns)) {
-            die("Entity name[{$entity['name']}] cannot contain a NS '$ns' IN ".__FILE__." ON ".__LINE__);
-        }
-        
-        $entity['namespace'] = trim($entity['namespace'], $ns);
-        
-        if (!empty($entity['namespace'])) {
-            $qName = $ns.$entity['namespace'].$ns.$entity['name'];
-        } else {
-            $qName = $ns.$entity['name'];
-        }
-        
-        $entity['qualifiedname'] = $qName;
-    }
-    
-    /**
-     *
-     * @param string $path
-     * @return string
-     */
-    public function parsePath($path)
-    {
-        $type = gettype($path);
-       
-        switch ($type) {
-            case "integer":
-            case "double":
-            case "string":
-                //do nothing
-            break;
-            case "boolean":
-            case "NULL":
-                $path = "";
-            break;
-            case "array":
-            case "object":
-            case "resource":
-            case "resource (closed)":
-            case "unknown type":
-            default:
-                $this->debug($path, ["error"]);
-                die("Unexpected type: expected string given $type");
-        }
-        
-        if ($type == "" || $type == 'array') {
-            $this->debug("BasePath: ".$this->basePath);
-        }
-        
-        //normalize windows like paths
-        $path = str_replace("\\", "/", $path);
-        
-        // $local = strchr(rtrim(str_replace("\\", "/", __FILE__).'/'),'/');
-        //  $this->debug("Local Path: ".$local);
-      
-        if ($path) {
-            $this->debug("Entity Path: ".$path);
-        }
     }
     
     /**
@@ -707,7 +829,7 @@ final class eJinnParser
             $banned = array_diff_key($input, $diff);
             $s = count($banned) > 1 ? 's' : '';
             
-            die("Banned Key{$s} '".implode("', '", array_keys($banned))."' in $set");
+            throw new \Exception("Banned Key{$s} '".implode("', '", array_keys($banned))."' in $set");
         }
     }
     
@@ -724,7 +846,7 @@ final class eJinnParser
         $diff = array_diff_key($input, ...$control);
         if (!empty($diff)) {
             $s = count($diff) > 1 ? 's' : '';
-            die("Unknown key{$s} '".implode("', '", array_keys($diff))."' in $set");
+            throw new \Exception("Unknown key{$s} '".implode("', '", array_keys($diff))."' in $set");
         }
     }
         
@@ -743,7 +865,7 @@ final class eJinnParser
             foreach ($diff as $k=>&$v) {
                 $v = "{$excptionIdx[$k]}::$v";
             }
-            die("Reserved Error Code{$s} used '".implode("','", $diff)."'");
+            throw new \Exception("Reserved Error Code{$s} used '".implode("','", $diff)."'");
         }
     }
     
@@ -764,7 +886,7 @@ final class eJinnParser
             foreach ($diff as $k=>&$v) {
                 $v = "{$excptionIdx[$k]}::$v";
             }
-            die("Duplicate Error Code{$s} for '".implode("','", $diff)."'");
+            throw new \Exception("Duplicate Error Code{$s} for '".implode("','", $diff)."'");
         }
     }
     
@@ -801,10 +923,10 @@ final class eJinnParser
         }
         
         if (!is_dir($path)) {
-            die("Path[{$title}] not found ".$path);
+            throw new \Exception("Path[{$title}] not found ".$path);
         }
         if (!is_writable($path)) {
-            die("Path[{$title}] is not writable ".$path);
+            throw new \Exception("Path[{$title}] is not writable ".$path);
         }
     }
     

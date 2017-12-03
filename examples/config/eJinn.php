@@ -5,7 +5,7 @@ return [
     "description"   => "eJinn The Exception Genie",
     "package"       => "eJinn",
     "subpackage"    => "",
-    "buildpath"     => '{psr:4}',
+    "buildpath"     => ["psr"=>4],
     "support"       => "https://github.com/ArtisticPhoenix/eJinn/issues",
     "version"       => "1.0.0",
     "reserved"       => [1,2,[8,20]],
@@ -48,8 +48,9 @@ return [
             ]
         ],
         "foo" => [
+            "buildpath"     => ["psr"=>0],
             "exceptions" => [
-                1200 => "Foo"
+                1200 => "Foo_Bar"
              ]
         ]
         
