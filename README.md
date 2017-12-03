@@ -120,7 +120,7 @@ eJinnPathname      |  string  |   private   | class Path and filename
  - **buildpath** some special consideration for the _buildpath_ property:
      - The default value is the location of the configuration file currently being proccessed.
      - If programmatically running __eJinn__, then this is the second argument of `eJinn\eJinnParser::parse()`.
-     - When overriding this can be either a path relative to the above, or a absolute path. Unlike other properties that are simply replaced, buildpaths are appended when relative and replaced when absolute. Relative paths should __not__ begin with a `/`.  Absolute paths should begin with a `/` on Unix based systems and the drive letter on windows `c:\` _(either `/` or `\` is acceptable on window)_. 
+     - When overriding this can be either a path relative to parent tier's buildpath, or a absolute path. Unlike other properties that are simply replaced, buildpaths are appended when relative and replaced when absolute. Relative paths should __not__ begin with a `/`.  Absolute paths should begin with a `/` on Unix based systems and the drive letter on windows `c:\` _(either `/` or `\` is acceptable on window)_. 
      - Two _special_ values are avalible for the buildpath, `"{psr:0}"` and `"{psr:4}"`. When using either, the value of the current buildpath _(at that tier)_ will have the namespace appended to it with the following considerations:
         - For `"{psr:0}"`: Any `_` underscores in the classname will be replace with a directory seperator. No special considerations are made for `_` underscores in the namespace.
         - For _""{psr:4}""_: No special considerations are made for the `_` underscore.
