@@ -84,10 +84,10 @@ Comment properties are properties that begin with a `_`.  These properties _(and
  impliments        |  array   |     no      | Array of fully quallifed interfance names for excptions to impliment. Ignored by interface entities(excptions can impliment multiple interfaces). Interfaces created by __eJinn__ are automatically populated where aplicable.            
  reserved          |  array   |     no      | Array of integer codes, or nested arrays `[[min,max]]` for a range of integers. This is a sanity check for _error codes_ that should not be created by this configuration. 
  namespaces        |  array   |  protected  | Array of namespaces, the `key` should be the namespace which is used by the entities nested in this array.
- eJinnHash         |  string  |   private   | Used as the `@eJinn:hash` tag. Configuration hash used to check when changes are made
- eJinnBuildVersion |  string  |   private   | Used as the `@eJinn:buildVersion` tag. This allows the __eJinn__ project to force a recompile when updates are done to the compiler, seperate from the __eJinn__ version number.
- eJinnBuildtime    |  float   |   private   | Used as the `@eJinn:buildTate` tag. Configuration hash used to check when changes are made _(microtime)_
-eJinnPathname      |  string  |   private   | class Path and filename
+ eJinn:Hash        |  string  |   private   | Used as the `@eJinn:hash` tag. Configuration hash used to check when changes are made
+ eJinn:BuildVersion|  string  |   private   | Used as the `@eJinn:buildVersion` tag. This allows the __eJinn__ project to force a recompile when updates are done to the compiler, seperate from the __eJinn__ version number.
+ eJinn:Buildtime   |  float   |   private   | Used as the `@eJinn:buildTate` tag. Configuration hash used to check when changes are made _(microtime)_
+eJinn:Pathname     |  string  |   private   | class Path and filename
 
 ### Namespace Teir ### 
  Property          |   Type   |  Required   | Description
