@@ -18,7 +18,7 @@ An example of an **eJinn** configuration ( as a _PHP_ array).
 ```php
     return [
         "author"        => "ArtisticPhoenix",
-        "buildpath"     => "{psr:4}",
+        "buildpath"     => ["psr"=>4],
         "description"   => "eJinn The Exception Genie",
         "package"       => "eJinn",
         "subpackage"    => "",
@@ -28,7 +28,6 @@ An example of an **eJinn** configuration ( as a _PHP_ array).
             //{key:Namespace} => [{value:Namespace tier}]
             "eJinn\\Exception"  => [
                 "subpackage"    => "Exception",
-                "buildpath"     => "Exception",
                 "interfaces"    => [
                      //{key:numeric} => {value:Base class name OR Interface Tier}
                     "eJinnExceptionInterface"
@@ -74,7 +73,7 @@ Comment properties are properties that begin with a `_`.  These properties _(and
  Property          |   Type   |   Required  | Description
  ----------------- | -------- | ----------- | ------------------------------------------------------
  author            |  string  |     no      | Used as the `@author` tag in the Entity's Doc Comment.
- buildpath         |  string  |     no      | * See below 
+ buildpath         |  mixed   |     no      | * See below 
  description       |  string  |     no      | Placed in the opening line of the Entitie's Doc Comment.
  package           |  string  |     no      | Used as the `@package` tag.
  subPackage        |  string  |     no      | Used as the `@subpackage` tag.
@@ -85,17 +84,18 @@ Comment properties are properties that begin with a `_`.  These properties _(and
  impliments        |  array   |     no      | Array of fully quallifed interfance names for excptions to impliment. Ignored by interface entities(excptions can impliment multiple interfaces). Interfaces created by __eJinn__ are automatically populated where aplicable.            
  reserved          |  array   |     no      | Array of integer codes, or nested arrays `[[min,max]]` for a range of integers. This is a sanity check for _error codes_ that should not be created by this configuration. 
  namespaces        |  array   |  protected  | Array of namespaces, the `key` should be the namespace which is used by the entities nested in this array.
- eJinnHash         |  string  |   private   | Used as the `@eJinn:hash` tag. Configuration hash used to check when changes are made
- eJinnBuildVersion |  string  |   private   | Used as the `@eJinn:buildVersion` tag. This allows the __eJinn__ project to force a recompile when updates are done to the compiler, seperate from the __eJinn__ version number.
- eJinnBuildtime    |  float   |   private   | Used as the `@eJinn:buildTate` tag. Configuration hash used to check when changes are made _(microtime)_
-eJinnPathname      |  string  |   private   | class Path and filename
+ eJinn:Hash        |  string  |   private   | Used as the `@eJinn:hash` tag. Configuration hash used to check when changes are made
+ eJinn:BuildVersion|  string  |   private   | Used as the `@eJinn:buildVersion` tag. This allows the __eJinn__ project to force a recompile when updates are done to the compiler, seperate from the __eJinn__ version number.
+ eJinn:Buildtime   |  float   |   private   | Used as the `@eJinn:buildTate` tag. Configuration hash used to check when changes are made _(microtime)_
+eJinn:Pathname     |  string  |   private   | class Path and filename
 
 ### Namespace Teir ### 
  Property          |   Type   |  Required   | Description
  ----------------- | -------- | ----------- | ------------------------------------------------------
  interfaces        |  array   |     no      | Array of interface classes that __eJinn__ will create ( post-parse )               
  exceptions        |  array   |     no      | Array of exception classes that __eJinn__ will create ( post-parse )     
- namespace         |  string  |   private   | The namespace taken from `$global['namespaces'][$namespace]`              
+ namespace         |  string  |   private   | The namespace taken from `$global['namespaces'][$namespace]` 
+ psr               |  number  |   private   | PSR setting at this namespace tier
                 
 ### Exception Tier ### 
  Property          |   Type   |  Required   | Description
@@ -120,14 +120,62 @@ eJinnPathname      |  string  |   private   | class Path and filename
  - **buildpath** some special consideration for the _buildpath_ property:
      - The default value is the location of the configuration file currently being proccessed.
      - If programmatically running __eJinn__, then this is the second argument of `eJinn\eJinnParser::parse()`.
-     - When overriding this can be either a path relative to the above, or a absolute path. Relative paths should __not__ begin with a `/`.  Absolute paths should begin with a `/` on Unix based systems and the drive letter on windows `c:\` _(either `/` or `\` is acceptable on window)_.
-     - Two _special_ values are avalible for the buildpath, `"{psr:0}"` and `"{psr:4}"`. When using either, the value of the current buildpath _(at that tier)_ will have the namespace appended to it with the following considerations:
-        - For `"{psr:0}"`: Any `_` underscores in the classname will be replace with a directory seperator. No special considerations are made for `_` underscores in the namespace.
-        - For _""{psr:4}""_: No special considerations are made for the `_` underscore.
+     - When overriding, this can be either a path relative to parent tier's buildpath, or an absolute path. Unlike other properties that are simply replaced, buildpaths are appended when relative and replaced when absolute. Relative paths should __not__ begin with a `/`.  Absolute paths should begin with a `/` on Unix based systems and the drive letter on windows `c:\` _(either `/` or `\` is acceptable on window)_. 
+     - A few _special_ values are avalible for the buildpath, These are desinged specifically for autoloaders and are an array instead of the normal string type associated with this property. You may have noticed this in the example configuration. 
+     `["psr" => 0]` and `["psr" => 4]`. When using either, the value of the current buildpath _(at that tier)_ will have the namespace appended to it with the following considerations:
+        - For `["psr" => 0]`: Any `_` underscores in the classname will be replace with a directory seperator. No special considerations are made for `_` underscores in the namespace.
+        - For `["psr" => 4]`: No special considerations are made for the `_` underscore.
     - Filepaths should exist, and should be writable by _PHP_ running under the current user. The exception to this is when setting __[createPaths]=>true__ in the options, the third argument for `eJinn\eJinnParser::parse()`. When using __createPaths__ the last parent dirctory should be writable and:
        - The folder structure will be created recursively based on the current buildpath at that tier, if it doesn't exist.
-       - It is strongly suggested to first run __eJinn__ with the following options set __[parseOnly]=>true__,  __[debug]=>[ckBuildPath]__
+       - It is strongly suggested to first run __eJinn__ with the following options set `parseOnly = true`, `debug = ['parsePath']`.
        - For more infomations see the option section (below)
+       
+A short build path example:
+```php
+   $config = [
+       "buildpath" => "/home/app",  //root path overide with absolute path
+       "namespaces" => [
+              "Models\\Users\\Exceptions" => [
+                    "buildpath" => ["psr" => 4],
+                    "exceptions" => [
+                          100 => "UnknownUser",
+                          101 => "InvalidPasword",
+                    ]
+              ], 
+              "Models\\Products\\Exceptions" => [
+                    "buildpath" => "Models/Products/Exceptions",
+                    "exceptions" => [
+                          200 => "UnknownProduct",
+                    ]
+              ] 
+      ]
+   ];
+  ```
+These 2 paths are roughly equivalent, they will product the following files.
+ - /home/app/Models/Users/Exceptions/UnknownUser.php _(class \\Models\\Users\\Exceptions\\UnknownUser)_
+ - /home/app/Models/Users/Exceptions/InvalidPasword.php _(class \\Models\\Users\\Exceptions\\InvalidPasword)_
+ - /home/app/Models/Products/Exceptions/UnknownProduct.php _(class \\Models\\Users\\Exceptions\\UnknownProduct)_
+ 
+Full PSR example _(assming the configuration file was located in `/home/app`)_ this is equivalent to the above example.
+
+  ```php
+$config = [
+       "buildpath" => ["psr" => 4],
+       "namespaces" => [
+              "Models\\Users\\Exceptions" => [
+                    "exceptions" => [
+                          100 => "UnknownUser",
+                          101 => "InvalidPasword",
+                    ]
+              ], 
+              "Models\\Products\\Exceptions" => [
+                    "exceptions" => [
+                          200 => "UnknownProduct",
+                    ]
+              ] 
+      ]
+   ];
+```
        
 ### Build Options ###        
  Options           |   Type   |  Description
@@ -135,8 +183,8 @@ eJinnPathname      |  string  |   private   | class Path and filename
  forceUnlock       | boolean  | In the event some error occurs that prevents deleteing the `.lock` file you can delete it manually or set this option to `true` to force the parser to run.
  forceRecompile    | boolean  | There are serveral ways that a class will be recompiled. You can set this option to `true` to force recompiling on all entities.
  debug             |  array   | Mainly for development.  When you add a tag to the debugger array __eJinn__ will output debugging infomation assocated to that tag. Typically this is the name of a particular method in the parser class. For a complete list see the __Debugging__ section.
- parseOnlys        | boolean  | When this is set to `true` only the _parsing_ stage is ran. No actual files are created by __eJinn__. This can be useful for doing a dry run.
- createPaths       | boolean  | When this is 'true' __eJinn__ will attempt to build the path for each entity if it doesnt exist.  Before doing this you should first check that all paths are currently formatted correctly.  The best way to do 
+ parseOnly         | boolean  | When this is set to `true` only the _parsing_ stage is ran. No actual files are created by __eJinn__. This can be useful for doing a dry run.
+ createPaths       | boolean  | When this is 'true' __eJinn__ will attempt to build the path for each entity if it doesnt exist.  Before doing this you should first check that all paths are currently formatted correctly.  The best way to do that is with these two options `parseOnly = true` and `debug = ['parsePath']` value is case insensative.
      
  
 ### Pre-Reading ###
