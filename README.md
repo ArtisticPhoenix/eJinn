@@ -94,7 +94,8 @@ eJinnPathname      |  string  |   private   | class Path and filename
  ----------------- | -------- | ----------- | ------------------------------------------------------
  interfaces        |  array   |     no      | Array of interface classes that __eJinn__ will create ( post-parse )               
  exceptions        |  array   |     no      | Array of exception classes that __eJinn__ will create ( post-parse )     
- namespace         |  string  |   private   | The namespace taken from `$global['namespaces'][$namespace]`              
+ namespace         |  string  |   private   | The namespace taken from `$global['namespaces'][$namespace]` 
+ psr               |  number  |   private   | PSR setting at this namespace tier
                 
 ### Exception Tier ### 
  Property          |   Type   |  Required   | Description
