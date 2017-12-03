@@ -155,7 +155,7 @@ These 2 paths are roughly equivalent, they will product the following files.
  - /home/app/Models/Users/Exceptions/InvalidPasword.php _(class \\Models\\Users\\Exceptions\\InvalidPasword)_
  - /home/app/Models/Products/Exceptions/UnknownProduct.php _(class \\Models\\Users\\Exceptions\\UnknownProduct)_
  
-Full PSR example _(assming the configuration file was located in /home/app)_ this is equivalent to the above example.
+Full PSR example _(assming the configuration file was located in `/home/app`)_ this is equivalent to the above example.
 
   ```php
 $config = [
