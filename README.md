@@ -125,10 +125,7 @@ eJinn:Pathname     |  string  |   private   | class Path and filename
      `["psr" => 0]` and `["psr" => 4]`. When using either, the value of the current buildpath _(at that tier)_ will have the namespace appended to it with the following considerations:
         - For `["psr" => 0]`: Any `_` underscores in the classname will be replace with a directory seperator. No special considerations are made for `_` underscores in the namespace.
         - For `["psr" => 4]`: No special considerations are made for the `_` underscore.
-    - Filepaths should exist, and should be writable by _PHP_ running under the current user. The exception to this is when setting __[createPaths]=>true__ in the options, the third argument for `eJinn\eJinnParser::parse()`. When using __createPaths__ the last parent dirctory should be writable and:
-       - The folder structure will be created recursively based on the current buildpath at that tier, if it doesn't exist.
-       - It is strongly suggested to first run __eJinn__ with the following options set `parseOnly = true`, `debug = ['parsePath']`.
-       - For more infomations see the option section (below)
+    - Filepaths should exist, and should be writable by _PHP_ running under the current user.
        
 A short build path example:
 ```php
@@ -183,9 +180,7 @@ $config = [
  forceUnlock       | boolean  | In the event some error occurs that prevents deleteing the `.lock` file you can delete it manually or set this option to `true` to force the parser to run.
  forceRecompile    | boolean  | There are serveral ways that a class will be recompiled. You can set this option to `true` to force recompiling on all entities.
  debug             |  array   | Mainly for development.  When you add a tag to the debugger array __eJinn__ will output debugging infomation assocated to that tag. Typically this is the name of a particular method in the parser class. For a complete list see the __Debugging__ section.
- parseOnly         | boolean  | When this is set to `true` only the _parsing_ stage is ran. No actual files are created by __eJinn__. This can be useful for doing a dry run.
- createPaths       | boolean  | When this is 'true' __eJinn__ will attempt to build the path for each entity if it doesnt exist.  Before doing this you should first check that all paths are currently formatted correctly.  The best way to do that is with these two options `parseOnly = true` and `debug = ['showFiles']` value is case insensative.
-     
+ parseOnly         | boolean  | When this is set to `true` only the _parsing_ stage is ran. No actual files are created by __eJinn__. This can be useful for doing a dry run.     
  
 ### Pre-Reading ###
 Pre-Reading is defined as the act of opening a configuration file and translating it into the array structure given above. The __eJinn__ parser class only understands _PHP_ array structure above.  By seperating this out into it's own unique step, __eJinn__ can use virtual any configuration file type possible.  
