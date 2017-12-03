@@ -28,7 +28,6 @@ An example of an **eJinn** configuration ( as a _PHP_ array).
             //{key:Namespace} => [{value:Namespace tier}]
             "eJinn\\Exception"  => [
                 "subpackage"    => "Exception",
-                "buildpath"     => "Exception",
                 "interfaces"    => [
                      //{key:numeric} => {value:Base class name OR Interface Tier}
                     "eJinnExceptionInterface"
@@ -125,6 +124,7 @@ eJinnPathname      |  string  |   private   | class Path and filename
      `["psr" => 0]` and `["psr" => 4]`. When using either, the value of the current buildpath _(at that tier)_ will have the namespace appended to it with the following considerations:
         - For `["psr" => 0]`: Any `_` underscores in the classname will be replace with a directory seperator. No special considerations are made for `_` underscores in the namespace.
         - For `["psr" => 4]`: No special considerations are made for the `_` underscore.
+        - The _PSR_ array may be placed at the global tier as it will then affect the path of the configuration file.  Howerver, you cannot place any other __buildpath__ properties in any of the other tiers.  This is because it is to error prone to allow pre-pending the namespace to lower teir's buildpath. For example: `["psr"=>4] + "Myfolder/Exceptions"`, should the namespace be applied before the folder? This would violate the rules set forth by the PSR-4 autoloading standard.  Where as `"Myfolder/Exceptions" + ["psr"=>4]` could produce a valid path if the autoloader was setup for the namespace at the `Exceptions` folder.
     - Filepaths should exist, and should be writable by _PHP_ running under the current user. The exception to this is when setting __[createPaths]=>true__ in the options, the third argument for `eJinn\eJinnParser::parse()`. When using __createPaths__ the last parent dirctory should be writable and:
        - The folder structure will be created recursively based on the current buildpath at that tier, if it doesn't exist.
        - It is strongly suggested to first run __eJinn__ with the following options set `parseOnly = true`, `debug = ['parsePath']`.
