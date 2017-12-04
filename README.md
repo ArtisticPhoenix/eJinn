@@ -94,7 +94,7 @@ eJinn:Pathname     |  string  |   private   | class Path and filename
  ----------------- | -------- | ----------- | ------------------------------------------------------
  interfaces        |  array   |     no      | Array of interface classes that __eJinn__ will create ( post-parse )               
  exceptions        |  array   |     no      | Array of exception classes that __eJinn__ will create ( post-parse )     
- namespace         |  string  |   private   | The namespace taken from `$global['namespaces'][$namespace]` 
+ namespace         |  string  |   private   | The namespace taken from `$global['namespaces'][$namespace]` ie. the key of the namespaces array from the _Global Tier_ putting namespace as the key insures no duplacte namespaces are allowed, and it makes to much sense not to do  it that way.
  psr               |  number  |   private   | PSR setting at this namespace tier
                 
 ### Exception Tier ### 
