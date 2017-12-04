@@ -95,7 +95,7 @@ eJinn:Pathname     |  string  |   private   | class Path and filename
  interfaces        |  array   |     no      | Array of interface classes that __eJinn__ will create ( post-parse ) This is not required but you must have either this property or exceptions, or both.           
  exceptions        |  array   |     no      | Array of exception classes that __eJinn__ will create ( post-parse ) This is not required but you must have either this property or interfaces, or both.               
  namespace         |  string  |   private   | The namespace taken from `$global['namespaces'][$namespace]` ie. the key of the namespaces array from the _Global Tier_ putting namespace as the key insures no duplacte namespaces are allowed, and it makes to much sense not to do  it that way.
- psr               |  number  |   private   | PSR setting at this namespace tier
+ psr               |  number  |   private   | PSR setting at this namespace tier, this is for intarnal storage of the value of buildpath if using the psr array at this level.
                 
 ### Exception Tier ### 
  Property          |   Type   |  Required   | Description
