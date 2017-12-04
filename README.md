@@ -14,6 +14,8 @@ The Exception Genie (PHP v5.6+)
  
 If you answered _Yes_ to any of the above then __eJinn__ may be just what you need.  __eJinn__ builds excpetion classes and interfaces based on a simple and flexable configuration file. __eJinn__ allows you to orginize all your _exception classes_ and _error codes_ in a logically based and easy to read configuration.  
 
+__eJinn__ builds _PHP_ exception and interface class files for you.
+
 An example of an **eJinn** configuration ( as a _PHP_ array).
 ```php
     return [
