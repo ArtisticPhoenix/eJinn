@@ -151,9 +151,9 @@ A short build path example:
    ];
   ```
 These 2 paths are roughly equivalent, they will product the following files.
- - /home/app/Models/Users/Exceptions/UnknownUser.php _(class \\Models\\Users\\Exceptions\\UnknownUser)_
- - /home/app/Models/Users/Exceptions/InvalidPasword.php _(class \\Models\\Users\\Exceptions\\InvalidPasword)_
- - /home/app/Models/Products/Exceptions/UnknownProduct.php _(class \\Models\\Users\\Exceptions\\UnknownProduct)_
+ - /home/app/Models/Users/Exceptions/UnknownUser.php _(class \\Models\\Users\\Exceptions\\UnknownUser errorCode 100)_
+ - /home/app/Models/Users/Exceptions/InvalidPasword.php _(class \\Models\\Users\\Exceptions\\InvalidPasword errorCode 101)_
+ - /home/app/Models/Products/Exceptions/UnknownProduct.php _(class \\Models\\Users\\Exceptions\\UnknownProduct errorCode 200)_
  
 Full PSR example _(assming the configuration file was located in `/home/app`)_ this is equivalent to the above example.
 
@@ -259,7 +259,7 @@ return [
 ```
 The above configureation will create a single exception file, this will be created at the location of the configuration file with no namespace. So if we had our config at `/home/app/Exceptions` then we would get this file:
 
- - /home/app/Exceptions/UnknownError _( class \UnknownError)_
+ - /home/app/Exceptions/UnknownError _( class \UnknownError errorCode 0)_
 
 
 Still a work in progress.
