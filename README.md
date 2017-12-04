@@ -182,7 +182,8 @@ $config = [
  forceUnlock       | boolean  | In the event some error occurs that prevents deleteing the `.lock` file you can delete it manually or set this option to `true` to force the parser to run.
  forceRecompile    | boolean  | There are serveral ways that a class will be recompiled. You can set this option to `true` to force recompiling on all entities.
  debug             |  array   | Mainly for development.  When you add a tag to the debugger array __eJinn__ will output debugging infomation assocated to that tag. Typically this is the name of a particular method in the parser class. For a complete list see the __Debugging__ section.
- parseOnly         | boolean  | When this is set to `true` only the _parsing_ stage is ran. No actual files are created by __eJinn__. This can be useful for doing a dry run.     
+ parseOnly         | boolean  | When this is set to `true` only the _parsing_ stage is ran. No actual files are created by __eJinn__. This can be useful for doing a dry run.  
+ createPath         | boolean  | __eJinn__ will attempt to build any missing folders in the path of the execption and interfaces.  Caution should be taken when using this option.  It's suggest to set `['parseOnly'=>true, debug=>['showFiles']]` options as well the first time it is ran to insure the config will create the proper file locations.  Validation on missing folders is bypassed by this option, for obvious reasons. ( if they don't exist, we create them, so no errors for that )    
  
 ### Pre-Reading ###
 Pre-Reading is defined as the act of opening a configuration file and translating it into the array structure given above. The __eJinn__ parser class only understands _PHP_ array structure above.  By seperating this out into it's own unique step, __eJinn__ can use virtual any configuration file type possible.  
