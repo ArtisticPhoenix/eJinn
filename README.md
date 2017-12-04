@@ -104,13 +104,13 @@ eJinn:Pathname     |  string  |   private   | class Path and filename
  code              |  integer |     yes     | Exceptions Error code taken from `$namespace['exceptions'][$code]`. The default error code `__construct($message={default},$code=...)`. And a class constant `Class::ERROR_CODE`
  severity          |  integer |     no      | see Global[severity], shown here to offset ~~Interface[severity]~~ 
  message           |  string  |     no      | A default error message `__construct($message={default},$code=...)`
- qName             |  string  |   private   | The fully qualied class name `namespace\class`
+ qulifiedName      |  string  |   private   | The fully qualied class name `namespace\class`
  
  ### Interface Tier ### 
  Property          |   Type   |  Required   | Description
  ----------------- | -------- | ----------- | ------------------------------------------------------
  name              |  string  |     yes     | Interface's Class name. Should not include a namespace, it should be the base class name.
- qName             |  string  |   private   | The fully qualied class name `namespace\class`
+ qulifiedName      |  string  |   private   | The fully qualied class name `namespace\class`
  code              |  integer |   ignored   | Not Aplicable to this entity type
  severity          |  integer |   ignored   | Not Aplicable to this entity type 
  message           |  string  |   ignored   | Not Aplicable to this entity type 
