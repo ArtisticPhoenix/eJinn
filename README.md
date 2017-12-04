@@ -179,7 +179,7 @@ Short PSR-0 example _(assming the configuration file was located in `/home/app`)
 
   ```php
 $config = [
-       "buildpath" => ["psr" => 4],
+       "buildpath" => ["psr" => 0],
        "namespaces" => [
           "Models\\Users" => [
                 "exceptions" => [
