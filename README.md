@@ -134,19 +134,19 @@ A short build path example:
    $config = [
        "buildpath" => "/home/app",  //root path overide with absolute path
        "namespaces" => [
-              "Models\\Users\\Exceptions" => [
-                    "buildpath" => ["psr" => 4],
-                    "exceptions" => [
-                          100 => "UnknownUser",
-                          101 => "InvalidPasword",
-                    ]
-              ], 
-              "Models\\Products\\Exceptions" => [
-                    "buildpath" => "Models/Products/Exceptions",
-                    "exceptions" => [
-                          200 => "UnknownProduct",
-                    ]
-              ] 
+          "Models\\Users\\Exceptions" => [
+                "buildpath" => ["psr" => 4],
+                "exceptions" => [
+                      100 => "UnknownUser",
+                      101 => "InvalidPasword",
+                ]
+          ], 
+          "Models\\Products\\Exceptions" => [
+                "buildpath" => "Models/Products/Exceptions",
+                "exceptions" => [
+                      200 => "UnknownProduct",
+                ]
+          ] 
       ]
    ];
   ```
@@ -155,26 +155,47 @@ These 2 paths are roughly equivalent, they will product the following files.
  - /home/app/Models/Users/Exceptions/InvalidPasword.php _(class \\Models\\Users\\Exceptions\\InvalidPasword errorCode 101)_
  - /home/app/Models/Products/Exceptions/UnknownProduct.php _(class \\Models\\Users\\Exceptions\\UnknownProduct errorCode 200)_
  
-Full PSR example _(assming the configuration file was located in `/home/app`)_ this is equivalent to the above example.
+Full PSR-4 example _(assming the configuration file was located in `/home/app`)_ this is equivalent to the above example.
 
   ```php
 $config = [
        "buildpath" => ["psr" => 4],
        "namespaces" => [
-              "Models\\Users\\Exceptions" => [
-                    "exceptions" => [
-                          100 => "UnknownUser",
-                          101 => "InvalidPasword",
-                    ]
-              ], 
-              "Models\\Products\\Exceptions" => [
-                    "exceptions" => [
-                          200 => "UnknownProduct",
-                    ]
-              ] 
+          "Models\\Users\\Exceptions" => [
+                "exceptions" => [
+                      100 => "UnknownUser",
+                      101 => "InvalidPasword",
+                ]
+          ], 
+          "Models\\Products\\Exceptions" => [
+                "exceptions" => [
+                      200 => "UnknownProduct",
+                ]
+          ] 
       ]
    ];
 ```
+Short PSR-0 example _(assming the configuration file was located in `/home/app`)_ this is equivalent to the above example.
+
+  ```php
+$config = [
+       "buildpath" => ["psr" => 4],
+       "namespaces" => [
+          "Models\\Users" => [
+                "exceptions" => [
+                      100 => "Exception_UnknownUser",
+                      101 => "Exception_InvalidPasword",
+                ]
+          ]            
+      ]
+   ];
+```
+This will create the folowing 2 classes.
+ - /home/app/Models/Users/Exception/UnknownUser.php _(class \\Models\\Users\\Exception_UnknownUser errorCode 100)_
+ - /home/app/Models/Users/Exception/InvalidPasword.php _(class \\Models\\Users\\Exception_InvalidPasword errorCode 101)_
+
+PSR-0 allows for shorter namespaces, but still gives the seperation at the file level. This can make is somewhat easier to code as their is less need for `use` statements. But it's slightly more confusing as to where the file is located at.  Personally I prefer PSR-4.
+
        
 ### Build Options ###        
  Options           |   Type   |  Description
