@@ -92,15 +92,15 @@ eJinn:Pathname     |  string  |   private   | class Path and filename
 ### Namespace Teir ### 
  Property          |   Type   |  Required   | Description
  ----------------- | -------- | ----------- | ------------------------------------------------------
- interfaces        |  array   |     no      | Array of interface classes that __eJinn__ will create ( post-parse )               
- exceptions        |  array   |     no      | Array of exception classes that __eJinn__ will create ( post-parse )     
+ interfaces        |  array   |     no      | Array of interface classes that __eJinn__ will create ( post-parse ) This is not required but you must have either this property or exceptions, or both.           
+ exceptions        |  array   |     no      | Array of exception classes that __eJinn__ will create ( post-parse ) This is not required but you must have either this property or interfaces, or both.               
  namespace         |  string  |   private   | The namespace taken from `$global['namespaces'][$namespace]` ie. the key of the namespaces array from the _Global Tier_ putting namespace as the key insures no duplacte namespaces are allowed, and it makes to much sense not to do  it that way.
  psr               |  number  |   private   | PSR setting at this namespace tier
                 
 ### Exception Tier ### 
  Property          |   Type   |  Required   | Description
  ----------------- | -------- | ----------- | ------------------------------------------------------
- name              |  string  |     yes     | Excption's Class name. Should not include a namespace, it should be the base class name.      
+ name              |  string  |     yes     | Excption's Class name. Should not include a namespace, it should be the base class name. 
  code              |  integer |     yes     | Exceptions Error code taken from `$namespace['exceptions'][$code]`. The default error code `__construct($message={default},$code=...)`. And a class constant `Class::ERROR_CODE`
  severity          |  integer |     no      | see Global[severity], shown here to offset ~~Interface[severity]~~ 
  message           |  string  |     no      | A default error message `__construct($message={default},$code=...)`
