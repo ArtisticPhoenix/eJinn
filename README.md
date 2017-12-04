@@ -175,7 +175,7 @@ $config = [
       ]
    ];
 ```
-Short PSR-0 example _(assming the configuration file was located in `/home/app`)_ this is equivalent to the above example.
+Short PSR-0 example _(assming the configuration file was located in `/home/app`)_
 
   ```php
 $config = [
@@ -194,7 +194,7 @@ This will create the folowing 2 classes.
  - /home/app/Models/Users/Exception/UnknownUser.php _(class \\Models\\Users\\Exception_UnknownUser errorCode 100)_
  - /home/app/Models/Users/Exception/InvalidPasword.php _(class \\Models\\Users\\Exception_InvalidPasword errorCode 101)_
 
-PSR-0 allows for shorter namespaces, but still gives the seperation at the file level. This can make is somewhat easier to code as their is less need for `use` statements. But it's slightly more confusing as to where the file is located at.  Personally I prefer PSR-4.
+PSR-0 allows for shorter namespaces, but still gives the seperation at the file level. This can make is somewhat easier to code as their is less need for `use` statements. But it's slightly more confusing as to where the file is located at.  Personally I prefer PSR-4.  For example the namespace is simply `Models\\Users` so when used within the `Models\\Users\\User` class, you would not need to include a `use` tag for these exceptions, however the `_` is replaced in the path, putting the exceptions in their own seperate sub-directory.
 
        
 ### Build Options ###        
