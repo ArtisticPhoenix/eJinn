@@ -249,8 +249,7 @@ Minimal Config.
 return [
     "version"       => "1.0.0",
     "namespaces"     => [
-        "eJinn\\Exception"  => [
-            "buildpath"     => "Exception",
+        ""  => [
             "exceptions" => [
                 0     => "UnknownError",
             ]
@@ -258,6 +257,10 @@ return [
     ]
 ];
 ```
+The above configureation will create a single exception file, this will be created at the location of the configuration file with no namespace. So if we had our config at `/home/app/Exceptions` then we would get this file:
+
+ - /home/app/Exceptions/UnknownError _( class \UnknownError)_
+
 
 Still a work in progress.
 
