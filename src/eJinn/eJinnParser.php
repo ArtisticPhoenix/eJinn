@@ -877,6 +877,7 @@ final class eJinnParser
     /**
      * Checked for Error Codes used more then once
      *
+     *
      * @param array $usedCodes
      */
     protected function ckDuplicateCodes(array $usedCodes)
