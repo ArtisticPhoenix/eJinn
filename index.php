@@ -9,11 +9,14 @@ echo "<pre>";
 
 $conf = require $path.'examples/config/eJinn.php';
 
-//print_r($conf);
+$options = [
+    'forceUnlock' => true,
+    'debug' => ['dev', 'showEntities'],
+    'createPaths' => true
+];
 
-$Generator = new eJinnParser($conf, $path."src/");
+$Generator = new eJinnParser($conf, $path."src/", $options);
 
-$Generator->build();
 
 
 echo "\nComplete in ".__FILE__." on ".__LINE__;

@@ -10,13 +10,13 @@ return [
     "version"       => "1.0.0",
     "reserved"       => [1,2,[8,20]],
     "namespaces"     => [
-        ""                  => [
+        "_"                  => [
             "buildpath"     => "c:\home\Exception",
             "exceptions" => [
                21 => "Test"
              ]
         ],
-        "eJinn"             => [
+        "_eJinn"             => [
             "buildpath"     => "foo",
             "interfaces"    => [
                 [
@@ -27,10 +27,9 @@ return [
         ],
         "eJinn\\Exception"  => [
             "subpackage"    => "Exception",
-            "buildpath"     => "/home/Exception",
+            "_buildpath"     => "/home/Exception",
             "interfaces"    => [
-                "eJinnException",
-                "eJinnInterface"
+                "eJinnExceptionInterface"
             ],
             "exceptions" => [
                 0     => "UnknownError",
@@ -47,7 +46,7 @@ return [
                 ]
             ]
         ],
-        "foo" => [
+        "_foo" => [
             "buildpath"     => ["psr"=>0],
             "exceptions" => [
                 1200 => "Foo_Bar"

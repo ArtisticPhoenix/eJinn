@@ -49,9 +49,11 @@ final class eJinnParser
     protected $defaultOptions = [
         'forceunlock'       => false,
         'forcerecompile'    => false,
-        'debug'             => [],
+        'debug'             => ['dev'],  //"none" set to none in production
         'createpaths'       => false,
-        'parseonly'         => false
+        'parseonly'         => false,
+        'lockfile'          => 'ejinn.lock',
+        'cachefile'         => 'ejinn.cache'
     ];
     
     /**
@@ -100,7 +102,7 @@ final class eJinnParser
     ];
     
     /**
-     * 
+     *
      * @var array
      */
     protected $private = [
@@ -199,6 +201,24 @@ final class eJinnParser
     
     /**
      *
+     * @var array
+     */
+    protected $files = [];
+    
+    /**
+     *
+     * @var string
+     */
+    protected $lockFile;
+    
+    /**
+     *
+     * @var string
+     */
+    protected $cacheFile;
+    
+    /**
+     *
      * @param array $config - either an array config or a json config
      */
     public function __construct(array $config = null, $buildpath = null, array $options = [])
@@ -263,13 +283,6 @@ final class eJinnParser
     }
     
     /**
-     * create the files
-     */
-    public function build()
-    {
-    }
-    
-    /**
      * Parse the eJinn config array
      *
      * @param array $config
@@ -283,13 +296,25 @@ final class eJinnParser
         
         //validate options
         $options = $this->recursiveArrayChangeKeyCase($options);
-        $this->ckUnkownKeys("Options", $options, $this->options);
+        $this->ckUnkownKeys("Options", $options, $this->defaultOptions);
         $this->options = array_replace($this->defaultOptions, $options);
         
-        //validate the base buildpath, ingore createpaths on the basepath       
-        $this->ckPath("Config Path", $buildpath, true);
+        if (isset($this->options['debug'])) {
+            $this->debug = array_map('strtolower', $this->options['debug']);
+        }
+        
+        //validate the base buildpath, ingore createpaths on the basepath
+        $this->ckBuildPath("Config Path", $buildpath, true);
+        
         //normalize paths should end with "/" and use Unix style DS
         $this->basePath = rtrim(str_replace("\\", "/", $buildpath), "/")."/";
+        
+        //check if the process is locked
+        if ($this->isLocked() && !$this->options['forceunlock']) {
+            throw new \Exception("Process is locked for config {$this->basePath}");
+        }
+        //lock the process
+        $this->lock();
         
         //lowercase config keys -> except children of namespace.
         $eJinn = $this->recursiveArrayChangeKeyCase($config, CASE_LOWER, ['namespaces']);
@@ -330,16 +355,53 @@ final class eJinnParser
         
         //ck duplicate error codes & reserve error codes
         $usedCodes = array_column($this->exceptions, 'code');
-        $this->chDuplicateCodes($usedCodes);
-        $this->chReserveCodes($usedCodes);
+        $this->ckDuplicateCodes($usedCodes);
+        $this->ckReserveCodes($usedCodes);
         
         //Finished Parsing
         
         //Debugging
-        $this->debug($this->reserved);
-        $this->debug($this->interfaces);
-        $this->debug($this->exceptions);
+        $this->debug($this->files, 'showFiles');
+        $this->debug($this->reserved, 'showReserved');
+        $this->debug($this->interfaces, 'showInterfaces');
+        $this->debug($this->exceptions, 'showException');
+        $this->debug([
+            'interfaces' => $this->interfaces,
+            'exceptions' => $this->exceptions
+        ], 'showEntities');
+        
+        $this->debug($this->options, 'dev');
+        
+        if (!$this->options['parseonly']) {
+            $this->build();
+        }
+        
+        $this->unlock();
     }
+    
+    /**
+     * create the files
+     */
+    protected function build()
+    {
+        $entities = [];
+        
+        foreach ($this->interfaces as $qName => $interface) {
+            $this->ckBuildPath($interface['name'], $interface['buildpath']);
+        }
+        
+        foreach ($this->exceptions as $qName => $exceptions) {
+            $this->ckBuildPath($interface['name'], $interface['buildpath']);
+        }
+    }
+    
+    
+    //========================================================//
+    //                  PROTECTED BUILDER
+    //========================================================//
+    
+    
+    
     
     //========================================================//
     //                  PROTECTED PARSERS
@@ -382,7 +444,7 @@ final class eJinnParser
      * @param array $global
      */
     protected function parseNamespaces(array $namespaces, array $global)
-    { 
+    {
         foreach ($namespaces as $ns => $config) {
             if (empty($config)) {
                 return;
@@ -500,7 +562,7 @@ final class eJinnParser
         //parse the fully qualified name from the namespace and the name
         $entity = $this->parseName($entity);
         
-        //parse the pathname 
+        //parse the pathname
         $entity = $this->parsePath($entity);
         
         //add our build version
@@ -545,27 +607,28 @@ final class eJinnParser
     }
     
     /**
-     * 
+     *
      * @param array $parent
      * @param array $child
      */
-    protected function parsePath($entity){
-        $this->debug($entity);
-        
-        if( isset($entity['psr']) && $entity['psr'] == '0'){
+    protected function parsePath($entity)
+    {
+        if (isset($entity['psr']) && $entity['psr'] == '0') {
             $filename = str_replace('_', '/', $entity['name']);
             //cant use the quilified name as the _ change is only in the name
             $filename = $entity['namespace'].'/'.$filename;
-        }else if(isset($entity['psr']) && $entity['psr'] == '4'){
+        } elseif (isset($entity['psr']) && $entity['psr'] == '4') {
             $filename = $entity['qualifiedname'];
-        }else{
+        } else {
             $filename = $entity['name'];
         }
         
         $pathname = $entity['buildpath'] . $filename . '.php';
         
+        
+        
         //normalize to Unix style
-        $pathname = str_replace("\\", "/",$pathname);
+        $pathname = str_replace("\\", "/", $pathname);
         
         //replace any run on '/' just in case
         $pathname = preg_replace('/\/{2,}/', '/', $pathname);
@@ -573,60 +636,13 @@ final class eJinnParser
         //noralize to the file
         //$pathname = str_replace("/", DIRECTORY_SEPARATOR, $pathname);
         
+        $entity['buildpath'] = dirname($pathname)."/";
+        
+        $this->files[] = $pathname;
+
         $entity['pathname'] = $pathname;
         return $entity;
     }
-    
-    /**
-     *
-     * @param string $path
-     * @return string
-     */
-   /* protected function parsePath($path)
-    {
-        $type = gettype($path);
-        
-        $pathType = 'relative';
-       
-        switch ($type) {
-            case "integer":
-            case "double":
-            case "string":
-                //do nothing
-                $path = str_replace("\\", "/", $path);
-                if(preg_match('/^([a-zA-Z]:\/|\/)/', $path)){
-                    $pathType = 'absolute';
-                }
-            break;
-            case "boolean":
-            case "NULL":
-                $path = ""; //just make it an empty string
-            break;
-            case "array":
-            case "object":
-            case "resource":
-            case "resource (closed)":
-            case "unknown type":
-            default:
-                $this->debug($path, ["error"]);
-                throw new \Exception("Unexpected type: expected string given $type");
-        }
-        
-        if ($type == "" || $type == 'array') {
-            $this->debug("BasePath: ".$this->basePath);
-        }
-        
-        //normalize windows like paths
-        
-        
-        // $local = strchr(rtrim(str_replace("\\", "/", __FILE__).'/'),'/');
-        //  $this->debug("Local Path: ".$local);
-      
-        if ($path) {
-            $this->debug("Entity Path: ".$path);
-        }
-    }*/
-    
     
     //========================================================//
     //                  HELPERS
@@ -634,38 +650,41 @@ final class eJinnParser
     
     /**
      * Compact 2 or more tiers
-     * 
+     *
      * inputs should be in the highest to lowest tiers.
      * Higher tiers will generally overwrite lower tiers
-     * 
+     *
      * @param array ...$arrays
      * @return array
      */
-    protected function compact(array ...$arrays){
-        if(1 == ($len = count($arrays))) return reset($arrays); //requires 2 or more arrays
+    protected function compact(array ...$arrays)
+    {
+        if (1 == ($len = count($arrays))) {
+            return reset($arrays);
+        } //requires 2 or more arrays
 
         $compact = [];
         
         $buildpath = $this->basePath;
         $psr = false;
         
-        for($i=0; $i<$len; $i++){
-            if(isset($arrays[$i]['buildpath'])){
+        for ($i=0; $i<$len; $i++) {
+            if (isset($arrays[$i]['buildpath'])) {
                 $bp = $arrays[$i]['buildpath']; //localize
                 //if it's an array then check for PSR
-                if(is_array($bp)){
-                    if(!isset($bp['psr']) || count($bp['psr']) != 1 || !preg_match('/^(0|4)$/', $bp['psr'])){
+                if (is_array($bp)) {
+                    if (!isset($bp['psr']) || count($bp['psr']) != 1 || !preg_match('/^(0|4)$/', $bp['psr'])) {
                         throw new \Exception("Invalid Buildpath: Array build path must be as follows ['psr'=>0] or ['psr'=>4]");
                     }
                     $psr = $bp['psr'];
-                }else{
+                } else {
                     $bp = str_replace("\\", "/", $bp); //normalize the DS ( makes matching easier )
                     
                     //if not check if it's relative or absolute
-                    if(preg_match('/^([a-zA-Z]:\/|\/)/', $bp)){
+                    if (preg_match('/^([a-zA-Z]:\/|\/)/', $bp)) {
                         //if the patch starts with / Unix Absolute, if it starts with [a-z]:/ such as c:/ windows absolute
                         $buildpath = $bp; //make sure it ends with /
-                    }else{
+                    } else {
                         //append relative paths
                         $buildpath .= $bp;
                     }
@@ -674,11 +693,11 @@ final class eJinnParser
             
             $arrays[$i]['buildpath'] = rtrim($buildpath, "/"). "/"; //make sure it ends with a /
             
-            if(!isset($arrays[$i]['psr']) && $psr !== false){
+            if (!isset($arrays[$i]['psr']) && $psr !== false) {
                 //don't overwrite psr - if it's present
                 $arrays[$i]['psr'] = $psr;
             }
-            $compact = array_replace($compact,$arrays[$i]);
+            $compact = array_replace($compact, $arrays[$i]);
         }
         
         return $compact;
@@ -699,7 +718,7 @@ final class eJinnParser
         $this->interfaces = [];
         $this->buildTime = microtime(true);
         $this->basePath = '';
-        $this->validateHashMap();
+        $this->ckHashMap();
         $this->options = [];
     }
     
@@ -757,17 +776,6 @@ final class eJinnParser
     }
     
     /**
-     * normalize windows like paths
-     *
-     * @param string $path
-     * @return string
-     */
-    protected function normalizePath($path)
-    {
-        return str_replace("\\", "/", path);
-    }
-    
-    /**
      * hash the entities config ( for cacheing purposes )
      *
      * @param array $entity
@@ -806,9 +814,6 @@ final class eJinnParser
         }
         return $array;
     }
-    
-    
-    
     
     //========================================================//
     //                  VALIDATORS
@@ -855,7 +860,7 @@ final class eJinnParser
      *
      * @param array $usedCodes
      */
-    protected function chReserveCodes(array $usedCodes)
+    protected function ckReserveCodes(array $usedCodes)
     {
         $diff = array_intersect($usedCodes, $this->reserved);
 
@@ -874,7 +879,7 @@ final class eJinnParser
      *
      * @param array $usedCodes
      */
-    protected function chDuplicateCodes(array $usedCodes)
+    protected function ckDuplicateCodes(array $usedCodes)
     {
         //check for duplicate error codes
         $unique = array_unique($usedCodes);
@@ -893,7 +898,7 @@ final class eJinnParser
     /**
      * validate the hash map
      */
-    protected function validateHashMap()
+    protected function ckHashMap()
     {
         $this->ckUnkownKeys(
             'HashMap',
@@ -911,23 +916,98 @@ final class eJinnParser
     /**
      *
      * @param string $title path title for debugging and error reporting
-     * @param striing $path
+     * @param string $path
      * @param string $ignoreOptions when createpaths is set we ignore missing dirs
      */
-    protected function ckPath($title, $path, $ignoreOptions = false)
+    protected function ckBuildPath($title, $path, $ignoreOptions = false)
     {
-        $this->debug($this->options);
-        
+        if (false !== strrchr($path, '.php')) {
+            throw new \Exception("Invalid buildpath {$title} $path. Contains filename.");
+        }
+
         if (!$ignoreOptions && $this->options['createpaths']) {
-            return;
+            return true;
         }
         
-        if (!is_dir($path)) {
-            throw new \Exception("Path[{$title}] not found ".$path);
+        if (!file_exists($path)) {
+            throw new \Exception("Path {$title} $path not found.");
         }
         if (!is_writable($path)) {
-            throw new \Exception("Path[{$title}] is not writable ".$path);
+            throw new \Exception("Path {$title} $path is not writable.");
         }
+        
+        return true;
+    }
+    
+    /**
+     * Lock file can be set in options['lockfile'], this can be either a filename
+     * which will use the basePath ( default build path ) or this can be a full path.
+     *
+     * @return string
+     */
+    public function getLockFile()
+    {
+        if (!$this->lockFile) {
+            $oLockFile = str_replace('\\', '/', $this->options['lockfile']);
+            
+            if (empty($oLockFile)) {
+                throw new \Exception('Option[lockFile] cannot be empty');
+            }
+
+            if (preg_match('/\//', $oLockFile)) {
+                $this->ckBuildPath('Lock Path', dirname($oLockFile), true);
+                $this->lockFile = $oLockFile;
+            } else {
+                $this->lockFile = $this->basePath.$oLockFile;
+            }
+        }
+        
+        return $this->lockFile;
+    }
+    
+    /**
+     * Check if the process is locked
+     * @return boolean
+     */
+    public function isLocked()
+    {
+        $lockFile = $this->getLockFile();
+        $this->debug("Is Locked: $lockFile", __FUNCTION__);
+        if (file_exists($lockFile)) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Lock the process
+     * @throws \Exception
+     */
+    protected function lock()
+    {
+        $lockFile = $this->getLockFile();
+        $this->debug("UnLock: $lockFile", __FUNCTION__);
+        if (!@file_put_contents($lockFile, time())) {
+            throw new \Exception("Unable to create lock file $lockfile");
+        }
+    }
+    
+    /**
+     * Unlock the process
+     */
+    protected function unlock()
+    {
+        $lockFile = $this->getLockFile();
+        $this->debug("Unlock: $lockFile", __FUNCTION__);
+        @unlink($lockfile);
+    }
+    
+    protected function loadCache()
+    {
+    }
+    
+    protected function saveCache()
+    {
     }
     
     /**
@@ -936,13 +1016,14 @@ final class eJinnParser
      * @param string $message
      * @param mixed $key
      */
-    protected function debug($message, $key = false)
+    protected function debug($message, $key = ['dev'])
     {
         if (!is_array($this->debug)) {
             return;
         }
 
         $trace = $this->debugTrace(1);
+        
         
         if (!$key) {
             $key = [$trace['function']];
@@ -955,6 +1036,10 @@ final class eJinnParser
                 $key[] = $trace['function'];
             }
         }
+        
+        $key = array_map('strtolower', $key);
+
+        //print_r($key);
         
         if (!empty($this->debug) && !count(array_intersect($key, $this->debug))) {
             return;
