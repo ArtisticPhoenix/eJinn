@@ -201,7 +201,7 @@ PSR-0 allows for shorter namespaces, but still gives the seperation at the file 
  Options           |   Type   |  Description
  ----------------- | -------- | -----------------------------------------------------------------
  forceUnlock       | boolean  | In the event some error occurs that prevents deleteing the `.lock` file you can delete it manually or set this option to `true` to force the parser to run.
- forceRecompile    | boolean  | There are serveral ways that a class will be recompiled. You can set this option to `true` to force recompiling on all entities.
+ forceRecompile    | boolean  | There are serveral ways that a config will be recompiled. You can set this option to `true` to force recompiling to override any caching.
  debug             |  array   | Mainly for development.  When you add a tag to the debugger array __eJinn__ will output debugging infomation assocated to that tag. Typically this is the name of a particular method in the parser class. For a complete list see the __Debugging__ section.
  parseOnly         | boolean  | When this is set to `true` only the _parsing_ stage is ran. No actual files are created by __eJinn__. This can be useful for doing a dry run.  
  createPath         | boolean  | __eJinn__ will attempt to build any missing folders in the path of the execption and interfaces.  Caution should be taken when using this option.  It's suggest to set `['parseOnly'=>true, debug=>['showFiles']]` options as well the first time it is ran to insure the config will create the proper file locations.  Validation on missing folders is bypassed by this option, for obvious reasons. ( if they don't exist, we create them, so no errors for that )    
@@ -220,7 +220,7 @@ Compiling is defined as the act of creating the actual _PHP_ class files for the
 Locking is defined as the act of creating a _eJinn.lock_ file, which prevents mulitple processes from running the parser/compiler at the same time.  This file will be deleted when the compiling process completes. 
 
 ### Caching ###
-Caching is defined as the act of creating a _eJinn.cache_ file, this file stores a reference to previously compiled entities.  This is done so the next time the compiler is ran it can skip creating some of the _PHP_ class files for entities that have not changed.  You can delete the _.cache_ file to force _eJinn_ to recompile all entites.
+Caching is defined as the act of creating a _eJinn.cache_ file, this file stores a reference or hash of the config file.  This hash is used to tell if any changes are made to the config file, between compilings. If no changes were made the parser will not complile the config. You can delete the _.cache_ file to force _eJinn_ to recompile all entites. You can also set the runtime option of _forcereCompile_ to `true` to cause the parser to recompile the config.
 
 ### Exception Considerations ###
 
