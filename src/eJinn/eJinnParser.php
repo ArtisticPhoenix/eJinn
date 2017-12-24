@@ -1,6 +1,8 @@
 <?php
 namespace eJinn;
 
+use phpDocumentor\Reflection\Types\This;
+
 /**
  *
  * (c) 2016 Hugh Durham III
@@ -136,14 +138,7 @@ final class eJinnParser
      * @var array
      */
     protected $allKeys = [];
-        
-    /**
-     * Ouput debug messages
-     *
-     * @var bool
-     */
-    protected $debug = [];
-    
+
     /**
      *
      * @var array
@@ -192,10 +187,32 @@ final class eJinnParser
     
     /**
      *
+     * @var string
+     */
+    protected $cacheHash;
+    
+    /**
+     * 
+     * @var string
+     */
+    protected $interfaceTemplate;
+    
+    /**
+     *
+     * @var string
+     */
+    protected $exceptionTemplate;
+    
+    /**
+     *
      * @param array $config - either an array config or a json config
      */
     public function __construct(array $config = null, $buildpath = null, array $options = [])
     {
+        
+        $this->interfaceTemplate = file_get_contents(__DIR__.'/interface.tpl');
+        $this->exceptionTemplate = file_get_contents(__DIR__.'/exception.tpl');
+        
         if ($config) {
             $this->parse($config, $buildpath, $options);
         }
@@ -203,6 +220,8 @@ final class eJinnParser
     
     /**
      * reset the class
+     * 
+     * @todo update this
      *
      * The generator is a 2 step process
      * 1. Parsing - validates and compiles the config
@@ -217,6 +236,10 @@ final class eJinnParser
         $this->buildTime = microtime(true);
         $this->basePath = '';
         $this->options = [];
+        $this->files = [];
+        $this->lockFile = null;
+        $this->cacheFile = null;
+        $this->cacheHash = null;
     }
     
     /**
@@ -371,13 +394,17 @@ final class eJinnParser
         $this->basePath = rtrim(str_replace("\\", "/", $buildpath), "/")."/";
         
         //check if the process is locked
-        if ($this->isLocked() && !$this->options['forceunlock']) {
-            throw new \Exception("Process is locked for config {$this->basePath}");
+        if ($this->isLocked()) {
+            if(!$this->options['forceunlock'])
+                throw new \Exception("Process is locked for config {$this->basePath}");
+            $this->debug("Force unlock bypassing lock file", 'isLocked');
         }
         
         //load and check the cache file for this config
         if ($this->loadAndCheckCache($config)) {
-            return false;
+            if(!$this->options['forcerecompile'])
+                return false;
+            $this->debug("Force recompile bypassing cache", 'isLocked');  
         }
         
         //lock the process
@@ -439,10 +466,13 @@ final class eJinnParser
         
         $this->debug($this->options, 'dev');
         
-        if (!$this->options['parseonly']) {
+        if (!$this->options['parseonly']){
             $this->build();
+            //save cache after building only
+            $this->saveCache();
         }
         
+        //unlock no matter if parse only or build
         $this->unlock();
     }
     
@@ -455,6 +485,7 @@ final class eJinnParser
         
         foreach ($this->interfaces as $qName => $interface) {
             $this->ckBuildPath($interface['name'], $interface['buildpath']);
+            
         }
         
         foreach ($this->exceptions as $qName => $exceptions) {
@@ -467,9 +498,23 @@ final class eJinnParser
     //                  PROTECTED BUILDER
     //========================================================//
     
+
     
+    protected function buildInterface(array $interface ){
+        
+    }
     
+    protected function buildException(array $interface ){
+        
+    }
     
+    protected function introspectExtends(){
+        
+    }
+    
+    protected function buildPath(){
+        
+    }
     //========================================================//
     //                  PROTECTED PARSERS
     //========================================================//
@@ -983,10 +1028,12 @@ final class eJinnParser
     public function isLocked()
     {
         $lockFile = $this->getLockFile();
-        $this->debug("Is Locked: $lockFile", __FUNCTION__);
+        
         if (file_exists($lockFile)) {
+            $this->debug("Config is Locked, with file $lockFile", 'isLocked');
             return true;
         }
+        $this->debug("eJinn config is not locked", 'isLocked');
         return false;
     }
     
@@ -1010,16 +1057,19 @@ final class eJinnParser
     {
         $lockFile = $this->getLockFile();
         $this->debug("Unlock: $lockFile", __FUNCTION__);
-        @unlink($lockfile);
+        unlink($lockFile);
     }
     
     /**
      *
      * @throws \Exception
      */
-    protected function loadAndCheckCache()
+    protected function loadAndCheckCache($config)
     {
-        $oCacheFile = $this->options['cachefile'];
+        $this->cacheHash = 'v{'.$this->buildVersion.'}::'.sha1(var_export($config,true));
+        $this->debug($this->cacheHash, 'ConfigHash');
+        
+        $oCacheFile = $this->options['cachefile']; 
         
         if (empty($oCacheFile)) {
             throw new \Exception('Option[cacheFile] cannot be empty');
@@ -1027,14 +1077,29 @@ final class eJinnParser
         
         if (preg_match('/\//', $oCacheFile)) {
             $this->ckBuildPath('Cache Path', dirname($oCacheFile), true);
-            $this->cacheFile = $oCacheFile;
         } else {
-            $this->cacheFile = $this->basePath.$oCacheFile;
+            $oCacheFile = $this->basePath.$oCacheFile;
         }
+        
+        $this->cacheFile = $oCacheFile;
+
+        $this->debug("Load cache file: {$this->cacheFile}", ['loadCache']);
+
+        if(file_exists($this->cacheFile)) {
+            $chachedHash = file_get_contents($this->cacheFile);
+            
+            if( $this->cacheHash == $chachedHash ){
+                $this->debug("eJinn config is cached", 'isCached');
+                return true;
+            }
+        }
+        $this->debug("eJinn config is not cached", 'isCached');
+        return false; 
     }
     
     protected function saveCache()
     {
+        file_put_contents($this->cacheFile, $this->cacheHash);
     }
     
     /**
@@ -1045,13 +1110,8 @@ final class eJinnParser
      */
     protected function debug($message, $key = ['dev'])
     {
-        if (!is_array($this->debug)) {
-            return;
-        }
-
         $trace = $this->debugTrace(1);
-        
-        
+
         if (!$key) {
             $key = [$trace['function']];
         } else {
@@ -1065,14 +1125,10 @@ final class eJinnParser
         }
         
         $key = array_map('strtolower', $key);
-
-        //print_r($key);
         
-        if (!empty($this->debug) && !count(array_intersect($key, $this->debug))) {
+        if (!count(array_intersect($key, $this->options['debug']))) {
             return;
         }
-
-        //if(!empty($this->debug) && !in_array(strtolower($key),$this->debug)) return;
 
         $elapsed = number_format((microtime(true) - $this->buildTime), 5);
         $o = [];

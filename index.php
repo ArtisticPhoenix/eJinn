@@ -10,9 +10,10 @@ echo "<pre>";
 $conf = require $path.'examples/config/eJinn.php';
 
 $options = [
-    'forceUnlock' => true,
-    'debug' => ['dev', 'showEntities'],
-    'createPaths' => true
+    'forceUnlock'       => true,
+    'forceRecompile'    => true,
+    'debug'             => ['dev','isCached','isLocked'],
+    'createPaths'       => true
 ];
 
 $Generator = new eJinnParser($conf, $path."src/", $options);
