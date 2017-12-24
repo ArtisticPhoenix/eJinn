@@ -109,7 +109,6 @@ final class eJinnParser
         'psr'                   => false,
         'namespace'             => '',
         'pathname'              => '',
-        'ejinn:hash'            => '',
         'ejinn:buildversion'    => '',
         'ejinn:buildtime'       => '',
         'ejinn:pathname'        => '',
@@ -130,34 +129,8 @@ final class eJinnParser
         "version"       => " * @varsion %s",
         "buildversion"  => " * @eJinn:buildVersion %s",
         "buildtime"     => " * @eJinn:buildTime %s",
-        "hash"          => " * @eJinn:hash %s"
     ];
-    
-    /**
-     * Array of config properties used for the config hash
-     * placed in the @eJinn:hash doc tag. This insures that
-     * the order and properties used in the hash will not change
-     * witout our knowing it.
-     *
-     * @var array
-     */
-    protected $hashMap =[
-        'author'          => '',
-        'description'     => '',
-        'package'         => '',
-        'subpackage'      => '',
-        'support'         => '',
-        'version'         => '',
-        'buildpath'       => '',
-        'extends'         => '',
-        'severity'        => '',
-        'impliments'      => [],
-        'namespace'       => '',
-        'name'            => '',
-        'code'            => '',
-        'buildversion'    => '',
-    ];
-    
+     
     /**
      * an array containing ($global, $contianers, $local)
      * @var array
@@ -229,6 +202,24 @@ final class eJinnParser
     }
     
     /**
+     * reset the class
+     *
+     * The generator is a 2 step process
+     * 1. Parsing - validates and compiles the config
+     * 2. Building - outputs the interface and exception classes
+     *
+     */
+    public function reset()
+    {
+        $this->reserved = [];
+        $this->exceptions = [];
+        $this->interfaces = [];
+        $this->buildTime = microtime(true);
+        $this->basePath = '';
+        $this->options = [];
+    }
+    
+    /**
      * Global keys can be placed at almost any level
      * These are generic values that are passed down
      * through the configuration structure
@@ -281,6 +272,82 @@ final class eJinnParser
         
         return $this->allKeys;
     }
+ 
+    /**
+     * set all options
+     *
+     * @param array $options
+     */
+    public function setOptions(array $options)
+    {
+        //set defaults
+        $this->options = $this->defaultOptions;
+        
+        foreach ($options as $option => $value) {
+            $this->setOption($option, $value);
+        }
+    }
+    
+    /**
+     * set a single option
+     *
+     * @param string $option
+     * @param mixed $value
+     */
+    public function setOption($option, $value)
+    {
+        $option = strtolower($option);
+        switch ($option) {
+            case 'debug':
+                if (!is_array($value)) {
+                    $value = [$value];
+                }
+                //lowercase
+                array_walk($value, function (&$item) {
+                    $item = strtolower($item);
+                });
+            break;
+            case 'lockfile':
+            case 'cachefile':
+                //normalize directory seperator
+                $value = str_replace("\\", "/", $value);
+           break;
+        }
+        
+        if (!isset($this->defaultOptions[$option])) {
+            throw new \Exception("Unknown option key '$option'");
+        }
+ 
+        $this->options[$option] = $value;
+    }
+    
+    /**
+     * return an options value, or return all options
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+    
+    /**
+     * return a single option's value
+     *
+     * @param string $option - name of the option or null ( empty ) to return all options
+     * @param mixed $silent - if false an exception is thrown when $option is not set, otherwise false is returned
+     * @return mixed
+     */
+    public function getOption($option, $silent = false)
+    {
+        if (!isset($this->options[$option])) {
+            if (!$silent) {
+                throw new \Exception("Call to undefined option[$option]");
+            }
+            return false;
+        }
+        return $this->options[$option];
+    }
     
     /**
      * Parse the eJinn config array
@@ -295,13 +362,7 @@ final class eJinnParser
         $this->reset();
         
         //validate options
-        $options = $this->recursiveArrayChangeKeyCase($options);
-        $this->ckUnkownKeys("Options", $options, $this->defaultOptions);
-        $this->options = array_replace($this->defaultOptions, $options);
-        
-        if (isset($this->options['debug'])) {
-            $this->debug = array_map('strtolower', $this->options['debug']);
-        }
+        $this->setOptions($options);
         
         //validate the base buildpath, ingore createpaths on the basepath
         $this->ckBuildPath("Config Path", $buildpath, true);
@@ -313,6 +374,12 @@ final class eJinnParser
         if ($this->isLocked() && !$this->options['forceunlock']) {
             throw new \Exception("Process is locked for config {$this->basePath}");
         }
+        
+        //load and check the cache file for this config
+        if ($this->loadAndCheckCache($config)) {
+            return false;
+        }
+        
         //lock the process
         $this->lock();
         
@@ -570,9 +637,6 @@ final class eJinnParser
         
         //add our build time
         $entity['ejinn:buildtime'] = $this->buildTime;
-          
-        //hash the entity for compile cache checking
-        $entity['ejinn:hash'] = $this->hashEntityConfig($entity);
 
         return $entity;
     }
@@ -704,25 +768,6 @@ final class eJinnParser
     }
     
     /**
-     * reset the class
-     *
-     * The generator is a 2 step process
-     * 1. Parsing - validates and compiles the config
-     * 2. Building - outputs the interface and exception classes
-     *
-     */
-    protected function reset()
-    {
-        $this->reserved = [];
-        $this->exceptions = [];
-        $this->interfaces = [];
-        $this->buildTime = microtime(true);
-        $this->basePath = '';
-        $this->ckHashMap();
-        $this->options = [];
-    }
-    
-    /**
      * Seperate out and save any Reserved Error codes.
      *
      * @param array $array
@@ -773,23 +818,6 @@ final class eJinnParser
         $item = $array[$key];
         unset($array[$key]);
         return $item;
-    }
-    
-    /**
-     * hash the entities config ( for cacheing purposes )
-     *
-     * @param array $entity
-     * @return string
-     */
-    protected function hashEntityConfig(array $entity)
-    {
-        //merge with the map, sets order fills in defaults
-        $mapped = array_merge($this->hashMap, $entity);
-        //intersect with the map, removes any extra properties from $mapped
-        $mapped = array_intersect_key($mapped, $this->hashMap);
-        $mapped['impliments'] = implode('|', $mapped['impliments']);
-        
-        return sha1('['.implode(']|[', $mapped).']');
     }
     
     /**
@@ -897,24 +925,6 @@ final class eJinnParser
     }
     
     /**
-     * validate the hash map
-     */
-    protected function ckHashMap()
-    {
-        $this->ckUnkownKeys(
-            'HashMap',
-            $this->hashMap,
-            $this->getAllKeys(),
-            [
-                "namespace"     => false,
-                "qname"         => false,
-                "impliments"    => false,
-                "buildversion"  => false
-            ]
-        );
-    }
-    
-    /**
      *
      * @param string $title path title for debugging and error reporting
      * @param string $path
@@ -949,7 +959,7 @@ final class eJinnParser
     public function getLockFile()
     {
         if (!$this->lockFile) {
-            $oLockFile = str_replace('\\', '/', $this->options['lockfile']);
+            $oLockFile = $this->options['lockfile'];
             
             if (empty($oLockFile)) {
                 throw new \Exception('Option[lockFile] cannot be empty');
@@ -1003,8 +1013,24 @@ final class eJinnParser
         @unlink($lockfile);
     }
     
-    protected function loadCache()
+    /**
+     *
+     * @throws \Exception
+     */
+    protected function loadAndCheckCache()
     {
+        $oCacheFile = $this->options['cachefile'];
+        
+        if (empty($oCacheFile)) {
+            throw new \Exception('Option[cacheFile] cannot be empty');
+        }
+        
+        if (preg_match('/\//', $oCacheFile)) {
+            $this->ckBuildPath('Cache Path', dirname($oCacheFile), true);
+            $this->cacheFile = $oCacheFile;
+        } else {
+            $this->cacheFile = $this->basePath.$oCacheFile;
+        }
     }
     
     protected function saveCache()
