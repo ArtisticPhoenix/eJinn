@@ -200,6 +200,7 @@ PSR-0 allows for shorter namespaces, but still gives the seperation at the file 
 ### Build Options ###        
  Options           |   Type   |  Description
  ----------------- | -------- | -----------------------------------------------------------------
+ uniqueExceptions  | boolean  | When true will throw an exception if duplicate codes are found in the config, when false duplicates are ignored. This has no effect on codes set as reserved in the config. 
  forceUnlock       | boolean  | In the event some error occurs that prevents deleteing the `.lock` file you can delete it manually or set this option to `true` to force the parser to run.
  lockFile          | string   | The name of the lock file, this should be either the full path and filename, or just the filename. In the case of just a filename the parser buildpath is used `eJinnParser::parse($config, $buildpath, $options)`
  forceRecompile    | boolean  | There are serveral ways that a config will be recompiled. You can set this option to `true` to force recompiling to override any caching.
