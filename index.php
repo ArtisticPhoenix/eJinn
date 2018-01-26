@@ -1,5 +1,8 @@
 <?php
 use eJinn\eJinnParser;
+use eJinn\Exception\UnknownException;
+
+//Throw new UnknownException();
 
 $path = str_replace("\\", "/", __DIR__).'/';
 
@@ -13,11 +16,11 @@ $options = [
     'forceUnlock'       => true,
     'forceRecompile'    => true,
     'debug'             => ['dev','isCached','isLocked'],
-    'createPaths'       => true
+    'createPaths'       => true,
+    'uniqueexceptions'  => false,
 ];
 
 $Generator = new eJinnParser($conf, $path."src/", $options);
-
 
 
 echo "\nComplete in ".__FILE__." on ".__LINE__;

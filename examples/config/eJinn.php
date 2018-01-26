@@ -31,6 +31,7 @@ return [
             "interfaces"    => [
                 "eJinnExceptionInterface"
             ],
+            'extends' => ErrorException::class,
             "exceptions" => [
                 0     => "UnknownError",
                 1001  => "ResservedCode",
@@ -46,12 +47,12 @@ return [
                 ]
             ]
         ],
-        "_foo" => [
+        /*"foo" => [
             "buildpath"     => ["psr"=>0],
             "exceptions" => [
-                1200 => "Foo_Bar"
+                0 => "Foo_Bar",
+                "1101"  => 'boo'
              ]
-        ]
-        
+        ]*/
     ]
 ];

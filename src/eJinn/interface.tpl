@@ -1,9 +1,10 @@
-{$php}
-{$namespace}
-{$use}
+{php}
+{namespace}
+
 /**
- * {$docBlock}
+ * (eJinn Generated File, do not edit directly)
+{docblock}
  */
-interface {$name}
+interface {name}
 {
 }

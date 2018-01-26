@@ -1,8 +1,6 @@
 <?php
 namespace eJinn;
 
-use phpDocumentor\Reflection\Types\This;
-
 /**
  *
  * (c) 2016 Hugh Durham III
@@ -55,7 +53,8 @@ final class eJinnParser
         'createpaths'       => false,
         'parseonly'         => false,
         'lockfile'          => 'ejinn.lock',
-        'cachefile'         => 'ejinn.cache'
+        'cachefile'         => 'ejinn.cache',
+        'uniqueexceptions'  => true,
     ];
     
     /**
@@ -116,21 +115,20 @@ final class eJinnParser
         'ejinn:pathname'        => '',
         'qname'                 => ''
     ];
-    
       
     /**
      * Doc comment format (template)
      * @var array
      */
     protected $doc = [
-        "author"        => " * @author %s",
-        "description"   => " * %s",
-        "package"       => " * @package %s",
-        "subpackage"    => " * @subpackage %s",
-        "support"       => " * @link %s",
-        "version"       => " * @varsion %s",
-        "buildversion"  => " * @eJinn:buildVersion %s",
-        "buildtime"     => " * @eJinn:buildTime %s",
+        "description"           => " * %s\n *",
+        "author"                => " * @author %s",
+        "package"               => " * @package %s",
+        "subpackage"            => " * @subpackage %s",
+        "support"               => " * @link %s",
+        "version"               => " * @varsion %s",
+        "ejinn:buildversion"    => " * @eJinn:buildVersion %s",
+        "ejinn:buildtime"       => " * @eJinn:buildTime %s",
     ];
      
     /**
@@ -192,7 +190,7 @@ final class eJinnParser
     protected $cacheHash;
     
     /**
-     * 
+     *
      * @var string
      */
     protected $interfaceTemplate;
@@ -205,13 +203,18 @@ final class eJinnParser
     
     /**
      *
+     * @var array
+     */
+    protected $introspectionCache = [];
+    
+    /**
+     *
      * @param array $config - either an array config or a json config
      */
     public function __construct(array $config = null, $buildpath = null, array $options = [])
     {
-        
-        $this->interfaceTemplate = file_get_contents(__DIR__.'/interface.tpl');
-        $this->exceptionTemplate = file_get_contents(__DIR__.'/exception.tpl');
+        $this->interfaceTemplate = file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'interface.tpl');
+        $this->exceptionTemplate = file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'exception.tpl');
         
         if ($config) {
             $this->parse($config, $buildpath, $options);
@@ -220,7 +223,7 @@ final class eJinnParser
     
     /**
      * reset the class
-     * 
+     *
      * @todo update this
      *
      * The generator is a 2 step process
@@ -395,16 +398,18 @@ final class eJinnParser
         
         //check if the process is locked
         if ($this->isLocked()) {
-            if(!$this->options['forceunlock'])
+            if (!$this->options['forceunlock']) {
                 throw new \Exception("Process is locked for config {$this->basePath}");
+            }
             $this->debug("Force unlock bypassing lock file", 'isLocked');
         }
         
         //load and check the cache file for this config
         if ($this->loadAndCheckCache($config)) {
-            if(!$this->options['forcerecompile'])
+            if (!$this->options['forcerecompile']) {
                 return false;
-            $this->debug("Force recompile bypassing cache", 'isLocked');  
+            }
+            $this->debug("Force recompile bypassing cache", 'isLocked');
         }
         
         //lock the process
@@ -466,7 +471,7 @@ final class eJinnParser
         
         $this->debug($this->options, 'dev');
         
-        if (!$this->options['parseonly']){
+        if (!$this->options['parseonly']) {
             $this->build();
             //save cache after building only
             $this->saveCache();
@@ -485,11 +490,14 @@ final class eJinnParser
         
         foreach ($this->interfaces as $qName => $interface) {
             $this->ckBuildPath($interface['name'], $interface['buildpath']);
-            
+            $this->buildInterface($interface);
         }
         
-        foreach ($this->exceptions as $qName => $exceptions) {
-            $this->ckBuildPath($interface['name'], $interface['buildpath']);
+        foreach ($this->exceptions as $qName => $exception) {
+            $this->debug($qName, 'dev');
+            
+            $this->ckBuildPath($exception['name'], $exception['buildpath']);
+            $this->buildException($exception);
         }
     }
     
@@ -497,24 +505,250 @@ final class eJinnParser
     //========================================================//
     //                  PROTECTED BUILDER
     //========================================================//
+    protected function buildDoc(array $conf)
+    {
+        $doc = [];
+        
+        foreach ($this->doc as $key=>$tpl) {
+            if (isset($conf[$key])) {
+                $doc[] = sprintf($tpl, $conf[$key]);
+            }
+        }
+        
+        return implode("\n", $doc);
+    }
     
+    /**
+     *
+     * @param array $interface
+     */
+    protected function buildInterface(array $interface)
+    {
+        $tpl = $this->interfaceTemplate;
+        
+        $doc = $this->buildDoc($interface);
+        
+        $namespace = empty($interface['namespace']) ? '' : "namespace {$interface['namespace']};";
+        
+        $name = $interface['name'];
+        
+        $pathname = $interface['pathname'];
+        
+        $tpl = str_replace([
+           '{php}',
+           '{namespace}',
+           '{docblock}',
+           '{name}'
+        ], [
+           '<?php',
+           $namespace,
+           $doc,
+           $name
+        ], $tpl);
+        
+        $this->debug($interface, 'dev');
+        
+        if (file_put_contents($pathname, $tpl)) {
+            $this->debug("Created Interface {$name} At {$pathname}", [__function__, 'dev']);
+            require_once $pathname;
+            
+            if (!class_exists($interface['qualifiedname'])) {
+                throw new \Exception('Test');
+            }
+        }
+    }
+    
+    protected function buildException(array $exception)
+    {
+        $this->debug($exception, 'dev');
+        $tpl = $this->exceptionTemplate;
+        
+        $exception['namespace'] = empty($exception['namespace']) ? '' : 'namespace \\'.ltrim($exception['namespace'], '\\').';';
+        $exception['extends'] = ltrim($exception['extends'], '\\');
+        
+        foreach ($exception['impliments'] as &$impliments) {
+            $impliments = '\\'.ltrim($impliments, '\\');
+            print_r($impliments);
+            if (!class_exists($impliments)) {
+                throw new \Exception("Interface class {$impliments} not found");
+            }
+        }
+        
+        $exception['impliments'] = empty($exception['impliments']) ? '' : ' impliments '.implode(', ', $exception['impliments']);
+  
+        $this->debug($exception, 'dev');
+  
+        //all exceptions must extend some base exception class
+        $intro = $this->introspectExtendsConstruct($exception['extends']);
+        $tpl = str_replace(
+ 
+            [
+            '{php}',
+            '{construct_args}',
+            '{parent_args}',
+          ],
+ 
+            [
+             '<?php',
+             $intro['construct_args'],
+             $intro['parent_args'],
+          ],
+          $tpl
+        );
+        $this->debug(htmlentities($tpl), 'dev');
+        
+        $exception['docblock'] = $this->buildDoc($exception);
 
-    
-    protected function buildInterface(array $interface ){
+        foreach ($exception as $key => $value) {
+            if (is_array($value)) {
+                continue;
+            }
+            
+            $tpl = str_replace('{'.$key.'}', $value, $tpl);
+        }
         
+        
+        /*       $message = empty($exception['message']) ? "''" : $exception['message'];
+               $code = empty($exception['code']) ? '0' : $exception['code'];
+               $severity = empty($exception['severity']) ? '0' : $exception['severity'];
+               $previous = empty($exception['previous']) ? 'null' : $exception['previous'];
+
+
+               $pathname = $exception['pathname'];
+
+
+               /*$tpl = str_replace([
+                   '{php}',
+                   '{namespace}',
+                   '{docblock}',
+                   '{name}',
+                   '{extends}',
+                   '{construct_args}',
+                   '{parent_args}',
+                   '{message}',
+                   '{code}',
+                   '{previous}',
+                   '{severity}'
+               ],[
+                   '<?php',
+                   $namespace,
+                   $doc,
+                   $name,
+                   $extends,
+                   $intro['construct_args'],
+                   $intro['parent_args'],
+                   $message,
+                   $code,
+                   $previous,
+                   $severity
+               ], $tpl);*/
+            
+        $this->debug(htmlentities($tpl), 'dev');
+        
+        $tpl = preg_replace('/\{\w+\}/', '', $tpl);
+        
+        $this->debug(htmlentities($tpl), 'dev');
     }
     
-    protected function buildException(array $interface ){
+    /**
+     *
+     * @param $extends
+     * @throws \Exception
+     * @return array
+     */
+    protected function introspectExtendsConstruct($extends)
+    {
+        if (!class_exists($extends)) {
+            throw new \Exception("Extends class {$extends} not found");
+        }
         
+        if (!isset($this->introspectionCache[$extends])) {
+            $construct_args = [];
+            $parent_args = [];
+            
+            $Method = new \ReflectionMethod($extends, '__construct');
+            
+            $Args = $Method->getParameters();
+            
+            foreach ($Args as $Arg) {
+                $export = \ReflectionParameter::export(
+                    array(
+                        $Arg->getDeclaringClass()->name,
+                        $Arg->getDeclaringFunction()->name
+                    ),
+                    $Arg->name,
+                    true
+                );
+                
+                //$patt = '/\[\s(?:\<\w+\>\s)(?P<type>\w+\s)?(?P<arg>\$'.$Arg->name.'.*?)\s\]$/i';
+                $patt = '/\[\s(?:\<\w+\>\s?)(?P<full>(?P<type>\w+)?(?P<arg>\s\$'.$Arg->name.')(?P<default>\s=.+)?)\s]$/i';
+                if (preg_match($patt, $export, $match)) {
+                    $construct_arg = $match['full'];
+                    if (in_array($Arg->name, [
+                        'message',
+                        'code',
+                        'previous',
+                        'filename',
+                        'lineno',
+                        'severity'
+                    ])) {
+                        if (empty($match['type']) && empty($match['type'])) {
+                            $construct_arg = '$'.$Arg->name.' = {'.$Arg->name.'}';
+                        }
+                    }
+                    
+                    $construct_args[] = trim($construct_arg);
+                    $parent_args[] = '$'.$Arg->name;
+                } else {
+                    echo htmlentities($patt)."\n";
+                    $this->debug(htmlentities($export), 'dev');
+                    throw new \Exception('Could not parse extends, introspection error');
+                }
+            }
+            
+            $this->introspectionCache[$extends] = [
+                'construct_args' => implode(', ', $construct_args),
+                'parent_args' => implode(', ', $parent_args),
+            ];
+        }
+
+        
+        return $this->introspectionCache[$extends];
     }
     
-    protected function introspectExtends(){
-        
+    protected function buildPath()
+    {
     }
     
-    protected function buildPath(){
-        
+    /*
+    class foo{
+
+        public function __construct( bar $bar){
+
+        }
+
     }
+
+    $Method = new ReflectionMethod('foo', '__construct');
+
+    $Args = $Method->getParameters();
+
+    foreach($Args AS $Arg){
+        $export = ReflectionParameter::export(
+           array(
+              $Arg->getDeclaringClass()->name,
+              $Arg->getDeclaringFunction()->name
+           ),
+           $Arg->name,
+           true
+        );
+
+        echo $export;*/
+        
+    // $type = preg_replace('/.*?(\w+)\s+\$'.$Arg->name.'.*/', '\\1', $export);
+    /*  echo "\nType: $type";
+    }
+     */
     //========================================================//
     //                  PROTECTED PARSERS
     //========================================================//
@@ -595,6 +829,7 @@ final class eJinnParser
             //$this->debug($namespace);
 
             if ($interfaces) {
+                //add defined interfaces to excpetions in this namespace
                 $impliments = $this->parseInterfaces($interfaces, $namespace);
             }
             
@@ -639,11 +874,13 @@ final class eJinnParser
             if (!is_int($code)) {
                 throw new \Exception("Excetion[{$exception['namespace']}::{$exception['name']}] expected integer error code, given[{$code}]");
             }
+            
+            
 
             if (!isset($exception['code'])) {
                 $exception['code'] = $code;
             }
-            
+
             $this->exceptions[$exception['qualifiedname']] = $exception;
         }
     }
@@ -955,6 +1192,11 @@ final class eJinnParser
      */
     protected function ckDuplicateCodes(array $usedCodes)
     {
+        if (!$this->options['uniqueexceptions']) {
+            return;
+        }
+        
+        
         //check for duplicate error codes
         $unique = array_unique($usedCodes);
         $diff = array_diff_assoc($usedCodes, $unique);
@@ -1066,10 +1308,10 @@ final class eJinnParser
      */
     protected function loadAndCheckCache($config)
     {
-        $this->cacheHash = 'v{'.$this->buildVersion.'}::'.sha1(var_export($config,true));
+        $this->cacheHash = 'v{'.$this->buildVersion.'}::'.sha1(var_export($config, true));
         $this->debug($this->cacheHash, 'ConfigHash');
         
-        $oCacheFile = $this->options['cachefile']; 
+        $oCacheFile = $this->options['cachefile'];
         
         if (empty($oCacheFile)) {
             throw new \Exception('Option[cacheFile] cannot be empty');
@@ -1085,16 +1327,16 @@ final class eJinnParser
 
         $this->debug("Load cache file: {$this->cacheFile}", ['loadCache']);
 
-        if(file_exists($this->cacheFile)) {
+        if (file_exists($this->cacheFile)) {
             $chachedHash = file_get_contents($this->cacheFile);
             
-            if( $this->cacheHash == $chachedHash ){
+            if ($this->cacheHash == $chachedHash) {
                 $this->debug("eJinn config is cached", 'isCached');
                 return true;
             }
         }
         $this->debug("eJinn config is not cached", 'isCached');
-        return false; 
+        return false;
     }
     
     protected function saveCache()

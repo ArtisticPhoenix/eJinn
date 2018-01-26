@@ -1,24 +1,20 @@
-{$php}
-{$namespace}
-{$use}
+{php}
+{namespace}
+
 /**
- * {$docBlock}
+ * (eJinn Generated File, do not edit directly)
+{docblock}
  */
-class {$name} extends {$extends}{$impliments}
+class {name} extends {extends}{impliments}
 {
-	const ERROR_CODE = {$code};
-	
-	const SEVERITY = {$severity};
-   
+
     /**
      *
-     * @param string $message
-     * @param number $code
-     * @param \Exception $previous
-     * @throws \{$class}
+     * {@inheritDoc}
+     * @see {extends}::__construct()
      */
-    public function __construct($message = null, $code = self::ERROR_CODE, $severity = self::SEVERITY, $filename = null, $lineno = null, $previous = null)
+    public function __construct({construct_args})
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct({parent_args});
     }
 }
