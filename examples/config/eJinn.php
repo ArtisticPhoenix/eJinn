@@ -25,6 +25,7 @@ return [
                 ]
             ]
         ],
+        
         "eJinn\\Exception"  => [
             "subpackage"    => "Exception",
             "_buildpath"     => "/home/Exception",
