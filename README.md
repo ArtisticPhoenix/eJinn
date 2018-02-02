@@ -289,7 +289,7 @@ The above configureation will create a single exception file, this will be creat
 Still a work in progress.
 
  * currently the config parser is done.
- * working on creating classes from the parsed data
+ * creating classes from the parsed data is basically done (need edge case testing)
  * then
      * work on some basic Readers
      * unit testing
