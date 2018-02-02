@@ -31,7 +31,7 @@ return [
             "interfaces"    => [
                 "eJinnExceptionInterface"
             ],
-            'extends' => ErrorException::class,
+            '_extends' => \eJinn\TestException::class,
             "exceptions" => [
                 0     => "UnknownError",
                 1001  => "ResservedCode",

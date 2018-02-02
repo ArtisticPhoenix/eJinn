@@ -1,5 +1,5 @@
 <?php
-namespace eJinn\Exception;
+namespace \eJinn\Exception;
 
 /**
  * (eJinn Generated File, do not edit directly)
@@ -13,6 +13,16 @@ namespace eJinn\Exception;
  * @eJinn:buildVersion 0.0.1
  * @eJinn:buildTime 1517558245.7034
  */
-interface eJinnExceptionInterface
+class UnknownError extends \Exception
 {
+
+    /**
+     *
+     * {@inheritDoc}
+     * @see \Exception::__construct()
+     */
+    public function __construct($message = "", $code = 0, \Exception $previous = NULL)
+    {
+        parent::__construct($message, $code, $previous);
+    }
 }

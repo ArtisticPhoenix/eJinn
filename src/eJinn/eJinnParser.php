@@ -98,7 +98,7 @@ final class eJinnParser
         "buildpath"     => "",
         "extends"       => "\Exception",
         "severity"      => E_ERROR,
-        'impliments'    => [],
+        'implements'    => [],
         "reserved"      => []
     ];
     
@@ -546,56 +546,44 @@ final class eJinnParser
            $name
         ], $tpl);
         
-        $this->debug($interface, 'dev');
-        
         if (file_put_contents($pathname, $tpl)) {
             $this->debug("Created Interface {$name} At {$pathname}", [__function__, 'dev']);
-            require_once $pathname;
-            
-            if (!class_exists($interface['qualifiedname'])) {
-                throw new \Exception('Test');
-            }
         }
     }
     
     protected function buildException(array $exception)
     {
-        $this->debug($exception, 'dev');
         $tpl = $this->exceptionTemplate;
         
         $exception['namespace'] = empty($exception['namespace']) ? '' : 'namespace \\'.ltrim($exception['namespace'], '\\').';';
-        $exception['extends'] = ltrim($exception['extends'], '\\');
+        $exception['extends'] = '\\'.ltrim($exception['extends'], '\\');
         
-        foreach ($exception['impliments'] as &$impliments) {
-            $impliments = '\\'.ltrim($impliments, '\\');
-            print_r($impliments);
-            if (!class_exists($impliments)) {
-                throw new \Exception("Interface class {$impliments} not found");
+        $name = $exception['name'];
+        
+        $pathname = $exception['pathname'];
+        
+        foreach ($exception['implements'] as &$implements) {
+            $implements = '\\'.ltrim($implements, '\\');
+            if (!interface_exists($implements)) {
+                throw new \Exception("Interface class {$implements} not found");
             }
         }
         
-        $exception['impliments'] = empty($exception['impliments']) ? '' : ' impliments '.implode(', ', $exception['impliments']);
-  
-        $this->debug($exception, 'dev');
+        $exception['implements'] = empty($exception['implements']) ? '' : ' implements '.implode(', ', $exception['implements']);
   
         //all exceptions must extend some base exception class
-        $intro = $this->introspectExtendsConstruct($exception['extends']);
-        $tpl = str_replace(
- 
-            [
+        $intro = $this->introspectExtendsConstruct($exception);
+        $tpl = str_replace([
             '{php}',
             '{construct_args}',
             '{parent_args}',
-          ],
- 
-            [
+         ],[
              '<?php',
              $intro['construct_args'],
              $intro['parent_args'],
           ],
           $tpl
         );
-        $this->debug(htmlentities($tpl), 'dev');
         
         $exception['docblock'] = $this->buildDoc($exception);
 
@@ -607,47 +595,11 @@ final class eJinnParser
             $tpl = str_replace('{'.$key.'}', $value, $tpl);
         }
         
-        
-        /*       $message = empty($exception['message']) ? "''" : $exception['message'];
-               $code = empty($exception['code']) ? '0' : $exception['code'];
-               $severity = empty($exception['severity']) ? '0' : $exception['severity'];
-               $previous = empty($exception['previous']) ? 'null' : $exception['previous'];
-
-
-               $pathname = $exception['pathname'];
-
-
-               /*$tpl = str_replace([
-                   '{php}',
-                   '{namespace}',
-                   '{docblock}',
-                   '{name}',
-                   '{extends}',
-                   '{construct_args}',
-                   '{parent_args}',
-                   '{message}',
-                   '{code}',
-                   '{previous}',
-                   '{severity}'
-               ],[
-                   '<?php',
-                   $namespace,
-                   $doc,
-                   $name,
-                   $extends,
-                   $intro['construct_args'],
-                   $intro['parent_args'],
-                   $message,
-                   $code,
-                   $previous,
-                   $severity
-               ], $tpl);*/
-            
-        $this->debug(htmlentities($tpl), 'dev');
-        
         $tpl = preg_replace('/\{\w+\}/', '', $tpl);
         
-        $this->debug(htmlentities($tpl), 'dev');
+        if (file_put_contents($pathname, $tpl)) {
+            $this->debug("Created Interface {$name} At {$pathname}", [__function__, 'dev']);
+        }
     }
     
     /**
@@ -656,8 +608,32 @@ final class eJinnParser
      * @throws \Exception
      * @return array
      */
-    protected function introspectExtendsConstruct($extends)
+    protected function introspectExtendsConstruct($exception)
     {
+        $extends = $exception['extends'];
+        
+        $common_args = [
+            'message'   => [
+                'default' => ' = "{message}"'
+             ],
+            'code'      => [
+                'default' => ' = {code}'
+            ],
+            'previous'  => [
+                'type' => '\\Exception ',
+                'default' => ' = NULL',
+            ],
+            'filename'  => [
+                'default' => ' = NULL',
+            ],
+            'lineno'    => [
+                'default' => ' = NULL',
+            ],
+            'severity'  => [
+                'default' => ' = {severity}'
+            ]
+        ];
+        
         if (!class_exists($extends)) {
             throw new \Exception("Extends class {$extends} not found");
         }
@@ -681,23 +657,32 @@ final class eJinnParser
                 );
                 
                 //$patt = '/\[\s(?:\<\w+\>\s)(?P<type>\w+\s)?(?P<arg>\$'.$Arg->name.'.*?)\s\]$/i';
-                $patt = '/\[\s(?:\<\w+\>\s?)(?P<full>(?P<type>\w+)?(?P<arg>\s\$'.$Arg->name.')(?P<default>\s=.+)?)\s]$/i';
+                $patt = '/\[\s(?:\<\w+\>\s?)(?P<full>(?P<type>[\\\a-z0-9_]+)?(?:[^$]*)(?P<arg>\$'.$Arg->name.')(?P<default>\s=.+)?)\s]$/i';
                 if (preg_match($patt, $export, $match)) {
-                    $construct_arg = $match['full'];
-                    if (in_array($Arg->name, [
-                        'message',
-                        'code',
-                        'previous',
-                        'filename',
-                        'lineno',
-                        'severity'
-                    ])) {
-                        if (empty($match['type']) && empty($match['type'])) {
-                            $construct_arg = '$'.$Arg->name.' = {'.$Arg->name.'}';
+                    
+                    $this->debug($match, 'dev');
+                    
+                    $type = '';
+                    if(!empty($match['type'])){
+                        $type = trim($match['type']);
+                        if(strtolower($type) != 'array'){
+                            $type = '\\'.$type;
+                        }
+                        $type .= ' ';
+                    }
+                    $arg = $match['arg'];
+                    $default = empty($match['default']) ? '' : $match['default'];
+                    
+                    if (isset($common_args[$Arg->name])){
+                        if(empty($type) && isset($common_args[$Arg->name]['type'])){
+                            $type = $common_args[$Arg->name]['type'];
+                        }
+                        if(empty($default)){
+                            $default = $common_args[$Arg->name]['default'];
                         }
                     }
-                    
-                    $construct_args[] = trim($construct_arg);
+                        
+                    $construct_args[] = $type.$arg.$default;
                     $parent_args[] = '$'.$Arg->name;
                 } else {
                     echo htmlentities($patt)."\n";
@@ -706,13 +691,12 @@ final class eJinnParser
                 }
             }
             
+            //cache it
             $this->introspectionCache[$extends] = [
                 'construct_args' => implode(', ', $construct_args),
                 'parent_args' => implode(', ', $parent_args),
             ];
-        }
-
-        
+        } 
         return $this->introspectionCache[$extends];
     }
     
@@ -720,35 +704,6 @@ final class eJinnParser
     {
     }
     
-    /*
-    class foo{
-
-        public function __construct( bar $bar){
-
-        }
-
-    }
-
-    $Method = new ReflectionMethod('foo', '__construct');
-
-    $Args = $Method->getParameters();
-
-    foreach($Args AS $Arg){
-        $export = ReflectionParameter::export(
-           array(
-              $Arg->getDeclaringClass()->name,
-              $Arg->getDeclaringFunction()->name
-           ),
-           $Arg->name,
-           true
-        );
-
-        echo $export;*/
-        
-    // $type = preg_replace('/.*?(\w+)\s+\$'.$Arg->name.'.*/', '\\1', $export);
-    /*  echo "\nType: $type";
-    }
-     */
     //========================================================//
     //                  PROTECTED PARSERS
     //========================================================//
@@ -796,7 +751,7 @@ final class eJinnParser
                 return;
             }
             
-            $impliments = [];
+            $implements = [];
             
             $ns = trim($ns, "\\");
             
@@ -830,11 +785,11 @@ final class eJinnParser
 
             if ($interfaces) {
                 //add defined interfaces to excpetions in this namespace
-                $impliments = $this->parseInterfaces($interfaces, $namespace);
+                $implements = $this->parseInterfaces($interfaces, $namespace);
             }
             
             if ($exceptions) {
-                $namespace['impliments'] = array_replace($namespace['impliments'], $impliments);
+                $namespace['implements'] = array_replace($namespace['implements'], $implements);
                 $this->parseExceptions($exceptions, $namespace);
             }
         }
@@ -849,15 +804,15 @@ final class eJinnParser
      */
     protected function parseInterfaces(array $interfaces, array $namespace)
     {
-        $impliments = [];
+        $implements = [];
         foreach ($interfaces as $interface) {
             $interface = $this->parseEntity($interface, $namespace);
-            unset($interface['impliments']);
-            $impliments[] = $interface['qualifiedname'];
+            unset($interface['implements']);
+            $implements[] = $interface['qualifiedname'];
             
             $this->interfaces[$interface['qualifiedname']] = $interface;
         }
-        return $impliments;
+        return $implements;
     }
     
     /**

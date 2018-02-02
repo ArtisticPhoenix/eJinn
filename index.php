@@ -1,14 +1,18 @@
 <?php
 use eJinn\eJinnParser;
 use eJinn\Exception\UnknownException;
+use eJinn\TestException;
 
-//Throw new UnknownException();
+error_reporting(-1);
+ini_set('display_errors', 1);
+
 
 $path = str_replace("\\", "/", __DIR__).'/';
 
 require_once $path.'vendor/autoload.php';
 
 echo "<pre>";
+
 
 $conf = require $path.'examples/config/eJinn.php';
 
