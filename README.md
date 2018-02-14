@@ -83,7 +83,7 @@ Comment properties are properties that begin with a `_`.  These properties _(and
  version           |  string  |     yes     | Used as the `@version` tag. Format `major.minor[.revision]`. __eJinn__ will recompile the classes if the version is changed.
  extends           |  string  |     no      | A base Exception class to extend, default is _PHP's_ `\Excption` class. This should be a fully qualified class name.
  severity          | integer  |     no      | A default severity value, usefull only when entity is a decendant of _PHP's_ `\ErrorExcption` class. Also creates class constant `Class::SEVERITY`. The default is `E_USER_ERROR`               
- impliments        |  array   |     no      | Array of fully quallifed interfance names for excptions to impliment. Ignored by interface entities(excptions can impliment multiple interfaces). Interfaces created by __eJinn__ are automatically populated where aplicable.            
+ implements        |  array   |     no      | Array of fully quallifed interfance names for excptions to impliment. Ignored by interface entities(excptions can impliment multiple interfaces). Interfaces created by __eJinn__ are automatically populated where aplicable.            
  reserved          |  array   |     no      | Array of integer codes, or nested arrays `[[min,max]]` for a range of integers. This is a sanity check for _error codes_ that should not be created by this configuration. 
  namespaces        |  array   |  protected  | Array of namespaces, the `key` should be the namespace which is used by the entities nested in this array.
  eJinn:Hash        |  string  |   private   | Used as the `@eJinn:hash` tag. Configuration hash used to check when changes are made
@@ -117,7 +117,7 @@ eJinn:Pathname     |  string  |   private   | class Path and filename
  severity          |  integer |   ignored   | Not Aplicable to this entity type 
  message           |  string  |   ignored   | Not Aplicable to this entity type 
  extends           |  string  |   ignored   | Not Aplicable to this entity type 
- impliments        |  array   |   ignored   | Not Aplicable to this entity type 
+ implements        |  array   |   ignored   | Not Aplicable to this entity type 
  
  - **buildpath** some special consideration for the _buildpath_ property:
      - The default value is the location of the configuration file currently being proccessed.
@@ -259,7 +259,7 @@ A much better way is something like this:
    }catch(\eJinn\Exception\ResservedCode $e ){
        //catch only class \eJinn\Exception\ResservedCode
    }catch(\eJinn\Exception\eJinnExceptionInterface $e ){
-       //catch any class that impliments \eJinn\Exception\eJinnExceptionInterface
+       //catch any class that implements \eJinn\Exception\eJinnExceptionInterface
    }
 ```
 Now we have very fine grained control over our error handling. We can catch only the errors we want, and we can handle a range of error in diffrent `catch` blocks.  The only problem with this type of error handling is the added hassle in setting the exception classes and keeping track of them.  

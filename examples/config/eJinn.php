@@ -31,6 +31,9 @@ return [
             "interfaces"    => [
                 "eJinnExceptionInterface"
             ],
+        	'implements' =>[
+        			'eJinn\\Exception\\eJinnExceptionInterface'
+        	],
             '_extends' => \eJinn\TestException::class,
             "exceptions" => [
                 0     => "UnknownError",

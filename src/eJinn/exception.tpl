@@ -5,7 +5,7 @@
  * (eJinn Generated File, do not edit directly)
 {docblock}
  */
-class {name} extends {extends}{impliments}
+class {name} extends {extends}{implements}
 {
 
     /**

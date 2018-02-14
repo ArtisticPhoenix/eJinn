@@ -11,9 +11,9 @@ namespace \eJinn\Exception;
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
  * @varsion 1.0.0
  * @eJinn:buildVersion 0.0.1
- * @eJinn:buildTime 1517558245.7034
+ * @eJinn:buildTime 1518638282.5547
  */
-class UnknownConfKey extends \Exception
+class UnknownConfKey extends \Exception implements \eJinn\Exception\eJinnExceptionInterface
 {
 
     /**
