@@ -289,7 +289,9 @@ The above configureation will create a single exception file, this will be creat
 Still a work in progress.
 
  * beta release with basic PHP config
- * then
+ * then (not in a specific order)
+     * testing and more testing
+     * composer publish
      * work on some basic Readers
      * cli interface
      * http interface
