@@ -28,3 +28,4 @@ $Generator = new eJinnParser($conf, $path."src/", $options);
 
 
 echo "\nComplete in ".__FILE__." on ".__LINE__;
+
