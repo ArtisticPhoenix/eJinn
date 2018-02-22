@@ -23,7 +23,7 @@ final class eJinnParser
      *
      * @var string
      */
-    protected $buildVersion = '0.0.1';
+    protected $buildVersion = '1.0.0';
     
     /**
      * Build time, the time the class was compiled on

@@ -1,4 +1,4 @@
- eJinn (alpha)
+ eJinn (Beta)
  =====
 The Exception Genie (PHP v5.6+)
 -------------------
@@ -288,13 +288,13 @@ The above configureation will create a single exception file, this will be creat
 
 Still a work in progress.
 
- * currently the config parser is done.
- * creating classes from the parsed data is basically done (need edge case testing)
- * then
+ * beta release with basic PHP config
+ * then (not in a specific order)
+     * testing and more testing
+     * composer publish
      * work on some basic Readers
+     * cli interface
+     * http interface
      * unit testing
-     * documentation & examples
-     * packaging
-     * seperate README into a wikki
+     * documentation & examples (wikki)
      
-
