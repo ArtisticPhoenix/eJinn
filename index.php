@@ -1,7 +1,6 @@
 <?php
 use eJinn\eJinnParser;
 use eJinn\Exception\UnknownException;
-use eJinn\TestException;
 
 error_reporting(-1);
 ini_set('display_errors', 1);
