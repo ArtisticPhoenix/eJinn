@@ -15,22 +15,22 @@ return [
             "interfaces"    => [
                 "eJinnExceptionInterface"
             ],
-        	'implements' =>[
-        			'eJinn\\ArtisticPhoenix\\Exception\\eJinnExceptionInterface'
-        	],
+            'implements' =>[
+                    'eJinn\\ArtisticPhoenix\\Exception\\eJinnExceptionInterface'
+            ],
             "exceptions" => [
                 "0"     => "UnknownError",
                 "1001"  => "UnknownOption",
                 "1002"  => "UnknownInterface",
                 "1003"  => "UnknownClass",
-                "1004"  => "UnknownKey",               
-                "1005"  => "ProcessLocked",                
-                "1006"  => "ParseError",              
+                "1004"  => "UnknownKey",
+                "1005"  => "ProcessLocked",
+                "1006"  => "ParseError",
                 "1007"  => "InvalidDataType",
-                "1008"  => "MissingRequired",              
+                "1008"  => "MissingRequired",
                 "1009"  => "ReservedKeyword",
                 "10010" => "ReservedExceptionCode",
-                "1011"  => "DuplicateExceptionCode",     
+                "1011"  => "DuplicateExceptionCode",
                 "1012"  => "ProcessLocked",
                 "1013"  => "PathNotFound",
                 "1014"  => "PathNotWritable",

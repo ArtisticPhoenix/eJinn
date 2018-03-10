@@ -579,11 +579,13 @@ final class eJinnParser
   
         //all exceptions must extend some base exception class
         $intro = $this->introspectExtendsConstruct($exception);
-        $tpl = str_replace([
+        $tpl = str_replace(
+            [
             '{php}',
             '{construct_args}',
             '{parent_args}',
-         ],[
+         ],
+            [
              '<?php',
              $intro['construct_args'],
              $intro['parent_args'],
@@ -627,13 +629,13 @@ final class eJinnParser
             ],
             'previous'  => [
                 'type' => '\\Exception ',
-                'default' => ' = NULL',
+                'default' => ' = null',
             ],
             'filename'  => [
-                'default' => ' = NULL',
+                'default' => ' = null',
             ],
             'lineno'    => [
-                'default' => ' = NULL',
+                'default' => ' = null',
             ],
             'severity'  => [
                 'default' => ' = {severity}'
@@ -666,9 +668,9 @@ final class eJinnParser
                 $patt = '/\[\s(?:\<\w+\>\s?)(?P<full>(?P<type>[\\\a-z0-9_]+)?(?:[^$]*)(?P<arg>\$'.$Arg->name.')(?P<default>\s=.+)?)\s]$/i';
                 if (preg_match($patt, $export, $match)) {
                     $type = '';
-                    if(!empty($match['type'])){
+                    if (!empty($match['type'])) {
                         $type = trim($match['type']);
-                        if(strtolower($type) != 'array'){
+                        if (strtolower($type) != 'array') {
                             $type = '\\'.$type;
                         }
                         $type .= ' ';
@@ -676,11 +678,11 @@ final class eJinnParser
                     $arg = $match['arg'];
                     $default = empty($match['default']) ? '' : $match['default'];
                     
-                    if (isset($common_args[$Arg->name])){
-                        if(empty($type) && isset($common_args[$Arg->name]['type'])){
+                    if (isset($common_args[$Arg->name])) {
+                        if (empty($type) && isset($common_args[$Arg->name]['type'])) {
                             $type = $common_args[$Arg->name]['type'];
                         }
-                        if(empty($default)){
+                        if (empty($default)) {
                             $default = $common_args[$Arg->name]['default'];
                         }
                     }
@@ -699,7 +701,7 @@ final class eJinnParser
                 'construct_args' => implode(', ', $construct_args),
                 'parent_args' => implode(', ', $parent_args),
             ];
-        } 
+        }
         return $this->introspectionCache[$extends];
     }
     
@@ -1248,11 +1250,11 @@ final class eJinnParser
         
         $lockPath = dirname($lockFile);
         
-        if(!is_dir( $lockPath)){
+        if (!is_dir($lockPath)) {
             throw new E\PathNotFound("Path not found $lockPath");
         }
         
-        if(!is_writable( $lockPath)){
+        if (!is_writable($lockPath)) {
             throw new E\PathNotWritable("Path not writable $lockPath");
         }
         

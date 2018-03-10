@@ -11,7 +11,7 @@ namespace evo\ejinn\Exception;
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
  * @varsion 1.0.0
  * @eJinn:buildVersion 1.0.0
- * @eJinn:buildTime 1520671737.3556
+ * @eJinn:buildTime 1520673269.0047
  */
 class ProcessLocked extends \Exception implements \evo\ejinn\Exception\eJinnExceptionInterface
 {
@@ -21,7 +21,7 @@ class ProcessLocked extends \Exception implements \evo\ejinn\Exception\eJinnExce
      * {@inheritDoc}
      * @see \Exception::__construct()
      */
-    public function __construct($message = "", $code = 1012, \Exception $previous = NULL)
+    public function __construct($message = "", $code = 1012, \Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
