@@ -7,7 +7,7 @@
 	],
 	"autoload" : {
 		"psr-4" : {
-			"Evo\\eJinn\\" : "src/EVO/eJinn"
+			"evo\\ejinn\\" : "src/evo/ejinn"
 		}
 	},
 	"support" : {

@@ -1,5 +1,5 @@
 <?php
-use Evo\eJinn\eJinnParser;
+use evo\ejinn\eJinnParser;
 
 echo "<pre>";
 

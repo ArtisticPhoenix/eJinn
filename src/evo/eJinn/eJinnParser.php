@@ -1,7 +1,7 @@
 <?php
-namespace Evo\eJinn;
+namespace evo\ejinn;
 
-use Evo\eJinn\Exception as E;
+use evo\ejinn\Exception as E;
 
 //use Evo\eJinn\Exception as E;
 

@@ -10,7 +10,7 @@ return [
     "version"       => "1.0.0",
     "reserved"       => [1,2,[8,20]],
     "namespaces"     => [
-        "Evo\\eJinn\\Exception"  => [
+        "evo\\ejinn\\Exception"  => [
             "subpackage"    => "Exception",
             "interfaces"    => [
                 "eJinnExceptionInterface"

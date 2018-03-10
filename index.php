@@ -1,5 +1,6 @@
 <?php
-use Evo\eJinn\eJinnParser;
+use evo\ejinn\eJinnParser;
+
 error_reporting(-1);
 ini_set('display_errors', 1);
 
