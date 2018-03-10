@@ -288,8 +288,6 @@ The above configureation will create a single exception file, this will be creat
  ###Examples###
  __eJinn__ uses itself to create it's exception files.  You can view the config file at `src/eJinnConf.php` and you can see the files it created at `src/evo/ejinn/Exceptions`.  You can also run it through the main `index.php` file.
  
- 
-
 
 Still a work in progress.
 
