@@ -11,7 +11,7 @@ namespace \Evo\eJinn\Exception;
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
  * @varsion 1.0.0
  * @eJinn:buildVersion 1.0.0
- * @eJinn:buildTime 1520666804.5985
+ * @eJinn:buildTime 1520666968.5642
  */
 class KeyNotAllowed extends \Exception implements \Evo\eJinn\Exception\eJinnExceptionInterface
 {
@@ -21,7 +21,7 @@ class KeyNotAllowed extends \Exception implements \Evo\eJinn\Exception\eJinnExce
      * {@inheritDoc}
      * @see \Exception::__construct()
      */
-    public function __construct($message = "", $code = 1006, \Exception $previous = NULL)
+    public function __construct($message = "", $code = 1007, \Exception $previous = NULL)
     {
         parent::__construct($message, $code, $previous);
     }

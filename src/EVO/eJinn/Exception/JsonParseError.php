@@ -11,7 +11,7 @@ namespace \Evo\eJinn\Exception;
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
  * @varsion 1.0.0
  * @eJinn:buildVersion 1.0.0
- * @eJinn:buildTime 1520666804.5985
+ * @eJinn:buildTime 1520666968.5642
  */
 class JsonParseError extends \Exception implements \Evo\eJinn\Exception\eJinnExceptionInterface
 {
