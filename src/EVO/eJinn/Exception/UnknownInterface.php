@@ -11,7 +11,7 @@ namespace Evo\eJinn\Exception;
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
  * @varsion 1.0.0
  * @eJinn:buildVersion 1.0.0
- * @eJinn:buildTime 1520670405.0482
+ * @eJinn:buildTime 1520670771.0881
  */
 class UnknownInterface extends \Exception implements \Evo\eJinn\Exception\eJinnExceptionInterface
 {
