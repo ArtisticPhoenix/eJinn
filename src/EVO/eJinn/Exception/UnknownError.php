@@ -1,19 +1,19 @@
 <?php
-namespace \eJinn\Exception;
+namespace \Evo\eJinn\Exception;
 
 /**
  * (eJinn Generated File, do not edit directly)
  * eJinn The Exception Genie
  *
  * @author ArtisticPhoenix
- * @package eJinn
+ * @package Evo
  * @subpackage Exception
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
  * @varsion 1.0.0
- * @eJinn:buildVersion 0.0.1
- * @eJinn:buildTime 1518638282.5547
+ * @eJinn:buildVersion 1.0.0
+ * @eJinn:buildTime 1520666204.873
  */
-class UnknownError extends \Exception implements \eJinn\Exception\eJinnExceptionInterface
+class UnknownError extends \Exception implements \Evo\eJinn\Exception\eJinnExceptionInterface
 {
 
     /**

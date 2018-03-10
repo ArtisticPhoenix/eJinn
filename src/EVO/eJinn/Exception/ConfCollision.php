@@ -1,19 +1,19 @@
 <?php
-namespace \eJinn\Exception;
+namespace \Evo\eJinn\Exception;
 
 /**
  * (eJinn Generated File, do not edit directly)
  * eJinn The Exception Genie
  *
  * @author ArtisticPhoenix
- * @package eJinn
+ * @package Evo
  * @subpackage Exception
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
  * @varsion 1.0.0
- * @eJinn:buildVersion 0.0.1
- * @eJinn:buildTime 1518638282.5547
+ * @eJinn:buildVersion 1.0.0
+ * @eJinn:buildTime 1520666204.873
  */
-class UnknownConfKey extends \Exception implements \eJinn\Exception\eJinnExceptionInterface
+class ConfCollision extends \Exception implements \Evo\eJinn\Exception\eJinnExceptionInterface
 {
 
     /**
@@ -21,7 +21,7 @@ class UnknownConfKey extends \Exception implements \eJinn\Exception\eJinnExcepti
      * {@inheritDoc}
      * @see \Exception::__construct()
      */
-    public function __construct($message = "", $code = 1002, \Exception $previous = NULL)
+    public function __construct($message = "", $code = 1007, \Exception $previous = NULL)
     {
         parent::__construct($message, $code, $previous);
     }

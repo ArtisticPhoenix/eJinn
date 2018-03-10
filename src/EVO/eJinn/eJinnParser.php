@@ -1,5 +1,5 @@
 <?php
-namespace eJinn;
+namespace Evo\eJinn;
 
 /**
  *
@@ -8,7 +8,8 @@ namespace eJinn;
  * For license information please view the LICENSE file included with this source code.
  *
  * @author HughDurham {ArtisticPhoenix}
- * @package eJinn
+ * @package Evo
+ * @subpackage eJinn
  *
  */
 final class eJinnParser

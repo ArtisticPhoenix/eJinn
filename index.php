@@ -1,10 +1,7 @@
 <?php
-use eJinn\eJinnParser;
-use eJinn\Exception\UnknownException;
-
+use Evo\eJinn\eJinnParser;
 error_reporting(-1);
 ini_set('display_errors', 1);
-
 
 $path = str_replace("\\", "/", __DIR__).'/';
 
@@ -13,7 +10,7 @@ require_once $path.'vendor/autoload.php';
 echo "<pre>";
 
 
-$conf = require $path.'examples/config/eJinn.php';
+$conf = require $path.'src/Evo/eJinn/eJinn.php';
 
 $options = [
     'forceUnlock'       => true,

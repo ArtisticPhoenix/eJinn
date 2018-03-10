@@ -7,12 +7,14 @@
 	],
 	"autoload" : {
 		"psr-4" : {
-			"eJinn\\" : "src/eJinn",
-			"eJinn\\Exception\\" : "src/eJinn/Exception"
+			"Evo\\eJinn\\" : "src/EVO/eJinn"
 		}
 	},
 	"support" : {
-		"email" : "artisticphoenix@gmail.com"
+		"email" : "artisticphoenix@gmail.com",
+		"source" : "https://github.com/ArtisticPhoenix/eJinn.git",
+		"issues" : "https://github.com/ArtisticPhoenix/eJinn/issues",
+		"wiki" : "https://github.com/ArtisticPhoenix/eJinn/wiki"
 	},
 	"type" : "library",
 	"authors" : [{
