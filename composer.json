@@ -1,5 +1,5 @@
 {
-	"name" : "artisticphoenix/eJinn",
+	"name" : "evo/ejinn",
 	"description" : "eJinn the Exception genie",
 	"license" : "GPL-3.0",
 	"keywords" : [
@@ -24,5 +24,5 @@
 			"role" : "Author"
 		}
 	],
-	"minimum-stability" : "beta"
+	"minimum-stability" : "dev"
 }
