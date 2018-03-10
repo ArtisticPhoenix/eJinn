@@ -1,5 +1,5 @@
 <?php
-namespace \Evo\eJinn\Exception;
+namespace Evo\eJinn\Exception;
 
 /**
  * (eJinn Generated File, do not edit directly)
@@ -11,9 +11,9 @@ namespace \Evo\eJinn\Exception;
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
  * @varsion 1.0.0
  * @eJinn:buildVersion 1.0.0
- * @eJinn:buildTime 1520666968.5642
+ * @eJinn:buildTime 1520670405.0482
  */
-class JsonParseError extends \Exception implements \Evo\eJinn\Exception\eJinnExceptionInterface
+class ReservedKeyword extends \Exception implements \Evo\eJinn\Exception\eJinnExceptionInterface
 {
 
     /**
@@ -21,7 +21,7 @@ class JsonParseError extends \Exception implements \Evo\eJinn\Exception\eJinnExc
      * {@inheritDoc}
      * @see \Exception::__construct()
      */
-    public function __construct($message = "", $code = 1100, \Exception $previous = NULL)
+    public function __construct($message = "", $code = 1009, \Exception $previous = NULL)
     {
         parent::__construct($message, $code, $previous);
     }

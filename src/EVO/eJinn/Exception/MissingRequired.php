@@ -1,5 +1,5 @@
 <?php
-namespace \Evo\eJinn\Exception;
+namespace Evo\eJinn\Exception;
 
 /**
  * (eJinn Generated File, do not edit directly)
@@ -11,7 +11,7 @@ namespace \Evo\eJinn\Exception;
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
  * @varsion 1.0.0
  * @eJinn:buildVersion 1.0.0
- * @eJinn:buildTime 1520666968.5642
+ * @eJinn:buildTime 1520670405.0482
  */
 class MissingRequired extends \Exception implements \Evo\eJinn\Exception\eJinnExceptionInterface
 {
@@ -21,7 +21,7 @@ class MissingRequired extends \Exception implements \Evo\eJinn\Exception\eJinnEx
      * {@inheritDoc}
      * @see \Exception::__construct()
      */
-    public function __construct($message = "", $code = 1005, \Exception $previous = NULL)
+    public function __construct($message = "", $code = 1008, \Exception $previous = NULL)
     {
         parent::__construct($message, $code, $previous);
     }

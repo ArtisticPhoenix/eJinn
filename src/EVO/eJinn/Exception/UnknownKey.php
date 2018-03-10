@@ -13,6 +13,16 @@ namespace Evo\eJinn\Exception;
  * @eJinn:buildVersion 1.0.0
  * @eJinn:buildTime 1520670405.0482
  */
-interface eJinnExceptionInterface
+class UnknownKey extends \Exception implements \Evo\eJinn\Exception\eJinnExceptionInterface
 {
+
+    /**
+     *
+     * {@inheritDoc}
+     * @see \Exception::__construct()
+     */
+    public function __construct($message = "", $code = 1004, \Exception $previous = NULL)
+    {
+        parent::__construct($message, $code, $previous);
+    }
 }

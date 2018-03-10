@@ -1,6 +1,10 @@
 <?php
 namespace Evo\eJinn;
 
+use Evo\eJinn\Exception as E;
+
+//use Evo\eJinn\Exception as E;
+
 /**
  *
  * (c) 2016 Hugh Durham III
@@ -342,7 +346,7 @@ final class eJinnParser
         }
         
         if (!isset($this->defaultOptions[$option])) {
-            throw new \Exception("Unknown option key '$option'");
+            throw new E\UnknownOption("Unknown option key '$option'");
         }
  
         $this->options[$option] = $value;
@@ -369,7 +373,7 @@ final class eJinnParser
     {
         if (!isset($this->options[$option])) {
             if (!$silent) {
-                throw new \Exception("Call to undefined option[$option]");
+                throw new E\UnknownOption("Call to undefined option[$option]");
             }
             return false;
         }
@@ -400,7 +404,7 @@ final class eJinnParser
         //check if the process is locked
         if ($this->isLocked()) {
             if (!$this->options['forceunlock']) {
-                throw new \Exception("Process is locked for config {$this->basePath}");
+                throw new E\ProcessLocked("Process is locked for config {$this->basePath}");
             }
             $this->debug("Force unlock bypassing lock file", 'isLocked');
         }
@@ -426,13 +430,14 @@ final class eJinnParser
         $this->reserved = array_unique($this->reserved);
         if (!empty($this->reserved) && !ctype_digit(implode($this->reserved))) {
             $this->debug($this->reserved);
-            throw new \Exception("Reserved Error codes must be integers");
+            throw new E\InvalidDataType("Reserved Error codes must be integers");
         }
 
         //Seperate the namespace container
         $namespaces = $this->extractArrayElement('namespaces', $eJinn);
+       
         if (!$namespaces) {
-            throw new \Exception("Namespaces element is required");
+            throw new E\MissingRequired("Namespaces element is required");
         }
         
         //normalize merge global
@@ -556,7 +561,7 @@ final class eJinnParser
     {
         $tpl = $this->exceptionTemplate;
         
-        $exception['namespace'] = empty($exception['namespace']) ? '' : 'namespace \\'.ltrim($exception['namespace'], '\\').';';
+        $exception['namespace'] = empty($exception['namespace']) ? '' : 'namespace '.ltrim($exception['namespace'], '\\').';';
         $exception['extends'] = '\\'.ltrim($exception['extends'], '\\');
         
         $name = $exception['name'];
@@ -566,7 +571,7 @@ final class eJinnParser
         foreach ($exception['implements'] as &$implements) {
             $implements = '\\'.ltrim($implements, '\\');
             if (!interface_exists($implements)) {
-                throw new \Exception("Interface class {$implements} not found");
+                throw new E\UnknownInterface("Interface class {$implements} not found");
             }
         }
         
@@ -599,7 +604,7 @@ final class eJinnParser
         $tpl = preg_replace('/\{\w+\}/', '', $tpl);
         
         if (file_put_contents($pathname, $tpl)) {
-            $this->debug("Created Interface {$name} At {$pathname}", [__function__, 'dev']);
+            $this->debug("Created Exception {$name} At {$pathname}", [__function__, 'dev']);
         }
     }
     
@@ -636,7 +641,7 @@ final class eJinnParser
         ];
         
         if (!class_exists($extends)) {
-            throw new \Exception("Extends class {$extends} not found");
+            throw new E\UnknownClass("Extends class {$extends} not found");
         }
         
         if (!isset($this->introspectionCache[$extends])) {
@@ -660,9 +665,6 @@ final class eJinnParser
                 //$patt = '/\[\s(?:\<\w+\>\s)(?P<type>\w+\s)?(?P<arg>\$'.$Arg->name.'.*?)\s\]$/i';
                 $patt = '/\[\s(?:\<\w+\>\s?)(?P<full>(?P<type>[\\\a-z0-9_]+)?(?:[^$]*)(?P<arg>\$'.$Arg->name.')(?P<default>\s=.+)?)\s]$/i';
                 if (preg_match($patt, $export, $match)) {
-                    
-                    $this->debug($match, 'dev');
-                    
                     $type = '';
                     if(!empty($match['type'])){
                         $type = trim($match['type']);
@@ -688,7 +690,7 @@ final class eJinnParser
                 } else {
                     echo htmlentities($patt)."\n";
                     $this->debug(htmlentities($export), 'dev');
-                    throw new \Exception('Could not parse extends, introspection error');
+                    throw new E\ParseError('Could not parse extends, introspection error');
                 }
             }
             
@@ -761,7 +763,7 @@ final class eJinnParser
             $exceptions = $this->extractArrayElement('exceptions', $config);
 
             if (empty($interfaces) && empty($exceptions)) {
-                throw new \Exception("Namespace[$ns] must contain either interfaces or exceptions");
+                throw new E\MissingRequired("Namespace[$ns] must contain either interfaces or exceptions");
             }
                        
             if (empty($ns)) {
@@ -828,7 +830,7 @@ final class eJinnParser
             $exception = $this->parseEntity($exception, $namespace);
             
             if (!is_int($code)) {
-                throw new \Exception("Excetion[{$exception['namespace']}::{$exception['name']}] expected integer error code, given[{$code}]");
+                throw new E\InvalidDataType("Exception[{$exception['namespace']}::{$exception['name']}] expected integer error code, given[{$code}]");
             }
             
             
@@ -893,7 +895,7 @@ final class eJinnParser
         
         //Parsed names cannot contain \\, ie. they must be relative paths
         if (false !== strpos($entity['name'], $ns)) {
-            throw new \Exception("Entity name[{$entity['name']}] cannot contain a NS '$ns' IN ".__FILE__." ON ".__LINE__);
+            throw new E\ParseError("Entity name[{$entity['name']}] cannot contain a NS '$ns' IN ".__FILE__." ON ".__LINE__);
         }
         
         $entity['namespace'] = trim($entity['namespace'], $ns);
@@ -976,7 +978,7 @@ final class eJinnParser
                 //if it's an array then check for PSR
                 if (is_array($bp)) {
                     if (!isset($bp['psr']) || count($bp['psr']) != 1 || !preg_match('/^(0|4)$/', $bp['psr'])) {
-                        throw new \Exception("Invalid Buildpath: Array build path must be as follows ['psr'=>0] or ['psr'=>4]");
+                        throw new E\ParseError("Invalid Buildpath: Array build path must be as follows ['psr'=>0] or ['psr'=>4]");
                     }
                     $psr = $bp['psr'];
                 } else {
@@ -1020,13 +1022,13 @@ final class eJinnParser
         }
         
         if (!is_array($reserved)) {
-            throw new \Exception("Expeted array for property reserved, given ".gettype($reserved));
+            throw new E\InvalidDataType("Expeted array for property reserved, given ".gettype($reserved));
         }
         
         foreach ($reserved as $reserve) {
             if (is_array($reserve)) {
                 if (count($reserve) != 2) {
-                    throw new \Exception("Nested reserved must contain exactly 2 elements");
+                    throw new E\ParseError("Nested reserved must contain exactly 2 elements");
                 }
                 $range = range(array_shift($reserve), array_shift($reserve));
                 $this->reserved += array_combine($range, $range);
@@ -1100,7 +1102,7 @@ final class eJinnParser
             $banned = array_diff_key($input, $diff);
             $s = count($banned) > 1 ? 's' : '';
             
-            throw new \Exception("Banned Key{$s} '".implode("', '", array_keys($banned))."' in $set");
+            throw new E\ReservedKeyword("Reserved Key{$s} '".implode("', '", array_keys($banned))."' in $set");
         }
     }
     
@@ -1117,7 +1119,7 @@ final class eJinnParser
         $diff = array_diff_key($input, ...$control);
         if (!empty($diff)) {
             $s = count($diff) > 1 ? 's' : '';
-            throw new \Exception("Unknown key{$s} '".implode("', '", array_keys($diff))."' in $set");
+            throw new E\UnknownKey("Unknown key{$s} '".implode("', '", array_keys($diff))."' in $set");
         }
     }
         
@@ -1136,7 +1138,7 @@ final class eJinnParser
             foreach ($diff as $k=>&$v) {
                 $v = "{$excptionIdx[$k]}::$v";
             }
-            throw new \Exception("Reserved Error Code{$s} used '".implode("','", $diff)."'");
+            throw new E\ReservedExceptionCode("Reserved Error Code{$s} used '".implode("','", $diff)."'");
         }
     }
     
@@ -1163,7 +1165,7 @@ final class eJinnParser
             foreach ($diff as $k=>&$v) {
                 $v = "{$excptionIdx[$k]}::$v";
             }
-            throw new \Exception("Duplicate Error Code{$s} for '".implode("','", $diff)."'");
+            throw new E\DuplicateExceptionCode("Duplicate Error Code{$s} for '".implode("','", $diff)."'");
         }
     }
     
@@ -1176,7 +1178,7 @@ final class eJinnParser
     protected function ckBuildPath($title, $path, $ignoreOptions = false)
     {
         if (false !== strrchr($path, '.php')) {
-            throw new \Exception("Invalid buildpath {$title} $path. Contains filename.");
+            throw new E\InvalidDataType("Invalid buildpath {$title} $path. Contains filename.");
         }
 
         if (!$ignoreOptions && $this->options['createpaths']) {
@@ -1184,10 +1186,10 @@ final class eJinnParser
         }
         
         if (!file_exists($path)) {
-            throw new \Exception("Path {$title} $path not found.");
+            throw new E\PathNotFound("Path {$title} $path not found.");
         }
         if (!is_writable($path)) {
-            throw new \Exception("Path {$title} $path is not writable.");
+            throw new E\PathNotWritable("Path {$title} $path is not writable.");
         }
         
         return true;
@@ -1205,7 +1207,7 @@ final class eJinnParser
             $oLockFile = $this->options['lockfile'];
             
             if (empty($oLockFile)) {
-                throw new \Exception('Option[lockFile] cannot be empty');
+                throw new E\InvalidDataType('Option[lockFile] cannot be empty');
             }
 
             if (preg_match('/\//', $oLockFile)) {
@@ -1243,8 +1245,19 @@ final class eJinnParser
     {
         $lockFile = $this->getLockFile();
         $this->debug("UnLock: $lockFile", __FUNCTION__);
+        
+        $lockPath = dirname($lockFile);
+        
+        if(!is_dir( $lockPath)){
+            throw new E\PathNotFound("Path not found $lockPath");
+        }
+        
+        if(!is_writable( $lockPath)){
+            throw new E\PathNotWritable("Path not writable $lockPath");
+        }
+        
         if (!@file_put_contents($lockFile, time())) {
-            throw new \Exception("Unable to create lock file $lockfile");
+            throw new E\CouldNotCreateFile("Unable to create lock file $lockfile");
         }
     }
     
@@ -1270,7 +1283,7 @@ final class eJinnParser
         $oCacheFile = $this->options['cachefile'];
         
         if (empty($oCacheFile)) {
-            throw new \Exception('Option[cacheFile] cannot be empty');
+            throw new E\InvalidDataType('Option[cacheFile] cannot be empty');
         }
         
         if (preg_match('/\//', $oCacheFile)) {

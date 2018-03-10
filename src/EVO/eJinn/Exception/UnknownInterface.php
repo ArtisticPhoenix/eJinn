@@ -13,7 +13,7 @@ namespace Evo\eJinn\Exception;
  * @eJinn:buildVersion 1.0.0
  * @eJinn:buildTime 1520670405.0482
  */
-class UnknownError extends \Exception implements \Evo\eJinn\Exception\eJinnExceptionInterface
+class UnknownInterface extends \Exception implements \Evo\eJinn\Exception\eJinnExceptionInterface
 {
 
     /**
@@ -21,7 +21,7 @@ class UnknownError extends \Exception implements \Evo\eJinn\Exception\eJinnExcep
      * {@inheritDoc}
      * @see \Exception::__construct()
      */
-    public function __construct($message = "", $code = 0, \Exception $previous = NULL)
+    public function __construct($message = "", $code = 1002, \Exception $previous = NULL)
     {
         parent::__construct($message, $code, $previous);
     }
