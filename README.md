@@ -284,6 +284,11 @@ return [
 The above configureation will create a single exception file, this will be created at the location of the configuration file with no namespace. So if we had our config at `/home/app/Exceptions` then we would get this file:
 
  - /home/app/Exceptions/UnknownError _( class \UnknownError errorCode 0)_
+ 
+ ###Examples###
+ __eJinn__ uses itself to create it's exception files.  You can view the config file at `src/eJinnConf.php` and you can see the files it created at `src/evo/ejinn/Exceptions`.  You can also run it through the main `index.php` file.
+ 
+ 
 
 
 Still a work in progress.
