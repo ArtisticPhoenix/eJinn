@@ -566,7 +566,7 @@ final class eJinnParser
         foreach ($exception['implements'] as &$implements) {
             $implements = '\\'.ltrim($implements, '\\');
             if (!interface_exists($implements)) {
-//                throw new \Exception("Interface class {$implements} not found");
+                throw new \Exception("Interface class {$implements} not found");
             }
         }
         
