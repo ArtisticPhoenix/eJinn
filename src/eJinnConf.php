@@ -16,7 +16,7 @@ return [
                 "eJinnExceptionInterface"
             ],
             'implements' =>[
-                    'eJinn\\ArtisticPhoenix\\Exception\\eJinnExceptionInterface'
+                    'evo\\ejinn\\Exception\\eJinnExceptionInterface'
             ],
             "exceptions" => [
                 "0"     => "UnknownError",
