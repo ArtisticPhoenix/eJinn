@@ -402,6 +402,8 @@ final class eJinnParser
         //validate options
         $this->setOptions($options);
         
+        unset($config['options']);
+        
         //validate the base buildpath, ingore createpaths on the basepath
         $this->ckBuildPath("Config Path", $buildpath, true);
         
