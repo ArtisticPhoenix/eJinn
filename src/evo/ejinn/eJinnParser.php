@@ -392,6 +392,13 @@ final class eJinnParser
         //reset on a new parse call
         $this->reset();
         
+        //lowercase config keys -> except children of namespace.
+        $eJinn = $this->recursiveArrayChangeKeyCase($config, CASE_LOWER, ['namespaces']);
+        
+        if(!isset($config['options']))$config['options'] = [];
+        
+        $options = array_merge($config['options'], $options);
+        
         //validate options
         $this->setOptions($options);
         
@@ -420,8 +427,7 @@ final class eJinnParser
         //lock the process
         $this->lock();
         
-        //lowercase config keys -> except children of namespace.
-        $eJinn = $this->recursiveArrayChangeKeyCase($config, CASE_LOWER, ['namespaces']);
+
 
         //pre-process the array recursively
         $eJinn = $this->parseRecursive($eJinn);
