@@ -13,3 +13,4 @@ if (isset($_GET['rebuild'])) {
     $escaped_url = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
     echo '<a href="' . $escaped_url . '?rebuild=true" >Rebuild Core Exceptions</a>';
 }
+
