@@ -2,7 +2,7 @@
 use evo\ejinn\eJinnParser;
 use evo\ejinn\Exception\InvalidDataType;
 
-require_once __DIR__.'/eJinnParser.php';
+require_once __DIR__.'/../../../vendor/autoload.php';
 
 if(isset($_GET['rebuild'])){
     $path = __DIR__.'/eJinnConf.php';
@@ -18,8 +18,6 @@ if(is_file($path)){
     $conf = require $path;
     if(!is_array($conf)) throw new InvalidDataType("Expected config as an array");
 }
-
-print_r(dirname($path));
 
 $options = [
     'forceUnlock'       => true,
