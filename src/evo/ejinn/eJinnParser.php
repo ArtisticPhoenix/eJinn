@@ -395,7 +395,9 @@ final class eJinnParser
         //lowercase config keys -> except children of namespace.
         $eJinn = $this->recursiveArrayChangeKeyCase($config, CASE_LOWER, ['namespaces']);
         
-        if(!isset($config['options']))$config['options'] = [];
+        if (!isset($config['options'])) {
+            $config['options'] = [];
+        }
         
         $options = array_merge($config['options'], $options);
         

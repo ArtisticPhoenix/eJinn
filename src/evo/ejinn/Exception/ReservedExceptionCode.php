@@ -16,10 +16,10 @@ namespace evo\ejinn\Exception;
 class ReservedExceptionCode extends \Exception implements \evo\ejinn\Exception\eJinnExceptionInterface
 {
 
-	/**
-	 * @var int
-	 */
-	const ERROR_CODE = 10010;
+    /**
+     * @var int
+     */
+    const ERROR_CODE = 10010;
 
     /**
      *

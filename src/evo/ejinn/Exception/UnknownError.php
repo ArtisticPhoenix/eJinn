@@ -16,10 +16,10 @@ namespace evo\ejinn\Exception;
 class UnknownError extends \Exception implements \evo\ejinn\Exception\eJinnExceptionInterface
 {
 
-	/**
-	 * @var int
-	 */
-	const ERROR_CODE = 0;
+    /**
+     * @var int
+     */
+    const ERROR_CODE = 0;
 
     /**
      *

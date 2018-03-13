@@ -13,7 +13,7 @@ if (isset($_GET['rebuild'])) {
     $escaped_url = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
     echo '<a href="' . $escaped_url . '?rebuild=true" >Rebuild Core Exceptions</a>';
     echo"<div> Or include the path to a config as '?config={path}</div>";
-    $command = "php -f ".str_replace("\\","/", __DIR__."/src/evo/ejinn/run.php");
+    $command = "php -f ".str_replace("\\", "/", __DIR__."/src/evo/ejinn/run.php");
     echo <<<HTML
 <div>
     Or include the path to a config on the command line call
@@ -22,4 +22,3 @@ if (isset($_GET['rebuild'])) {
 </div>
 HTML;
 }
-

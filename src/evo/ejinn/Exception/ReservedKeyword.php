@@ -16,10 +16,10 @@ namespace evo\ejinn\Exception;
 class ReservedKeyword extends \Exception implements \evo\ejinn\Exception\eJinnExceptionInterface
 {
 
-	/**
-	 * @var int
-	 */
-	const ERROR_CODE = 1009;
+    /**
+     * @var int
+     */
+    const ERROR_CODE = 1009;
 
     /**
      *

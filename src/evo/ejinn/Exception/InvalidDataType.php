@@ -16,10 +16,10 @@ namespace evo\ejinn\Exception;
 class InvalidDataType extends \Exception implements \evo\ejinn\Exception\eJinnExceptionInterface
 {
 
-	/**
-	 * @var int
-	 */
-	const ERROR_CODE = 1007;
+    /**
+     * @var int
+     */
+    const ERROR_CODE = 1007;
 
     /**
      *

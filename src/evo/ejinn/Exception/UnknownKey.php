@@ -16,10 +16,10 @@ namespace evo\ejinn\Exception;
 class UnknownKey extends \Exception implements \evo\ejinn\Exception\eJinnExceptionInterface
 {
 
-	/**
-	 * @var int
-	 */
-	const ERROR_CODE = 1004;
+    /**
+     * @var int
+     */
+    const ERROR_CODE = 1004;
 
     /**
      *

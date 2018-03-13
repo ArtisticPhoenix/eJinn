@@ -16,10 +16,10 @@ namespace evo\ejinn\Exception;
 class ParseError extends \Exception implements \evo\ejinn\Exception\eJinnExceptionInterface
 {
 
-	/**
-	 * @var int
-	 */
-	const ERROR_CODE = 1006;
+    /**
+     * @var int
+     */
+    const ERROR_CODE = 1006;
 
     /**
      *

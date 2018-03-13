@@ -16,10 +16,10 @@ namespace evo\ejinn\Exception;
 class ProcessLocked extends \Exception implements \evo\ejinn\Exception\eJinnExceptionInterface
 {
 
-	/**
-	 * @var int
-	 */
-	const ERROR_CODE = 1012;
+    /**
+     * @var int
+     */
+    const ERROR_CODE = 1012;
 
     /**
      *

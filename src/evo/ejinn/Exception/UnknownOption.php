@@ -16,10 +16,10 @@ namespace evo\ejinn\Exception;
 class UnknownOption extends \Exception implements \evo\ejinn\Exception\eJinnExceptionInterface
 {
 
-	/**
-	 * @var int
-	 */
-	const ERROR_CODE = 1001;
+    /**
+     * @var int
+     */
+    const ERROR_CODE = 1001;
 
     /**
      *
