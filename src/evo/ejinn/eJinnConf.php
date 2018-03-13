@@ -4,15 +4,15 @@ return [
     "author"        => "ArtisticPhoenix",
     "description"   => "eJinn The Exception Genie",
     "package"       => "Evo",
-    "subpackage"    => "eJinn",
-    "_buildpath"     => __DIR__,
+    "_subpackage"    => "eJinn",
+    "buildpath"     => ["psr"=>4],
     "support"       => "https://github.com/ArtisticPhoenix/eJinn/issues",
     "version"       => "1.0.0",
     "reserved"       => [1,2,[8,20]],
     "namespaces"     => [
         "evo\\ejinn\\Exception"  => [
             "subpackage"    => "Exception",
-            "buildpath"     => __DIR__.'/Exception/',
+            "buildpath"     =>  __DIR__.'/Exception/',
             "interfaces"    => [
                 "eJinnExceptionInterface"
             ],
