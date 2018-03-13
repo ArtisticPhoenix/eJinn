@@ -8,6 +8,11 @@
 class {name} extends {extends}{implements}
 {
 
+	/**
+	 * @var int
+	 */
+	const ERROR_CODE = {code};
+
     /**
      *
      * {@inheritDoc}
