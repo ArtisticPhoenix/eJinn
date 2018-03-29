@@ -1,6 +1,6 @@
 <?php
 
-if(!is_defined('EVO_AUTOLOAD')){  
+if(!defined('EVO_AUTOLOAD')){  
     define('EVO_AUTOLOAD', __DIR__.'/vendor/autoload.php');
 }
 
