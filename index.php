@@ -1,10 +1,12 @@
 <?php
-
-
 error_reporting(-1);
 ini_set('display_errors', 1);
 
-require_once __DIR__.'/vendor/autoload.php';
+if(!is_defined('EVO_AUTOLOAD')){  
+    define('EVO_AUTOLOAD', __DIR__.'/vendor/autoload.php');
+}
+
+require_once EVO_AUTOLOAD;
 
 if (isset($_GET['rebuild'])) {
     require_once __DIR__.'/src/evo/ejinn/run.php';

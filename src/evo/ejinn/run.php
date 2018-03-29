@@ -2,7 +2,7 @@
 use evo\ejinn\eJinnParser;
 use evo\ejinn\Exception\InvalidDataType;
 
-require_once __DIR__.'/../../../vendor/autoload.php';
+require_once EVO_AUTOLOAD;
 
 if (isset($_GET['rebuild'])) {
     $path = __DIR__.'/eJinnConf.php';
