@@ -6,7 +6,7 @@ if(!defined('EVO_AUTOLOAD')){
 
 require_once EVO_AUTOLOAD;
 
-if (isset($_GET['rebuild'])) {
+if (isset($_GET['rebuild']) || isset($_GET['config']) || isset($argv[1])){
     require_once __DIR__.'/src/evo/ejinn/run.php';
 } else {
     $url =  "//{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
