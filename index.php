@@ -1,6 +1,4 @@
 <?php
-error_reporting(-1);
-ini_set('display_errors', 1);
 
 if(!is_defined('EVO_AUTOLOAD')){  
     define('EVO_AUTOLOAD', __DIR__.'/vendor/autoload.php');
