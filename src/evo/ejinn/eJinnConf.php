@@ -10,14 +10,14 @@ return [
     "version"       => "1.0.0",
     "reserved"       => [1,2,[8,20]],
     "namespaces"     => [
-        "evo\\ejinn\\Exception"  => [
+        "evo\\ejinn\\exception"  => [
             "subpackage"    => "Exception",
-            "buildpath"     =>  __DIR__.'/Exception/',
+            "buildpath"     =>  __DIR__.'/exception/',
             "interfaces"    => [
                 "eJinnExceptionInterface"
             ],
             'implements' =>[
-                    'evo\\ejinn\\Exception\\eJinnExceptionInterface'
+                    'evo\\ejinn\\exception\\eJinnExceptionInterface'
             ],
             "exceptions" => [
                 "0"     => "UnknownError",

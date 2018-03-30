@@ -1,7 +1,7 @@
 <?php 
 use evo\ejinn\eJinnParser;
-use evo\ejinn\Exception\InvalidDataType;
-use evo\ejinn\Exception\InvalidConfigFile;
+use evo\ejinn\exception\InvalidDataType;
+use evo\ejinn\exception\InvalidConfigFile;
 
 require_once EVO_AUTOLOAD;
 
