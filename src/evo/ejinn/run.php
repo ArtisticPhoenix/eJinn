@@ -34,9 +34,6 @@ if (is_file($path)) {
     
     
     $Generator = new eJinnParser($conf, dirname($path), $options);
-    
-}else{
+} else {
     throw new InvalidConfigFile($path);
 }
-
-

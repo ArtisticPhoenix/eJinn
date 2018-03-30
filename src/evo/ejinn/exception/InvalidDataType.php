@@ -11,15 +11,15 @@ namespace evo\ejinn\exception;
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
  * @varsion 1.0.0
  * @eJinn:buildVersion 1.0.0
- * @eJinn:buildTime 1522389820.9413
+ * @eJinn:buildTime 1522394317.4021
  */
 class InvalidDataType extends \Exception implements \evo\ejinn\exception\eJinnExceptionInterface
 {
 
-	/**
-	 * @var int
-	 */
-	const ERROR_CODE = 1007;
+    /**
+     * @var int
+     */
+    const ERROR_CODE = 1007;
 
     /**
      *
