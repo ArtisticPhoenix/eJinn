@@ -13,6 +13,8 @@ if (isset($_GET['rebuild'])) {
     echo "<pre>";
 } elseif (isset($argv[1])) {
     $path = $argv[1];
+} elseif (defined('EJINN_CONF_PATH')) {
+    $path = EJINN_CONF_PATH;
 }
 
 if (is_file($path)) {
