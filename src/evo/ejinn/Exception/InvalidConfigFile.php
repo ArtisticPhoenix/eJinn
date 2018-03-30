@@ -13,20 +13,20 @@ namespace evo\ejinn\Exception;
  * @eJinn:buildVersion 1.0.0
  * @eJinn:buildTime 1522388261.2707
  */
-class ProcessLocked extends \Exception implements \evo\ejinn\Exception\eJinnExceptionInterface
+class InvalidConfigFile extends \Exception implements \evo\ejinn\Exception\eJinnExceptionInterface
 {
 
 	/**
 	 * @var int
 	 */
-	const ERROR_CODE = 1012;
+	const ERROR_CODE = 1016;
 
     /**
      *
      * {@inheritDoc}
      * @see \Exception::__construct()
      */
-    public function __construct($message = "", $code = 1012, \Exception $previous = null)
+    public function __construct($message = "", $code = 1016, \Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

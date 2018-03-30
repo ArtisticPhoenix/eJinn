@@ -1,6 +1,7 @@
 <?php 
 use evo\ejinn\eJinnParser;
 use evo\ejinn\Exception\InvalidDataType;
+use evo\ejinn\Exception\InvalidConfigFile;
 
 require_once EVO_AUTOLOAD;
 
@@ -19,16 +20,21 @@ if (is_file($path)) {
     if (!is_array($conf)) {
         throw new InvalidDataType("Expected config as an array");
     }
+    
+    $options = [
+        'forceUnlock'       => true,
+        'forceRecompile'    => true,
+        'debug'             => ['dev','isCached','isLocked','showFiles'],
+        //'createPaths'       => true,
+        //'uniqueexceptions'  => false,
+        //'parseOnly'  => true,
+    ];
+    
+    
+    $Generator = new eJinnParser($conf, dirname($path), $options);
+    
+}else{
+    throw new InvalidConfigFile($path);
 }
 
-$options = [
-    'forceUnlock'       => true,
-    'forceRecompile'    => true,
-    'debug'             => ['dev','isCached','isLocked','showFiles'],
-    //'createPaths'       => true,
-    //'uniqueexceptions'  => false,
-    //'parseOnly'  => true,
-];
 
-
-$Generator = new eJinnParser($conf, dirname($path), $options);

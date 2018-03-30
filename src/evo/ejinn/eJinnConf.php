@@ -36,6 +36,7 @@ return [
                 "1013"  => "PathNotFound",
                 "1014"  => "PathNotWritable",
                 "1015"  => "CouldNotCreateFile",
+                "1016"  => "InvalidConfigFile"
                 /*
                 "1100"  => [
                     "Name" => "JsonParseError",

@@ -11,7 +11,7 @@ namespace evo\ejinn\Exception;
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
  * @varsion 1.0.0
  * @eJinn:buildVersion 1.0.0
- * @eJinn:buildTime 1520921778.8741
+ * @eJinn:buildTime 1522388261.2707
  */
 interface eJinnExceptionInterface
 {
