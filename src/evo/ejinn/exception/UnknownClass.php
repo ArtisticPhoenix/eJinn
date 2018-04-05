@@ -9,9 +9,9 @@ namespace evo\ejinn\exception;
  * @package Evo
  * @subpackage Exception
  * @link https://github.com/ArtisticPhoenix/eJinn/issues
- * @varsion 1.0.0
+ * @version 1.0.0
  * @eJinn:buildVersion 1.0.0
- * @eJinn:buildTime 1522394317.4021
+ * @eJinn:buildTime 1522902666.5463
  */
 class UnknownClass extends \Exception implements \evo\ejinn\exception\eJinnExceptionInterface
 {

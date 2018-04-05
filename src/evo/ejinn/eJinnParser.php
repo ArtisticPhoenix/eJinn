@@ -131,7 +131,7 @@ final class eJinnParser
         "package"               => " * @package %s",
         "subpackage"            => " * @subpackage %s",
         "support"               => " * @link %s",
-        "version"               => " * @varsion %s",
+        "version"               => " * @version %s",
         "ejinn:buildversion"    => " * @eJinn:buildVersion %s",
         "ejinn:buildtime"       => " * @eJinn:buildTime %s",
     ];
