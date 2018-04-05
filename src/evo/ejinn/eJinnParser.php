@@ -218,9 +218,47 @@ final class eJinnParser
      */
     public function __construct(array $config = null, $buildpath = null, array $options = [])
     {
-        $this->interfaceTemplate = file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'interface.tpl');
-        $this->exceptionTemplate = file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'exception.tpl');
+        $this->interfaceTemplate = <<<TEMPLATE
+{php}
+{namespace}
+
+/**
+ * (eJinn Generated File, do not edit directly)
+{docblock}
+ */
+interface {name}
+{
+}
+TEMPLATE;
         
+        $this->exceptionTemplate = <<<TEMPLATE
+{php}
+{namespace}
+
+/**
+ * (eJinn Generated File, do not edit directly)
+{docblock}
+ */
+class {name} extends {extends}{implements}
+{
+
+    /**
+     * @var int
+     */
+    const ERROR_CODE = {code};
+
+    /**
+     *
+     * {@inheritDoc}
+     * @see {extends}::__construct()
+     */
+    public function __construct({construct_args})
+    {
+        parent::__construct({parent_args});
+    }
+}
+TEMPLATE;
+          
         if ($config) {
             $this->parse($config, $buildpath, $options);
         }
@@ -579,6 +617,7 @@ final class eJinnParser
         $pathname = $exception['pathname'];
         
         foreach ($exception['implements'] as &$implements) {
+            echo "$implements\n";
             $implements = '\\'.ltrim($implements, '\\');
             if (!interface_exists($implements)) {
                 throw new E\UnknownInterface("Interface class {$implements} not found");
@@ -795,16 +834,8 @@ final class eJinnParser
             $this->ckUnkownKeys("Namespace[$ns]", $config, $this->global, ['namespace' => false]);
                       
             $namespace = $this->compact($global, $config, ['namespace' => $ns]);
-            
-            //$this->debug($namespace);
 
-            if ($interfaces) {
-                //add defined interfaces to excpetions in this namespace
-                $implements = $this->parseInterfaces($interfaces, $namespace);
-            }
-            
             if ($exceptions) {
-                $namespace['implements'] = array_replace($namespace['implements'], $implements);
                 $this->parseExceptions($exceptions, $namespace);
             }
         }
