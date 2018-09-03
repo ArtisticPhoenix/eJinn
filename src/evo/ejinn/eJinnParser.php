@@ -543,6 +543,8 @@ TEMPLATE;
         $entities = [];
         
         foreach ($this->interfaces as $qName => $interface) {
+            $this->debug($qName, 'dev');
+
             $this->ckBuildPath($interface['name'], $interface['buildpath']);
             $this->buildInterface($interface);
         }
@@ -602,7 +604,10 @@ TEMPLATE;
         
         if (file_put_contents($pathname, $tpl)) {
             $this->debug("Created Interface {$name} At {$pathname}", [__function__, 'dev']);
+            require_once $pathname;
         }
+        
+        
     }
     
     protected function buildException(array $exception)
@@ -834,6 +839,10 @@ TEMPLATE;
             $this->ckUnkownKeys("Namespace[$ns]", $config, $this->global, ['namespace' => false]);
                       
             $namespace = $this->compact($global, $config, ['namespace' => $ns]);
+            
+            if($interfaces){
+                $this->parseInterfaces($interfaces, $namespace);
+            }
 
             if ($exceptions) {
                 $this->parseExceptions($exceptions, $namespace);
