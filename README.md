@@ -286,7 +286,7 @@ The above configureation will create a single exception file, this will be creat
  - /home/app/Exceptions/UnknownError _( class \UnknownError errorCode 0)_
  
  ###Examples###
- __eJinn__ uses itself to create it's exception files.  You can view the config file at `src/eJinnConf.php` and you can see the files it created at `src/evo/ejinn/Exceptions`.  You can also run it through the main `index.php` file.
+ __eJinn__ uses itself to create it's exception files.  You can view the config file at `src/eJinnConf.php` and you can see the files it created at `src/evo/ejinn/Exceptions`.  You can also run it through the main `index.php` file.  I also plan to use this on my other projects!
  
 
 Still a work in progress.
@@ -300,4 +300,8 @@ Still a work in progress.
      * http interface
      * unit testing
      * documentation & examples (wikki)
+     
+Version change notes
+
+
      
