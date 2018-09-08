@@ -604,7 +604,8 @@ TEMPLATE;
         
         if (file_put_contents($pathname, $tpl)) {
             $this->debug("Created Interface {$name} At {$pathname}", [__function__, 'dev']);
-            require_once $pathname;
+            //HD - removed can cause issues if an interface is defined multiple times
+           // if(!interface_exists($interface['qualifiedname'])) require_once $pathname;
         }
         
         
@@ -624,9 +625,10 @@ TEMPLATE;
         foreach ($exception['implements'] as &$implements) {
             echo "$implements\n";
             $implements = '\\'.ltrim($implements, '\\');
-            if (!interface_exists($implements)) {
+            //HD - removed can cause issues if a interface is used multiple times
+            /*if (!interface_exists($implements, false)) {
                 throw new E\UnknownInterface("Interface class {$implements} not found");
-            }
+            }*/
         }
         
         $exception['implements'] = empty($exception['implements']) ? '' : ' implements '.implode(', ', $exception['implements']);
