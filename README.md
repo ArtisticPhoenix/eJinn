@@ -116,8 +116,8 @@ eJinn:Pathname     |  string  |   private   | class Path and filename
  code              |  integer |   ignored   | Not Aplicable to this entity type
  severity          |  integer |   ignored   | Not Aplicable to this entity type 
  message           |  string  |   ignored   | Not Aplicable to this entity type 
- extends           |  string  |   ignored   | Not Aplicable to this entity type 
- implements        |  array   |   ignored   | Not Aplicable to this entity type 
+ extends           |  string  |      no     | (see above) will overide above settings
+ implements        |  array   |      no     | (see above) will overide above settings
  
  - **buildpath** some special consideration for the _buildpath_ property:
      - The default value is the location of the configuration file currently being proccessed.

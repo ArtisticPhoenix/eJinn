@@ -76,8 +76,17 @@ final class eJinnParser
     protected $local = [
         "name"          => "",
         "code"          => false,
-        'message'       => ""
+        'message'       => "",
+      //  "line"          => "",
+      //  "file"          => "",
+        "extends"       => "",
+        "implements"    => ""
     ];
+    
+    /**
+     * these keys can only be used in "local" 
+     */
+    protected $onlyLocal = ["code", "message", "name", "severity", "line", "file"];
     
     /**
      * Keys that contain data appled to entities only
@@ -496,7 +505,7 @@ TEMPLATE;
             "Global Teir",
             $global,
             $this->containers,
-            $this->local,
+            $this->onlyLocal,
             $this->private
         );
         
@@ -833,7 +842,7 @@ TEMPLATE;
                 "Namespace[$ns]",
                 $config,
                 $this->containers,
-                $this->local,
+                $this->onlyLocal,
                 $this->private
             );
             
