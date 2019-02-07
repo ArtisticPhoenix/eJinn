@@ -75,10 +75,11 @@ Comment properties are properties that begin with a `_`.  These properties _(and
  Property          |   Type   |   Required  | Description
  ----------------- | -------- | ----------- | ------------------------------------------------------
  author            |  string  |     no      | Used as the `@author` tag in the Entity's Doc Comment.
+ license           |  string  |     no      | Used as the `@license` tag in the Entity's Doc Comment.
  buildpath         |  mixed   |     no      | * See below 
- description       |  string  |     no      | Placed in the opening line of the Entitie's Doc Comment.
- package           |  string  |     no      | Used as the `@package` tag.
- subPackage        |  string  |     no      | Used as the `@subpackage` tag.
+ description       |  string  |     no      | Placed in the opening line of the Entity's Doc Comment.
+ package           |  string  |     no      | Used as the `@package` tag in the Entity's Doc Comment.
+ subPackage        |  string  |     no      | Used as the `@subpackage` tag in the Entity's Doc Comment.
  support           |  string  |     no      | Used as the `@link` tag. This can be a URL or an Email. Support help for your project.               
  version           |  string  |     yes     | Used as the `@version` tag. Format `major.minor[.revision]`. __eJinn__ will recompile the classes if the version is changed.
  extends           |  string  |     no      | A base Exception class to extend, default is _PHP's_ `\Excption` class. This should be a fully qualified class name.

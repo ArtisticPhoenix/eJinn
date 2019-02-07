@@ -105,6 +105,7 @@ final class eJinnParser
     protected $global = [
         "author"        => "",
         "description"   => "",
+        "license"       => "",
         "package"       => "",
         "subpackage"    => "",
         "support"       => "",
@@ -141,6 +142,7 @@ final class eJinnParser
         "subpackage"            => " * @subpackage %s",
         "support"               => " * @link %s",
         "version"               => " * @version %s",
+        "license"               => " * @license %s",
         "ejinn:buildversion"    => " * @eJinn:buildVersion %s",
         "ejinn:buildtime"       => " * @eJinn:buildTime %s",
     ];
