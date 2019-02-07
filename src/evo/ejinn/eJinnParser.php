@@ -235,7 +235,7 @@ final class eJinnParser
  * (eJinn Generated File, do not edit directly)
 {docblock}
  */
-interface {name}
+interface {name} {extends}{implements}
 {
 }
 TEMPLATE;
@@ -597,18 +597,27 @@ TEMPLATE;
         
         $name = $interface['name'];
         
+        $extends = empty($interface['extends']) ? '' : "extends ".$interface['extends'];
+        
+        echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~';
+        print_r($extends);
+        
         $pathname = $interface['pathname'];
         
         $tpl = str_replace([
            '{php}',
            '{namespace}',
            '{docblock}',
-           '{name}'
+           '{name}',
+           '{extends}',
+           '{implements}'
         ], [
            '<?php',
            $namespace,
            $doc,
-           $name
+           $name,
+           $extends,
+            ''
         ], $tpl);
         
         if (file_put_contents($pathname, $tpl)) {
@@ -825,7 +834,7 @@ TEMPLATE;
             
             $ns = trim($ns, "\\");
             
-            $interfaces = $this->extractArrayElement('interfaces', $config);
+            $interfaces = $this->extractArrayElement('interfaces', $config); 
             
             $exceptions = $this->extractArrayElement('exceptions', $config);
 
@@ -871,11 +880,14 @@ TEMPLATE;
     protected function parseInterfaces(array $interfaces, array $namespace)
     {
         $implements = [];
+        //$namespace['extends'] = []; //<---
+        
         foreach ($interfaces as $interface) {
-            $interface = $this->parseEntity($interface, $namespace);
+            $interface = $this->parseEntity($interface, $namespace, true);
+            
             unset($interface['implements']);
             $implements[] = $interface['qualifiedname'];
-            
+
             $this->interfaces[$interface['qualifiedname']] = $interface;
         }
         return $implements;
@@ -913,7 +925,7 @@ TEMPLATE;
      * @param array $namespace
      * @return array
      */
-    protected function parseEntity($entity, array $namespace)
+    protected function parseEntity($entity, array $namespace, $interface=false)
     {
         if (!is_array($entity)) {
             $entity = ['name'=>$entity];
@@ -925,6 +937,15 @@ TEMPLATE;
             $this->containers,
             $this->private
         );
+        
+        if($interface){
+            unset(
+                $namespace['extends'],
+                $namespace['implements'],
+                $namespace['reserved']
+            );
+        }
+       // print_r($namespace);/**/
         
         //combine the namespace and entity
         $entity = $this->compact($namespace, $entity);
