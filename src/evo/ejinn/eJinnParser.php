@@ -1416,6 +1416,7 @@ TEMPLATE;
             }
         }
         
+        
         $key = array_map('strtolower', $key);
         
         if (!count(array_intersect($key, $this->options['debug']))) {
