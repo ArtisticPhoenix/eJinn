@@ -601,9 +601,6 @@ TEMPLATE;
         
         $extends = empty($interface['extends']) ? '' : "extends ".$interface['extends'];
         
-        echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~';
-        print_r($extends);
-        
         $pathname = $interface['pathname'];
         
         $tpl = str_replace([
@@ -643,7 +640,6 @@ TEMPLATE;
         $pathname = $exception['pathname'];
         
         foreach ($exception['implements'] as &$implements) {
-            echo "$implements\n";
             $implements = '\\'.ltrim($implements, '\\');
             //HD - removed can cause issues if a interface is used multiple times
             /*if (!interface_exists($implements, false)) {
@@ -766,7 +762,6 @@ TEMPLATE;
                     $construct_args[] = $type.$arg.$default;
                     $parent_args[] = '$'.$Arg->name;
                 } else {
-                    echo htmlentities($patt)."\n";
                     $this->debug(htmlentities($export), 'dev');
                     throw new E\ParseError('Could not parse extends, introspection error');
                 }
