@@ -1,9 +1,7 @@
 <?php
 namespace evo\ejinn;
 
-use evo\ejinn\exception as E;
-
-//use Evo\eJinn\Exception as E;
+use evo\exception as E;
 
 /**
  *
@@ -20,7 +18,7 @@ final class eJinnParser
 {
     
     /**
-     * Build versison of this parser
+     * Build version of this parser
      *
      * Placed in the compiled classes @ejinn:buildVersion doc tag
      * when the build version is changed this should force rebuild
@@ -28,53 +26,53 @@ final class eJinnParser
      *
      * @var string
      */
-    protected $buildVersion = '1.0.0';
+    protected string $buildVersion = '2.0.0';
     
     /**
      * Build time, the time the class was compiled on
      * This is placed in the @eJinn:buildTime doc tag
-     * Obvioulsy we don't want to rebuild when the build
-     * time changes
+     * Obviously we don't want to rebuild when the build
+     * time changes, this is just for informational purposes
      *
-     * @var double
+     * @var float
      */
-    protected $buildTime;
+    protected float $buildTime;
     
     /**
      *
      * @var string
      */
-    protected $basePath;
+    protected string $basePath;
     
     /**
-     * list of permitted options
-     *
+     * list of permitted options for the parser
      * @var array
      */
-    protected $defaultOptions = [
-        'forceunlock'       => false,
-        'forcerecompile'    => false,
-        'debug'             => ['dev'],  //"none" set to none in production
-        'createpaths'       => false,
-        'parseonly'         => false,
-        'lockfile'          => 'ejinn.lock',
-        'cachefile'         => 'ejinn.cache',
-        'uniqueexceptions'  => true,
+    protected array $defaultOptions = [
+        'forceUnlock'       => false,
+        'forceRecompile'    => false,
+        'debug'             => true,
+        'createPaths'       => false,
+        'parseOnly'         => false,
+        'lockFile'          => 'ejinn.lock',
+        'cacheFile'         => 'ejinn.cache',
+        'uniqueExceptions'  => true,
     ];
-    
+
     /**
      * runtime options
      *
      * @var array
      */
-    protected $options = [];
-    
+    protected array $options = [];
+
     /**
-     * Keys that contain loclized data
+     * Keys that contain localized data
      * @var array
      */
-    protected $local = [
+    protected array $local = [
         "name"          => "",
+        "description"   => "",
         "code"          => false,
         'message'       => "",
       //  "line"          => "",
@@ -82,27 +80,27 @@ final class eJinnParser
         "extends"       => "",
         "implements"    => ""
     ];
-    
+
     /**
-     * these keys can only be used in "local" 
+     * these keys can only be used in "local"
      */
-    protected $onlyLocal = ["code", "message", "name", "severity", "line", "file"];
-    
+    protected array $onlyLocal = ["code", "message", "name", "severity", "line", "file"];
+
     /**
-     * Keys that contain data appled to entities only
+     * Keys that contain data applied to entities only
      * @var array
      */
-    protected $containers = [
+    protected array $containers = [
         "namespaces"    => [],
         "interfaces"    => [],
         "exceptions"    => []
     ];
 
     /**
-     * Keys that contain data applied gobaly
+     * Keys that contain data applied globally
      * @var array
      */
-    protected $global = [
+    protected array $global = [
         "author"        => "",
         "description"   => "",
         "license"       => "",
@@ -116,120 +114,133 @@ final class eJinnParser
         'implements'    => [],
         "reserved"      => []
     ];
-    
+
     /**
      *
      * @var array
      */
-    protected $private = [
+    protected array $private = [
         'psr'                   => false,
         'namespace'             => '',
         'pathname'              => '',
-        'ejinn:buildversion'    => '',
-        'ejinn:buildtime'       => '',
+        'ejinn:buildVersion'    => '',
+        'ejinn:buildTime'       => '',
         'ejinn:pathname'        => '',
         'qname'                 => ''
     ];
-      
+
     /**
      * Doc comment format (template)
      * @var array
      */
-    protected $doc = [
-        "description"           => " * %s\n *",
+    protected array $doc = [
+        "description"           => " * %s",
         "author"                => " * @author %s",
         "package"               => " * @package %s",
         "subpackage"            => " * @subpackage %s",
         "support"               => " * @link %s",
         "version"               => " * @version %s",
         "license"               => " * @license %s",
-        "ejinn:buildversion"    => " * @eJinn:buildVersion %s",
-        "ejinn:buildtime"       => " * @eJinn:buildTime %s",
+        "ejinn:buildVersion"    => " * @eJinn:buildVersion %s",
+        "ejinn:buildTime"       => " * @eJinn:buildTime %s",
     ];
-     
-    /**
-     * an array containing ($global, $contianers, $local)
-     * @var array
-     */
-    protected $allKeys = [];
 
     /**
-     *
+     * an array containing ($global, $containers, $local)
      * @var array
      */
-    protected $reserved = [];
-    
+    protected array $allKeys = [];
+
+    /**
+     * reserved code numbers
+     * @var array
+     */
+    protected array $reserved = [];
+
     /**
      * keep only 0 and '0', not these
-     * becuase this is in a recursive function
+     * because this is in a recursive function
      * it may be better to have a property then
      * hardcoded array
      *
      * @var array
      */
-    protected $nonReserve = [null,'',false];
-    
+    protected array $nonReserve = [null,'',false];
+
     /**
      *
      * @var array
      */
-    protected $exceptions = [];
-    
+    protected array $exceptions = [];
+
     /**
      *
      * @var array
      */
-    protected $interfaces = [];
-    
+    protected array $interfaces = [];
+
+    /**
+     * Constructor argument cache
+     * @var array
+     */
+    protected array $introspectionCache = [
+        'Error' => [
+            'construct_args' => '$message = "{message}", $code = {code}, \Throwable $previous = null',
+            'parent_args' => '$message, $code, $previous'
+        ],'ErrorException' => [
+            'construct_args' => '$message = "{message}", $code = {code}, $severity = {severity}, $filename =null, $lineno = null, \Throwable $previous = null',
+            'parent_args' => '$message, $code, $severity, $filename, $lineno, $previous'
+        ],'Exception' => [
+            'construct_args' => '$message = "{message}", $code = {code}, \Throwable $previous = null',
+            'parent_args' => '$message, $code, $previous'
+        ]
+    ];
+
     /**
      *
      * @var array
      */
-    protected $files = [];
-    
+    protected array $files = [];
+
     /**
      *
      * @var string
      */
-    protected $lockFile;
-    
+    protected string $lockFile;
+
     /**
      *
      * @var string
      */
-    protected $cacheFile;
-    
+    protected string $cacheFile;
+
     /**
      *
      * @var string
      */
-    protected $cacheHash;
-    
+    protected string $cacheHash;
+
     /**
      *
      * @var string
      */
-    protected $interfaceTemplate;
-    
+    protected string $interfaceTemplate;
+
     /**
      *
      * @var string
      */
-    protected $exceptionTemplate;
-    
+    protected string $exceptionTemplate;
+
     /**
+     * @param array|null $config
+     * @param string|null $buildpath
+     * @param array $options
      *
-     * @var array
      */
-    protected $introspectionCache = [];
-    
-    /**
-     *
-     * @param array $config - either an array config or a json config
-     */
-    public function __construct(array $config = null, $buildpath = null, array $options = [])
+    public function __construct(?array $config = null, ?string $buildpath = null, array $options = [])
     {
-        $this->interfaceTemplate = <<<TEMPLATE
+        $this->interfaceTemplate = <<<TPL
 {php}
 {namespace}
 
@@ -240,9 +251,9 @@ final class eJinnParser
 interface {name} {extends}{implements}
 {
 }
-TEMPLATE;
-        
-        $this->exceptionTemplate = <<<TEMPLATE
+TPL;
+
+        $this->exceptionTemplate = <<<TPL
 {php}
 {namespace}
 
@@ -254,9 +265,10 @@ class {name} extends {extends}{implements}
 {
 
     /**
+     * For easier access to the error code
      * @var int
      */
-    const ERROR_CODE = {code};
+    const int ERROR_CODE = {code};
 
     /**
      *
@@ -268,51 +280,49 @@ class {name} extends {extends}{implements}
         parent::__construct({parent_args});
     }
 }
-TEMPLATE;
-          
+TPL;
         if ($config) {
             $this->parse($config, $buildpath, $options);
         }
     }
-    
+
     /**
      * reset the class
-     *
-     * @todo update this
-     *
-     * The generator is a 2 step process
+
+     * The generator is a 2-step process
      * 1. Parsing - validates and compiles the config
      * 2. Building - outputs the interface and exception classes
-     *
+     * @return $this
      */
-    public function reset()
+    public function reset(): self
     {
-        $this->reserved = [];
-        $this->exceptions = [];
-        $this->interfaces = [];
-        $this->buildTime = microtime(true);
-        $this->basePath = '';
-        $this->options = [];
-        $this->files = [];
-        $this->lockFile = null;
-        $this->cacheFile = null;
-        $this->cacheHash = null;
+        $this->reserved     = [];
+        $this->exceptions   = [];
+        $this->interfaces   = [];
+        $this->buildTime    = microtime(true);
+        $this->basePath     = '';
+        $this->options      = [];
+        $this->files        = [];
+        $this->lockFile     = '';
+        $this->cacheFile    = '';
+        $this->cacheHash    = '';
+        return $this;
     }
-    
+
     /**
      * Global keys can be placed at almost any level
      * These are generic values that are passed down
      * through the configuration structure
      * @example
-     * 'buildpath' - all entities need a build path and often they all use the same one
+     * 'buildpath' - all entities need a build path, and often they all use the same one
      *
      * @return array
      */
-    public function getGlobal()
+    public function getGlobal(): array
     {
         return $this->global;
     }
-    
+
     /**
      * Container keys are place at only the top level, and the namespace level
      * These contain other parseable elements.
@@ -321,166 +331,162 @@ TEMPLATE;
      *
      * @return array
      */
-    public function getContainers()
+    public function getContainers(): array
     {
         return $this->containers;
     }
-    
+
     /**
      * Local keys can only be used at the Entity level
      * these are the most specific configuration options
      * @example
-     * 'name' - each entity has it's own name
+     * 'name' - each entity has its own name
      *
      * @return array
      */
-    public function getLocal()
+    public function getLocal(): array
     {
         return $this->local;
     }
-    
+
     /**
      * Return all possible keys exposed to the configuration
      *
      * @return array
      */
-    public function getAllKeys()
+    public function getAllKeys(): array
     {
         if (!$this->allKeys) {
             $this->allKeys = array_merge($this->global, $this->containers, $this->local);
         }
-        
+
         return $this->allKeys;
     }
- 
+
     /**
-     * set all options
-     *
      * @param array $options
+     * @return $this
      */
-    public function setOptions(array $options)
+    public function setOptions(array $options): self
     {
         //set defaults
         $this->options = $this->defaultOptions;
-        
         foreach ($options as $option => $value) {
             $this->setOption($option, $value);
         }
+        return $this;
     }
-    
+
     /**
      * set a single option
      *
      * @param string $option
      * @param mixed $value
+     * @return $this
+     *
+     * @throws E\OutOfBoundsException
      */
-    public function setOption($option, $value)
+    public function setOption(string $option, mixed $value): self
     {
-        $option = strtolower($option);
         switch ($option) {
-            case 'debug':
-                if (!is_array($value)) {
-                    $value = [$value];
-                }
-                //lowercase
-                array_walk($value, function (&$item) {
-                    $item = strtolower($item);
-                });
-            break;
-            case 'lockfile':
-            case 'cachefile':
-                //normalize directory seperator
+            case 'lockFile':
+            case 'cacheFile':
+                //normalize directory separator
                 $value = str_replace("\\", "/", $value);
            break;
         }
-        
+
         if (!isset($this->defaultOptions[$option])) {
-            throw new E\UnknownOption("Unknown option key '$option'");
+            throw new E\OutOfBoundsException("Unknown parser option key '$option'.");
         }
- 
+
         $this->options[$option] = $value;
+        return $this;
     }
-    
+
     /**
-     * return an options value, or return all options
+     * return all options
      *
      * @return array
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->options;
     }
-    
+
     /**
-     * return a single option's value
+     * Get a single parser option's value
      *
      * @param string $option - name of the option or null ( empty ) to return all options
-     * @param mixed $silent - if false an exception is thrown when $option is not set, otherwise false is returned
+     * @param bool $silent - if false an exception is thrown when $option is not set, otherwise false is returned
      * @return mixed
+     * @throws E\OutOfBoundsException
      */
-    public function getOption($option, $silent = false)
+    public function getOption(string $option, bool $silent = false) : mixed
     {
         if (!isset($this->options[$option])) {
             if (!$silent) {
-                throw new E\UnknownOption("Call to undefined option[$option]");
+                throw new E\OutOfBoundsException("Undefined option '$option'.");
             }
-            return false;
+            return null;
         }
         return $this->options[$option];
     }
-    
+
     /**
-     * Parse the eJinn config array
      *
      * @param array $config
-     * @param string $buildpath - basepath to build off of ( typically the base path of the config )
+     * @param string $buildpath
+     * @param array $options
+     * @return $this
      *
+     * @throws E\TypeError
+     * @throws E\RangeException
+     * @throws E\LockoutException
      */
-    public function parse(array $config, $buildpath, array $options = [])
+    public function parse(array $config, string $buildpath, array $options = []): self
     {
         //reset on a new parse call
         $this->reset();
-        
+
         //lowercase config keys -> except children of namespace.
         $eJinn = $this->recursiveArrayChangeKeyCase($config, CASE_LOWER, ['namespaces']);
-        
+
         if (!isset($config['options'])) {
             $config['options'] = [];
         }
-        
+
         $options = array_merge($config['options'], $options);
-        
+
         //validate options
         $this->setOptions($options);
-        
+
         unset($config['options']);
-        
-        //validate the base buildpath, ingore createpaths on the basepath
+
+        //validate the base buildpath, ignore create paths on the base path
         $this->ckBuildPath("Config Path", $buildpath, true);
-        
+
         //normalize paths should end with "/" and use Unix style DS
         $this->basePath = rtrim(str_replace("\\", "/", $buildpath), "/")."/";
-        
+
         //check if the process is locked
         if ($this->isLocked()) {
-            if (!$this->options['forceunlock']) {
-                throw new E\ProcessLocked("Process is locked for config {$this->basePath}");
+            if (!$this->options['forceUnlock']) {
+                throw new E\LockoutException("Process is locked for config $this->basePath, use option 'forceUnlock'.");
             }
-            $this->debug("Force unlock bypassing lock file", 'isLocked');
+            $this->debug("Force unlock bypassing lock file");
         }
-        
+
         //load and check the cache file for this config
         if ($this->loadAndCheckCache($config)) {
-            if (!$this->options['forcerecompile']) {
-                return false;
+            if (!$this->options['forceRecompile']) {
+                return $this;
             }
-            $this->debug("Force recompile bypassing cache", 'isLocked');
+            $this->debug("Force recompile bypassing cache");
         }
-        
+
         //lock the process
         $this->lock();
-        
-
 
         //pre-process the array recursively
         $eJinn = $this->parseRecursive($eJinn);
@@ -489,120 +495,124 @@ TEMPLATE;
         $this->reserved = array_unique($this->reserved);
         if (!empty($this->reserved) && !ctype_digit(implode($this->reserved))) {
             $this->debug($this->reserved);
-            throw new E\InvalidDataType("Reserved Error codes must be integers");
+            throw new E\TypeError("Reserved Error codes must be integers.");
         }
 
-        //Seperate the namespace container
+        //Separate the namespace container
         $namespaces = $this->extractArrayElement('namespaces', $eJinn);
-       
+
         if (!$namespaces) {
-            throw new E\MissingRequired("Namespaces element is required");
+            throw new E\RangeException("At least one Namespaces element is required.");
         }
-        
+
         //normalize merge global
         $global = array_replace($this->global, $eJinn);
-        
+
         //check for keys not allowed at this level
         $this->ckBannedKeys(
-            "Global Teir",
+            "Global Tier",
             $global,
             $this->containers,
             $this->onlyLocal,
             $this->private
         );
-        
-        //check for unkown keys at this level.
-        $this->ckUnkownKeys("Global Tier", $global, $this->global);
-               
+
+        //check for unknown keys at this level.
+        $this->ckUnknownKeys("Global Tier", $global, $this->global);
+
         //continue parsing
         $this->parseNamespaces($namespaces, $global);
-        
+
         //ck duplicate error codes & reserve error codes
         $usedCodes = array_column($this->exceptions, 'code');
         $this->ckDuplicateCodes($usedCodes);
         $this->ckReserveCodes($usedCodes);
-        
-        //Finished Parsing
-        
+        //----> Finished Parsing
+
         //Debugging
-        $this->debug($this->files, 'showFiles');
-        $this->debug($this->reserved, 'showReserved');
-        $this->debug($this->interfaces, 'showInterfaces');
-        $this->debug($this->exceptions, 'showException');
-        $this->debug([
-            'interfaces' => $this->interfaces,
-            'exceptions' => $this->exceptions
-        ], 'showEntities');
-        
-        $this->debug($this->options, 'dev');
-        
-        if (!$this->options['parseonly']) {
+        $this->debug($this->files);
+
+        //$this->debug($this->interfaces);
+        //$this->debug($this->exceptions);
+
+        if (!$this->options['parseOnly']) {
             $this->build();
             //save cache after building only
             $this->saveCache();
         }
-        
+
         //unlock no matter if parse only or build
         $this->unlock();
+        return $this;
     }
-    
+
     /**
      * create the files
+     * @return void
      */
-    protected function build()
+    protected function build(): void
     {
-        $entities = [];
-        
-        foreach ($this->interfaces as $qName => $interface) {
-            $this->debug($qName, 'dev');
-
+        foreach ($this->interfaces as $interface) {
             $this->ckBuildPath($interface['name'], $interface['buildpath']);
             $this->buildInterface($interface);
         }
-        
-        foreach ($this->exceptions as $qName => $exception) {
-            $this->debug($qName, 'dev');
-            
+
+        foreach ($this->exceptions as $exception) {
             $this->ckBuildPath($exception['name'], $exception['buildpath']);
             $this->buildException($exception);
         }
     }
-    
-    
+
     //========================================================//
     //                  PROTECTED BUILDER
     //========================================================//
-    protected function buildDoc(array $conf)
+    /**
+     * @param array $conf
+     * @return string
+     */
+    protected function buildDoc(array $conf): string
     {
         $doc = [];
-        
         foreach ($this->doc as $key=>$tpl) {
             if (isset($conf[$key])) {
-                $doc[] = sprintf($tpl, $conf[$key]);
+                $value = $conf[$key];
+                if('description' == $key){
+                    if(90 < strlen($value)) {
+                        $filter = [
+                            '/[\r\n]/' => ' ',
+                            '/\s{2,}/' => ' ',
+                            '/^\s*|\s*$/' => '',
+                        ];
+                        
+                        $value = preg_replace(array_keys($filter), $filter, $value);
+                        $value = wordwrap($value, 90, "\n * ");
+                    }
+                    $value .= "\n * ";
+                }
+                $doc[] = sprintf($tpl, $value);
             }
         }
-        
         return implode("\n", $doc);
     }
-    
+
     /**
-     *
      * @param array $interface
+     * @return void
      */
-    protected function buildInterface(array $interface)
+    protected function buildInterface(array $interface): void
     {
         $tpl = $this->interfaceTemplate;
-        
+
         $doc = $this->buildDoc($interface);
-        
+
         $namespace = empty($interface['namespace']) ? '' : "namespace {$interface['namespace']};";
-        
+
         $name = $interface['name'];
-        
+
         $extends = empty($interface['extends']) ? '' : "extends ".$interface['extends'];
-        
+
         $pathname = $interface['pathname'];
-        
+
         $tpl = str_replace([
            '{php}',
            '{namespace}',
@@ -618,37 +628,25 @@ TEMPLATE;
            $extends,
             ''
         ], $tpl);
-        
+
         if (file_put_contents($pathname, $tpl)) {
-            $this->debug("Created Interface {$name} At {$pathname}", [__function__, 'dev']);
-            //HD - removed can cause issues if an interface is defined multiple times
-           // if(!interface_exists($interface['qualifiedname'])) require_once $pathname;
+            $this->debug("Created Interface: $name At $pathname");
         }
-        
-        
     }
-    
-    protected function buildException(array $exception)
+
+    /**
+     * @param array $exception
+     * @return void
+     */
+    protected function buildException(array $exception): void
     {
         $tpl = $this->exceptionTemplate;
-        
-        $exception['namespace'] = empty($exception['namespace']) ? '' : 'namespace '.ltrim($exception['namespace'], '\\').';';
-        $exception['extends'] = '\\'.ltrim($exception['extends'], '\\');
-        
-        $name = $exception['name'];
-        
         $pathname = $exception['pathname'];
-        
-        foreach ($exception['implements'] as &$implements) {
-            $implements = '\\'.ltrim($implements, '\\');
-            //HD - removed can cause issues if a interface is used multiple times
-            /*if (!interface_exists($implements, false)) {
-                throw new E\UnknownInterface("Interface class {$implements} not found");
-            }*/
-        }
-        
+        $exception['namespace'] = empty($exception['namespace']) ? '' : 'namespace '.ltrim($exception['namespace'], '\\').';';
+
+        $name = $exception['name'];
         $exception['implements'] = empty($exception['implements']) ? '' : ' implements '.implode(', ', $exception['implements']);
-  
+
         //all exceptions must extend some base exception class
         $intro = $this->introspectExtendsConstruct($exception);
         $tpl = str_replace(
@@ -664,185 +662,94 @@ TEMPLATE;
           ],
           $tpl
         );
-        
+
         $exception['docblock'] = $this->buildDoc($exception);
 
         foreach ($exception as $key => $value) {
             if (is_array($value)) {
                 continue;
             }
-            
             $tpl = str_replace('{'.$key.'}', $value, $tpl);
         }
-        
-        $tpl = preg_replace('/\{\w+\}/', '', $tpl);
-        
+
+        $tpl = preg_replace('/\{\w+}/', '', $tpl);
+
         if (file_put_contents($pathname, $tpl)) {
-            $this->debug("Created Exception {$name} At {$pathname}", [__function__, 'dev']);
+            $this->debug("Created Exception: $name At $pathname");
         }
     }
-    
+
     /**
-     *
-     * @param $extends
-     * @throws \Exception
+     * @param array $exceptions
      * @return array
      */
-    protected function introspectExtendsConstruct($exception)
+    protected function introspectExtendsConstruct(array $exceptions): array
     {
-        $extends = $exception['extends'];
-        
-        $common_args = [
-            'message'   => [
-                'default' => ' = "{message}"'
-             ],
-            'code'      => [
-                'default' => ' = {code}'
-            ],
-            'previous'  => [
-                'type' => '\\Exception ',
-                'default' => ' = null',
-            ],
-            'filename'  => [
-                'default' => ' = null',
-            ],
-            'lineno'    => [
-                'default' => ' = null',
-            ],
-            'severity'  => [
-                'default' => ' = {severity}'
-            ]
-        ];
-        
-        if (!class_exists($extends)) {
-            throw new E\UnknownClass("Extends class {$extends} not found");
+        $extends = $exceptions['extends'];
+
+        if(is_a($extends, \Error::class, true)){
+            return $this->introspectionCache['Error'];
+        }else if(is_a($extends, \ErrorException::class, true)){
+            return $this->introspectionCache['ErrorException'];
+        }else{
+            return $this->introspectionCache['Exception'];
         }
-        
-        if (!isset($this->introspectionCache[$extends])) {
-            $construct_args = [];
-            $parent_args = [];
-            
-            $Method = new \ReflectionMethod($extends, '__construct');
-            
-            $Args = $Method->getParameters();
-            
-            foreach ($Args as $Arg) {
-                $export = \ReflectionParameter::export(
-                    array(
-                        $Arg->getDeclaringClass()->name,
-                        $Arg->getDeclaringFunction()->name
-                    ),
-                    $Arg->name,
-                    true
-                );
-                
-                //$patt = '/\[\s(?:\<\w+\>\s)(?P<type>\w+\s)?(?P<arg>\$'.$Arg->name.'.*?)\s\]$/i';
-                $patt = '/\[\s(?:\<\w+\>\s?)(?P<full>(?P<type>[\\\a-z0-9_]+)?(?:[^$]*)(?P<arg>\$'.$Arg->name.')(?P<default>\s=.+)?)\s]$/i';
-                if (preg_match($patt, $export, $match)) {
-                    $type = '';
-                    if (!empty($match['type'])) {
-                        $type = trim($match['type']);
-                        if (strtolower($type) != 'array') {
-                            $type = '\\'.$type;
-                        }
-                        $type .= ' ';
-                    }
-                    $arg = $match['arg'];
-                    $default = empty($match['default']) ? '' : $match['default'];
-                    
-                    if (isset($common_args[$Arg->name])) {
-                        if (empty($type) && isset($common_args[$Arg->name]['type'])) {
-                            $type = $common_args[$Arg->name]['type'];
-                        }
-                        if (empty($default)) {
-                            $default = $common_args[$Arg->name]['default'];
-                        }
-                    }
-                        
-                    $construct_args[] = $type.$arg.$default;
-                    $parent_args[] = '$'.$Arg->name;
-                } else {
-                    $this->debug(htmlentities($export), 'dev');
-                    throw new E\ParseError('Could not parse extends, introspection error');
-                }
-            }
-            
-            //cache it
-            $this->introspectionCache[$extends] = [
-                'construct_args' => implode(', ', $construct_args),
-                'parent_args' => implode(', ', $parent_args),
-            ];
-        }
-        return $this->introspectionCache[$extends];
     }
-    
-    protected function buildPath()
-    {
-    }
-    
+
     //========================================================//
     //                  PROTECTED PARSERS
     //========================================================//
-    
     /**
-     * preform transforms on the eJinn array recursivly
-     *
-     * @param array $array pass by refrence
-     * @param string $current
+     * @param array $array
+     * @return array
      */
-    protected function parseRecursive(array $array, $current = null)
+    protected function parseRecursive(array $array): array
     {
         $internal = [];
-        
+
         $this->preserveReservedCodes($array);
 
-        foreach ($array as $key=>$value) {
+        foreach ($array as $key => $value) {
             $key = (string)$key;
-            
-            if (substr($key, 0, 1) == '_') {
-                //remove elements and their decendants with an _
-                continue;
-            }
-            
-            if (is_array($value)) {
-                $value = $this->parseRecursive($value, $key); //recursive
-            }
-            
+            //remove elements and their descendants if they start with an '_' commented
+            if (str_starts_with($key, '_')) continue;
+
+            if (is_array($value)) $value = $this->parseRecursive($value); //recursive
+
             $internal[$key] = $value;
         }
-        
+
         return $internal;
     }
-    
+
     /**
-     * parse namespaces
-     *
      * @param array $namespaces
      * @param array $global
+     * @return void
+     *
+     * @throws E\ParseError
      */
-    protected function parseNamespaces(array $namespaces, array $global)
+    protected function parseNamespaces(array $namespaces, array $global): void
     {
         foreach ($namespaces as $ns => $config) {
             if (empty($config)) {
                 return;
             }
-            
-            $implements = [];
-            
+
             $ns = trim($ns, "\\");
-            
-            $interfaces = $this->extractArrayElement('interfaces', $config); 
-            
+
+            $interfaces = $this->extractArrayElement('interfaces', $config);
+
             $exceptions = $this->extractArrayElement('exceptions', $config);
 
             if (empty($interfaces) && empty($exceptions)) {
-                throw new E\MissingRequired("Namespace[$ns] must contain either interfaces or exceptions");
+                throw new E\ParseError("Namespace[$ns] must contain either interfaces or exceptions.");
             }
-                       
+
             if (empty($ns)) {
                 $ns = '\\';
             }
- 
+
             //check for keys not allowed at this level
             $this->ckBannedKeys(
                 "Namespace[$ns]",
@@ -851,90 +758,82 @@ TEMPLATE;
                 $this->onlyLocal,
                 $this->private
             );
-            
-            //check for unkown keys at this level.
-            $this->ckUnkownKeys("Namespace[$ns]", $config, $this->global, ['namespace' => false]);
-                      
+
+            //check for unknown keys at this level.
+            $this->ckUnknownKeys("Namespace[$ns]", $config, $this->global, ['namespace' => false]);
+
             $namespace = $this->compact($global, $config, ['namespace' => $ns]);
-            
-            if($interfaces){
-                $this->parseInterfaces($interfaces, $namespace);
-            }
 
-            if ($exceptions) {
-                $this->parseExceptions($exceptions, $namespace);
-            }
+            if($interfaces) $this->parseInterfaces($interfaces, $namespace);
+
+            if ($exceptions) $this->parseExceptions($exceptions, $namespace);
         }
     }
-    
+
     /**
-     * Parse an Interfaces block
-     *
      * @param array $interfaces
-     * @param array $namespace
-     * @return array an array of interfaces (fully qualified names)
-     */
-    protected function parseInterfaces(array $interfaces, array $namespace)
-    {
-        $implements = [];
-        //$namespace['extends'] = []; //<---
-        
-        foreach ($interfaces as $interface) {
-            $interface = $this->parseEntity($interface, $namespace, true);
-            
-            unset($interface['implements']);
-            $implements[] = $interface['qualifiedname'];
-
-            $this->interfaces[$interface['qualifiedname']] = $interface;
-        }
-        return $implements;
-    }
-    
-    /**
-     * parse an Excptions block
-     *
-     * @param array $exceptions
-     * @param array $namespace
-     */
-    protected function parseExceptions(array $exceptions, array $namespace)
-    {
-        foreach ($exceptions as $code => $exception) {
-            $exception = $this->parseEntity($exception, $namespace);
-            
-            if (!is_int($code)) {
-                throw new E\InvalidDataType("Exception[{$exception['namespace']}::{$exception['name']}] expected integer error code, given[{$code}]");
-            }
-            
-            
-
-            if (!isset($exception['code'])) {
-                $exception['code'] = $code;
-            }
-
-            $this->exceptions[$exception['qualifiedname']] = $exception;
-        }
-    }
-    
-    /**
-     * Parse an Entity ( Interface or Exception )
-     *
-     * @param mixed $entity
      * @param array $namespace
      * @return array
      */
-    protected function parseEntity($entity, array $namespace, $interface=false)
+    protected function parseInterfaces(array $interfaces, array $namespace): array
+    {
+        $implements = [];
+        //$namespace['extends'] = []; //<---
+
+        foreach ($interfaces as $interface) {
+            $interface = $this->parseEntity($interface, $namespace, true);
+
+            unset($interface['implements']);
+            $implements[] = $interface['qualifiedName'];
+
+            $this->interfaces[$interface['qualifiedName']] = $interface;
+        }
+        return $implements;
+    }
+
+    /**
+     * Parse an Exception
+     *
+     * @param array $exceptions
+     * @param array $namespace
+     * @return void
+     *
+     * @throws E\ParseError
+     */
+    protected function parseExceptions(array $exceptions, array $namespace): void
+    {
+        foreach ($exceptions as $code => $exception) {
+            $exception = $this->parseEntity($exception, $namespace);
+
+            if (!is_int($code)) throw new E\TypeError("Exception[{$exception['namespace']}::{$exception['name']}] expected integer code, given[".getType($code)."]");
+
+            if (!isset($exception['code'])) $exception['code'] = $code;
+
+            $this->exceptions[$exception['qualifiedName']] = $exception;
+        }
+    }
+
+    /**
+     * Parse an Entity ( Interface or Exception )
+     *
+     * @param string|array $entity
+     * @param array $namespace
+     * @param bool $interface
+     * @return array
+     */
+    protected function parseEntity(string|array $entity, array $namespace, bool $interface=false): array
     {
         if (!is_array($entity)) {
             $entity = ['name'=>$entity];
         }
-        
+
         $this->ckBannedKeys(
             "Entity[{$namespace['namespace']}::{$entity['name']}]",
             $entity,
             $this->containers,
             $this->private
         );
-        
+
         if($interface){
             unset(
                 $namespace['extends'],
@@ -942,130 +841,127 @@ TEMPLATE;
                 $namespace['reserved']
             );
         }
-       // print_r($namespace);/**/
-        
+
         //combine the namespace and entity
         $entity = $this->compact($namespace, $entity);
-                
+
         //parse the fully qualified name from the namespace and the name
         $entity = $this->parseName($entity);
-        
+
         //parse the pathname
         $entity = $this->parsePath($entity);
-        
+
         //add our build version
-        $entity['ejinn:buildversion'] = $this->buildVersion;
-        
+        $entity['ejinn:buildVersion'] = $this->buildVersion;
+
         //add our build time
-        $entity['ejinn:buildtime'] = $this->buildTime;
+        $entity['ejinn:buildTime'] = $this->buildTime;
 
         return $entity;
     }
-    
+
     /**
-     * Parse an name and a namespace
-     *
-     * This normalizes namespaces and creates a fully qualifed class name
+     * Parse a name and a namespace
+     * This normalizes namespaces and creates a fully qualified class name
      *
      * @param array $entity
-     * @param array $config
+     * @return array
+     *
+     * @throws E\ParseError
      */
-    protected function parseName(array $entity)
+    protected function parseName(array $entity): array
     {
         $ns = "\\";
-        
-        //Parsed names cannot contain \\, ie. they must be relative paths
-        if (false !== strpos($entity['name'], $ns)) {
+
+        //Parsed names cannot contain \\, i.e. they must be relative paths
+        if (str_contains($entity['name'], $ns)) {
             throw new E\ParseError("Entity name[{$entity['name']}] cannot contain a NS '$ns' IN ".__FILE__." ON ".__LINE__);
         }
-        
+
         $entity['namespace'] = trim($entity['namespace'], $ns);
-        
+
         if (!empty($entity['namespace'])) {
             $qName = $ns.$entity['namespace'].$ns.$entity['name'];
         } else {
             $qName = $ns.$entity['name'];
         }
-        
-        $entity['qualifiedname'] = $qName;
+
+        $entity['qualifiedName'] = $qName;
         return $entity;
     }
-    
+
     /**
-     *
-     * @param array $parent
-     * @param array $child
+     * @param array $entity
+     * @return array
      */
-    protected function parsePath($entity)
+    protected function parsePath(array $entity): array
     {
         if (isset($entity['psr']) && $entity['psr'] == '0') {
             $filename = str_replace('_', '/', $entity['name']);
-            //cant use the quilified name as the _ change is only in the name
+            //cant use the qualified name as the _ change is only in the name
             $filename = $entity['namespace'].'/'.$filename;
         } elseif (isset($entity['psr']) && $entity['psr'] == '4') {
-            $filename = $entity['qualifiedname'];
+            $filename = $entity['qualifiedName'];
         } else {
             $filename = $entity['name'];
         }
-        
+
         $pathname = $entity['buildpath'] . $filename . '.php';
-        
-        
-        
+
         //normalize to Unix style
         $pathname = str_replace("\\", "/", $pathname);
-        
+
         //replace any run on '/' just in case
         $pathname = preg_replace('/\/{2,}/', '/', $pathname);
-        
-        //noralize to the file
-        //$pathname = str_replace("/", DIRECTORY_SEPARATOR, $pathname);
-        
+
         $entity['buildpath'] = dirname($pathname)."/";
-        
+
         $this->files[] = $pathname;
 
         $entity['pathname'] = $pathname;
         return $entity;
     }
-    
+
     //========================================================//
     //                  HELPERS
     //========================================================//
-    
     /**
      * Compact 2 or more tiers
      *
      * inputs should be in the highest to lowest tiers.
      * Higher tiers will generally overwrite lower tiers
      *
-     * @param array ...$arrays
+     * @param array ...$arrays - one or more arrays to compact
      * @return array
      */
-    protected function compact(array ...$arrays)
+    protected function compact(array ...$arrays): array
     {
         if (1 == ($len = count($arrays))) {
             return reset($arrays);
         } //requires 2 or more arrays
 
         $compact = [];
-        
+
         $buildpath = $this->basePath;
         $psr = false;
-        
+
         for ($i=0; $i<$len; $i++) {
             if (isset($arrays[$i]['buildpath'])) {
                 $bp = $arrays[$i]['buildpath']; //localize
                 //if it's an array then check for PSR
                 if (is_array($bp)) {
-                    if (!isset($bp['psr']) || count($bp['psr']) != 1 || !preg_match('/^(0|4)$/', $bp['psr'])) {
-                        throw new E\ParseError("Invalid Buildpath: Array build path must be as follows ['psr'=>0] or ['psr'=>4]");
+                    if (
+                        !isset($bp['psr']) ||
+                        (is_array($bp['psr']) && count($bp['psr']) != 1) ||
+                        (!is_array($bp['psr']) && !preg_match('/^([04])$/', $bp['psr']))
+                    ) {
+                        throw new E\RangeException("Invalid Buildpath: Array build path must be as follows ['psr'=>0] or ['psr'=>4]");
                     }
                     $psr = $bp['psr'];
                 } else {
                     $bp = str_replace("\\", "/", $bp); //normalize the DS ( makes matching easier )
-                    
-                    //if not check if it's relative or absolute
+
+                    //if not, check if its relative or absolute
                     if (preg_match('/^([a-zA-Z]:\/|\/)/', $bp)) {
                         //if the patch starts with / Unix Absolute, if it starts with [a-z]:/ such as c:/ windows absolute
                         $buildpath = $bp; //make sure it ends with /
@@ -1075,41 +971,45 @@ TEMPLATE;
                     }
                 }
             }
-            
+
             $arrays[$i]['buildpath'] = rtrim($buildpath, "/"). "/"; //make sure it ends with a /
-            
+
             if (!isset($arrays[$i]['psr']) && $psr !== false) {
                 //don't overwrite psr - if it's present
                 $arrays[$i]['psr'] = $psr;
             }
             $compact = array_replace($compact, $arrays[$i]);
         }
-        
+
         return $compact;
     }
-    
+
     /**
-     * Seperate out and save any Reserved Error codes.
+     * Separate out and save any Reserved Error codes.
      *
-     * @param array $array
+     * @param array|null $array
+     * @return void
+     *
+     * @throws E\TypeError
+     * @throws E\LengthException
      */
-    protected function preserveReservedCodes(array &$array = null)
+    protected function preserveReservedCodes(array &$array = null): void
     {
         $reserved = $this->extractArrayElement('reserved', $array);
-        
+
         //ignore if reserved is empty
         if ($reserved === false) {
             return;
         }
-        
+
         if (!is_array($reserved)) {
-            throw new E\InvalidDataType("Expeted array for property reserved, given ".gettype($reserved));
+            throw new E\TypeError("Expected array for property 'reserved', given '".gettype($reserved)."'.");
         }
-        
+
         foreach ($reserved as $reserve) {
             if (is_array($reserve)) {
                 if (count($reserve) != 2) {
-                    throw new E\ParseError("Nested reserved must contain exactly 2 elements");
+                    throw new E\LengthException("Nested reserved codes must contain exactly 2 elements.");
                 }
                 $range = range(array_shift($reserve), array_shift($reserve));
                 $this->reserved += array_combine($range, $range);
@@ -1119,40 +1019,44 @@ TEMPLATE;
             }
         }
     }
-    
+
     /**
      * Cut an item for array, by key.
      *
      * returns the item on success, false on failure
-     * the oringal array is also modifed by removing the item
+     * the original array is also modified by removing the item
      *
      * @param string $key
      * @param array $array
-     * @return boolean|mixed
+     * @return mixed - false if the item is not found
      */
-    protected function extractArrayElement($key, array &$array)
+    protected function extractArrayElement(string $key, array &$array): mixed
     {
         if (!isset($array[$key])) {
             return false;
         }
-        
+
         $item = $array[$key];
         unset($array[$key]);
         return $item;
     }
-    
+
     /**
-     * Change the cassing of array keys recursivly ( normalization )
+     * Change the casing of array keys recursively ( normalization )
      *
      * @param array $array the input array
-     * @param string $case the case to change it to CASE_LOWER[default], or CASE_UPER
+     * @param int $case the case to change it to CASE_LOWER[default], or CASE_UPPER
      * @param array $exclude an array of keys who's nested array should not have the case changed
-     * @param string $current the current key, used for excluding the child keys
+     * @param string|null $current the current key, used for excluding the child keys
+     * @return array
      */
-    protected function recursiveArrayChangeKeyCase(array $array, $case = CASE_LOWER, array $exclude = [], $current = null)
-    {
+    protected function recursiveArrayChangeKeyCase(
+        array $array,
+        int $case = CASE_LOWER,
+        array $exclude = [],
+        ?string $current = null
+    ): array {
         if (!in_array($current, $exclude, true)) {
-            //           $this->debug($current);
             $array = array_change_key_case($array, $case);
         }
 
@@ -1163,132 +1067,143 @@ TEMPLATE;
         }
         return $array;
     }
-    
+
     //========================================================//
     //                  VALIDATORS
     //========================================================//
-    
+
     /**
      * check for keys not allowed at this level
      * check that input keys are not present in any controls
      *
-     * @param string $set indentifier for the level
+     * @param string $set
      * @param array $input
-     * @param array $control  ...variadic
+     * @param array ...$control
+     * @return void
      */
-    protected function ckBannedKeys($set, array $input, array ...$control)
+    protected function ckBannedKeys(string $set, array $input, array ...$control): void
     {
         $diff = array_diff_key($input, ...$control);
         if (count($diff) != count($input)) {
             $banned = array_diff_key($input, $diff);
             $s = count($banned) > 1 ? 's' : '';
-            
-            throw new E\ReservedKeyword("Reserved Key{$s} '".implode("', '", array_keys($banned))."' in $set");
+
+            throw new E\TypeError("Using reserved Key$s '".implode("', '", array_keys($banned))."' in $set");
         }
     }
-    
+
     /**
      * check for unknown keys
      * check that input keys are present in all controls
      *
-     * @param string $set indentifier for the level
+     * @param string $set identifier for the level
      * @param array $input
      * @param array $control
      */
-    protected function ckUnkownKeys($set, array $input, array ...$control)
+    protected function ckUnknownKeys(string $set, array $input, array ...$control): void
     {
         $diff = array_diff_key($input, ...$control);
         if (!empty($diff)) {
             $s = count($diff) > 1 ? 's' : '';
-            throw new E\UnknownKey("Unknown key{$s} '".implode("', '", array_keys($diff))."' in $set");
+            throw new E\OutOfBoundsException("Unknown key$s '".implode("', '", array_keys($diff))."' in $set");
         }
     }
-        
+
     /**
-     * Check for used Error codes present in the Reserved list
-     *
      * @param array $usedCodes
+     * @return void
      */
-    protected function ckReserveCodes(array $usedCodes)
+    protected function ckReserveCodes(array $usedCodes): void
     {
         $diff = array_intersect($usedCodes, $this->reserved);
 
         if (0 != ($len = count($diff))) {
             $s = ($len > 1) ? 's' : '';
-            $excptionIdx = array_keys($this->exceptions);
+            $exceptionIdx = array_keys($this->exceptions);
             foreach ($diff as $k=>&$v) {
-                $v = "{$excptionIdx[$k]}::$v";
+                $v = "$exceptionIdx[$k]::$v";
             }
-            throw new E\ReservedExceptionCode("Reserved Error Code{$s} used '".implode("','", $diff)."'");
+            throw new E\RangeException("Reserved Error Code$s used '".implode("','", $diff)."'");
         }
     }
-    
+
     /**
-     * Checked for Error Codes used more then once
-     *
+     * Check for Error Codes used more than once
      *
      * @param array $usedCodes
+     * @return void
+     *
+     * @throws E\RangeException
      */
-    protected function ckDuplicateCodes(array $usedCodes)
+    protected function ckDuplicateCodes(array $usedCodes): void
     {
-        if (!$this->options['uniqueexceptions']) {
+        if (!$this->options['uniqueExceptions']) {
             return;
         }
-        
-        
+
         //check for duplicate error codes
         $unique = array_unique($usedCodes);
         $diff = array_diff_assoc($usedCodes, $unique);
 
         if (0 != ($len = count($diff))) {
             $s = ($len > 1) ? 's' : '';
-            $excptionIdx = array_keys($this->exceptions);
+            $exceptionIdx = array_keys($this->exceptions);
             foreach ($diff as $k=>&$v) {
-                $v = "{$excptionIdx[$k]}::$v";
+                $v = "$exceptionIdx[$k]::$v";
             }
-            throw new E\DuplicateExceptionCode("Duplicate Error Code{$s} for '".implode("','", $diff)."'");
+            throw new E\RangeException("Duplicate Error Code$s for '".implode("','", $diff)."'");
         }
     }
-    
+
     /**
-     *
-     * @param string $title path title for debugging and error reporting
+     * @param string $title
      * @param string $path
-     * @param string $ignoreOptions when createpaths is set we ignore missing dirs
+     * @param bool $ignoreOptions
+     * @return bool
      */
-    protected function ckBuildPath($title, $path, $ignoreOptions = false)
+
+    /**
+     * @param string $title
+     * @param string $path
+     * @param bool $ignoreOptions
+     * @return bool
+     *
+     * @throws E\InvalidArgumentException
+     * @throws E\BadDirException
+     * @throws E\WritableDirException
+     */
+    protected function ckBuildPath(string $title, string $path, bool $ignoreOptions = false): bool
     {
         if (false !== strrchr($path, '.php')) {
-            throw new E\InvalidDataType("Invalid buildpath {$title} $path. Contains filename.");
+            throw new E\InvalidArgumentException("Invalid buildpath $title $path. Contains filename.");
         }
 
-        if (!$ignoreOptions && $this->options['createpaths']) {
+        if (!$ignoreOptions && $this->options['createPaths']) {
             return true;
         }
-        
+
         if (!file_exists($path)) {
-            throw new E\PathNotFound("Path {$title} $path not found.");
+            throw new E\BadDirException("Path $title $path not found.");
         }
         if (!is_writable($path)) {
-            throw new E\PathNotWritable("Path {$title} $path is not writable.");
+            throw new E\WritableDirException("Path $title $path is not writable.");
         }
-        
+
         return true;
     }
-    
+
     /**
-     * Lock file can be set in options['lockfile'], this can be either a filename
-     * which will use the basePath ( default build path ) or this can be a full path.
-     *
      * @return string
+     *
+     * @throws E\ValueError
      */
-    public function getLockFile()
+    public function getLockFile(): string
     {
         if (!$this->lockFile) {
-            $oLockFile = $this->options['lockfile'];
-            
+            $oLockFile = $this->options['lockFile'];
+
             if (empty($oLockFile)) {
-                throw new E\InvalidDataType('Option[lockFile] cannot be empty');
+                throw new E\ValueError('Option[lockFile] cannot be empty');
             }
 
             if (preg_match('/\//', $oLockFile)) {
@@ -1298,73 +1213,62 @@ TEMPLATE;
                 $this->lockFile = $this->basePath.$oLockFile;
             }
         }
-        
+
         return $this->lockFile;
     }
-    
+
     /**
      * Check if the process is locked
-     * @return boolean
+     *
+     * @return bool
      */
-    public function isLocked()
+    public function isLocked(): bool
     {
         $lockFile = $this->getLockFile();
-        
+
         if (file_exists($lockFile)) {
-            $this->debug("Config is Locked, with file $lockFile", 'isLocked');
             return true;
         }
-        $this->debug("eJinn config is not locked", 'isLocked');
+
         return false;
     }
-    
+
     /**
-     * Lock the process
-     * @throws \Exception
+     * @return void
      */
-    protected function lock()
+    protected function lock(): void
     {
         $lockFile = $this->getLockFile();
-        $this->debug("UnLock: $lockFile", __FUNCTION__);
-        
+
         $lockPath = dirname($lockFile);
-        
-        if (!is_dir($lockPath)) {
-            throw new E\PathNotFound("Path not found $lockPath");
-        }
-        
-        if (!is_writable($lockPath)) {
-            throw new E\PathNotWritable("Path not writable $lockPath");
-        }
-        
-        if (!@file_put_contents($lockFile, time())) {
-            throw new E\CouldNotCreateFile("Unable to create lock file $lockfile");
-        }
+
+        if (!is_dir($lockPath))  throw new E\BadDirException("Path not found $lockPath");
+        if (!is_writable($lockPath)) throw new E\WritableDirException("Path not writable $lockPath");
+        if (!@file_put_contents($lockFile, time())) throw new E\BadFileException("Unable to create lock file $lockFile");
     }
-    
+
     /**
-     * Unlock the process
+     * @return void
      */
-    protected function unlock()
+    protected function unlock(): void
     {
         $lockFile = $this->getLockFile();
-        $this->debug("Unlock: $lockFile", __FUNCTION__);
+        $this->debug("Unlock: $lockFile");
         unlink($lockFile);
     }
-    
+
     /**
-     *
-     * @throws \Exception
+     * @param array $config
+     * @return bool
      */
-    protected function loadAndCheckCache($config)
+    protected function loadAndCheckCache(array $config): bool
     {
         $this->cacheHash = 'v{'.$this->buildVersion.'}::'.sha1(var_export($config, true));
-        $this->debug($this->cacheHash, 'ConfigHash');
-        
-        $oCacheFile = $this->options['cachefile'];
+
+        $oCacheFile = $this->options['cacheFile'];
         
         if (empty($oCacheFile)) {
-            throw new E\InvalidDataType('Option[cacheFile] cannot be empty');
+            throw new E\ValueError('Option[cacheFile] cannot be empty');
         }
         
         if (preg_match('/\//', $oCacheFile)) {
@@ -1375,74 +1279,51 @@ TEMPLATE;
         
         $this->cacheFile = $oCacheFile;
 
-        $this->debug("Load cache file: {$this->cacheFile}", ['loadCache']);
-
         if (file_exists($this->cacheFile)) {
-            $chachedHash = file_get_contents($this->cacheFile);
-            
-            if ($this->cacheHash == $chachedHash) {
-                $this->debug("eJinn config is cached", 'isCached');
+            if ($this->cacheHash == file_get_contents($this->cacheFile)) {
                 return true;
             }
         }
-        $this->debug("eJinn config is not cached", 'isCached');
+
         return false;
     }
-    
-    protected function saveCache()
+
+    /**
+     * @return void
+     */
+    protected function saveCache(): void
     {
         file_put_contents($this->cacheFile, $this->cacheHash);
     }
     
     /**
-     * simple debug function  ( mainly for development )
-     *
-     * @param string $message
-     * @param mixed $key
+     * @param mixed $message
+     * @return void
      */
-    protected function debug($message, $key = ['dev'])
+    protected function debug(mixed $message) : void
     {
-        $trace = $this->debugTrace(1);
+        if(!$this->options['debug']) return;
 
-        if (!$key) {
-            $key = [$trace['function']];
-        } else {
-            if (!is_array($key)) {
-                $key = [$key];
-            }
-            //make sure the function is always a debug key
-            if (!in_array($trace['function'], $key)) {
-                $key[] = $trace['function'];
-            }
-        }
-        
-        
-        
-        $key = array_map('strtolower', $key);
-        
-        if (!count(array_intersect($key, $this->options['debug']))) {
-            return;
-        }
+        $trace = $this->debugTrace(1);
 
         $elapsed = number_format((microtime(true) - $this->buildTime), 5);
         $o = [];
         $o[] = str_pad(" ".__CLASS__." ", 100, "=", STR_PAD_BOTH);
-        $o[] = str_pad("[{$elapsed}/s] in {$trace['file']} on {$trace['line']}", 100, " ", STR_PAD_BOTH);
+        $o[] = str_pad("[$elapsed/s] in {$trace['file']} on {$trace['line']}", 100, " ", STR_PAD_BOTH);
         $o[] = str_pad(" {$trace['function']} ", 100, "=", STR_PAD_BOTH);
         $o[] = var_export($message, true);
         $o[] = str_pad("", 100, "-", STR_PAD_BOTH);
         
         echo implode("\n", $o)."\n\n";
     }
-    
-    
+
     /**
-     * get the line this function was called from ( $offset )
+     * get the line this function was called from ( $offset ) for debugging
      *
-     * @param number $offset
+     * @param int $offset
      * @return array
      */
-    public static function debugTrace($offset = 0)
+    public static function debugTrace(int $offset = 0): array
     {
         ++$offset; //add one for this methods call
         

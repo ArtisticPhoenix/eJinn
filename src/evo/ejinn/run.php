@@ -1,9 +1,11 @@
-<?php 
+<?php
 use evo\ejinn\eJinnParser;
-use evo\ejinn\exception\InvalidDataType;
-use evo\ejinn\exception\InvalidConfigFile;
+use evo\exception as E;
 
 require_once EVO_AUTOLOAD;
+if(class_exists('\\evo\\debug\\Debug')){
+    \evo\debug\Debug::regesterFunctions();
+}
 
 if (isset($_GET['rebuild'])) {
     $path = __DIR__.'/eJinnConf.php';
@@ -17,10 +19,12 @@ if (isset($_GET['rebuild'])) {
     $path = EJINN_CONF_PATH;
 }
 
+//$buildpath = $_GET['buildpath'] : filter_var($_GET['buildpath'], FILTER_FLAG_PATH_REQUIRED
+
 if (is_file($path)) {
     $conf = require $path;
     if (!is_array($conf)) {
-        throw new InvalidDataType("Expected config as an array");
+        throw new E\In("Expected config as an array");
     }
     
     $options = [
@@ -31,9 +35,8 @@ if (is_file($path)) {
         //'uniqueexceptions'  => false,
         //'parseOnly'  => true,
     ];
-    
-    
-    $Generator = new eJinnParser($conf, dirname($path), $options);
+
+    new eJinnParser($conf, dirname($path), $options);
 } else {
-    throw new InvalidConfigFile($path);
+    die("Config file not found: ".$path);
 }

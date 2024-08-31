@@ -11,7 +11,8 @@
 		}
 	},
 	"require" : {
-		"php" : ">=5.6"
+		"php" : ">=8.3",
+		"evo/debug": "@stable"
 	},
 	"support" : {
 		"email" : "artisticphoenix@gmail.com",
