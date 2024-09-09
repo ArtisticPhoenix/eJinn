@@ -12,10 +12,9 @@
 	},
 	"require" : {
 		"php" : ">=8.3",
-		"evo/debug": "@stable"
+		"evo/exception": "@stable"
 	},
 	"support" : {
-		"email" : "artisticphoenix@gmail.com",
 		"source" : "https://github.com/ArtisticPhoenix/eJinn.git",
 		"issues" : "https://github.com/ArtisticPhoenix/eJinn/issues",
 		"wiki" : "https://github.com/ArtisticPhoenix/eJinn/wiki"
@@ -23,8 +22,7 @@
 	"type" : "library",
 	"authors" : [{
 			"name" : "Hugh Durham III",
-			"email" : "artisticphoenix@gmail.com",
-			"homepage" : "http://www.artisticphoenix.com",
+			"homepage" : "https://github.com/ArtisticPhoenix/",
 			"role" : "Author"
 		}
 	],
