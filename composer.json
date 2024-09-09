@@ -12,7 +12,7 @@
 	},
 	"require" : {
 		"php" : ">=8.3",
-		"evo/exception": "@stable"
+		"evo/debug": "@stable"
 	},
 	"support" : {
 		"source" : "https://github.com/ArtisticPhoenix/eJinn.git",
@@ -22,7 +22,6 @@
 	"type" : "library",
 	"authors" : [{
 			"name" : "Hugh Durham III",
-			"homepage" : "https://github.com/ArtisticPhoenix/",
 			"role" : "Author"
 		}
 	],
