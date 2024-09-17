@@ -272,12 +272,12 @@ class {name} extends {extends}{implements}
 
     /**
      *
-     * {@inheritDoc}
      * @see {extends}::__construct()
      */
+    #[\Override]
     public function __construct({construct_args})
     {
-        parent::__construct({parent_args});
+        parent::__construct(...func_get_args());
     }
 }
 TPL;
@@ -294,7 +294,8 @@ TPL;
      * 2. Building - outputs the interface and exception classes
      * @return $this
      */
-    public function reset(): self
+
+  public function reset(): self
     {
         $this->reserved     = [];
         $this->exceptions   = [];
@@ -645,6 +646,7 @@ TPL;
         $exception['namespace'] = empty($exception['namespace']) ? '' : 'namespace '.ltrim($exception['namespace'], '\\').';';
 
         $name = $exception['name'];
+        if($exception['implements'] && !is_array($exception['implements'])) $exception['implements'] = [$exception['implements']];
         $exception['implements'] = empty($exception['implements']) ? '' : ' implements '.implode(', ', $exception['implements']);
 
         //all exceptions must extend some base exception class
