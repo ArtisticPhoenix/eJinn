@@ -274,7 +274,6 @@ class {name} extends {extends}{implements}
      *
      * @see {extends}::__construct()
      */
-    #[\Override]
     public function __construct({construct_args})
     {
         parent::__construct(...func_get_args());
