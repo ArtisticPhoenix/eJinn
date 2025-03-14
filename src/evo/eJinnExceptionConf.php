@@ -1,4 +1,9 @@
 <?php
+/*
+ * http://localhost/evo/ejinn?config=C:\UniserverZ\www\evo\eJinn\src\evo\eJinnExceptionConf.php
+ * http://localhost/evo/ejinn?config=C:\UniserverZ\www\evo\eJinn\src\evo\eJinnExceptionConf.php&parseOnly=1&export=1
+ */
+
 return [
     "author"        => "ArtisticPhoenix",
     "description"   => "eJinn The Exception Genie!!",

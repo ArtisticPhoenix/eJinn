@@ -26,7 +26,7 @@ final class eJinnParser
      *
      * @var string
      */
-    protected string $buildVersion = '2.0.0';
+    protected string $buildVersion = '2.1.0';
     
     /**
      * Build time, the time the class was compiled on
@@ -54,6 +54,7 @@ final class eJinnParser
         'debug'             => true,
         'createPaths'       => false,
         'parseOnly'         => false,
+        'export'            => false,
         'lockFile'          => 'ejinn.lock',
         'cacheFile'         => 'ejinn.cache',
         'uniqueExceptions'  => true,
@@ -539,6 +540,13 @@ TPL;
             $this->build();
             //save cache after building only
             $this->saveCache();
+        }
+
+        if ($export = $this->options['export']) {
+            $export = !is_file($export) ? $this->basePath."ejinn_export.php" : str_replace("\\","/",$export);
+            $exceptions = var_export($this->exceptions, true);
+            file_put_contents($export, "<?php\nreturn $exceptions;");
+            $this->debug("Exported Exceptions to $export");
         }
 
         //unlock no matter if parse only or build

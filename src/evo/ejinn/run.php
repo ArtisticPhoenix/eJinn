@@ -24,16 +24,19 @@ if (isset($_GET['rebuild'])) {
 if (is_file($path)) {
     $conf = require $path;
     if (!is_array($conf)) {
-        throw new E\In("Expected config as an array");
+        throw new E\ResourceException("Invalid config file: $path");
     }
-    
+
     $options = [
-        'forceUnlock'       => true,
-        'forceRecompile'    => true,
-        'debug'             => ['dev','isCached','isLocked','showFiles'],
-        //'createPaths'       => true,
-        //'uniqueexceptions'  => false,
-        //'parseOnly'  => true,
+        'forceUnlock'       => $_GET['forceUnlock'] ?? true,
+        'forceRecompile'    => $_GET['forceRecompile'] ?? true,
+        'debug'             => $_GET['debug'] ?? true,
+        'createPaths'       => $_GET['createPaths'] ?? false,
+        'parseOnly'         => $_GET['parseOnly'] ?? false,
+        'export'            => $_GET['export'] ?? false,
+        'lockFile'          => $_GET['lockFile'] ?? 'ejinn.lock',
+        'cacheFile'         => $_GET['cacheFile'] ?? 'ejinn.cache',
+        'uniqueExceptions'  => $_GET['uniqueExceptions'] ?? true,
     ];
 
     new eJinnParser($conf, dirname($path), $options);
