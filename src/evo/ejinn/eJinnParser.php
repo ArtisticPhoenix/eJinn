@@ -544,6 +544,11 @@ TPL;
 
         if ($export = $this->options['export']) {
             $export = !is_file($export) ? $this->basePath."ejinn_export.php" : str_replace("\\","/",$export);
+
+            if(!preg_match('/\.php$/', $export)){
+                $export .= '.php';
+            }
+
             $exceptions = var_export($this->exceptions, true);
             file_put_contents($export, "<?php\nreturn $exceptions;");
             $this->debug("Exported Exceptions to $export");
