@@ -12,7 +12,6 @@ use evo\exception as E;
  * @author HughDurham {ArtisticPhoenix}
  * @package Evo
  * @subpackage eJinn
- *
  */
 final class eJinnParser
 {
