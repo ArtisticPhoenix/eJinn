@@ -277,7 +277,7 @@ class {name} extends {extends}{implements}
      */
     public function __construct({construct_args})
     {
-        parent::__construct(...func_get_args());
+        parent::__construct({parent_args});
     }
 }
 TPL;
